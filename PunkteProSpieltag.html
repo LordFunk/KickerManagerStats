@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Points Per Game Day</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 70vh;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <h1>Punkte je Spieltag</h1>
+    <div class="chart-container">
+        <canvas id="pointsChart"></canvas>
+    </div>
+
+    <script>
+        const playerData = {
+            'Markus': [59, 82, 65, 33, 59, 67, 36, 26, 45, 41, 12, 29, 53, 39, 16, 60, 66, 56, 64],
+            'Erwin': [51, 81, 58, 71, 55, 40, 49, 30, 69, 43, 62, 48, 50, 37, 43, 66, 45, 65, 81],
+            'Phil': [61, 70, 26, 75, 57, 83, 1, 36, 34, 59, 49, 104, 60, 77, 16, 64, 88, 39, 70],
+            'Didi': [40, 20, 32, 18, 68, 12, 33, 22, 10, 30, 35, 30, 27, 30, 14, 43, 35, 32, 51],
+            'Steffo': [49, 56, 64, 54, 37, 47, 20, 46, 35, 65, 56, 50, 63, 22, 32, 28, 37, 31, 40],
+            'Basti': [52, 46, 23, 14, 71, 41, 46, 29, 35, 46, 18, 47, 56, 46, 43, 69, 43, 27, 46],
+            'Eirik': [66, 42, 56, 28, 58, 45, 42, 50, 45, 31, 56, 37, 38, 24, 31, 39, 38, 61, 48],
+            'Emil': [67, 87, 54, 57, 62, 48, 46, 43, 75, 53, 60, 34, 38, 64, 35, 67, 69, 63, 62],
+            'Kempka': [47, 44, 73, 92, 53, 65, 29, 34, 30, 30, 22, 47, 73, 64, 39, 73, 65, 54, 54],
+            'Espen': [92, 97, 63, 61, 53, 74, 65, 68, 103, 72, 66, 68, 36, 73, 23, 79, 77, 49, 68],
+        };
+
+        // Define colors based on the previous color scheme
+        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'Cyan'];
+
+        const datasets = Object.keys(playerData).map((name, index) => ({
+            label: name,
+            data: playerData[name],
+            borderColor: colors[index], // Line color
+            backgroundColor: colors[index], // Fill color of points
+            fill: false,
+            pointBackgroundColor: colors[index], // Color of points
+            pointBorderColor: colors[index], // Border color of points
+            pointBorderWidth: 0, // Remove border around points
+            hidden: false
+        }));
+
+        const ctx = document.getElementById('pointsChart').getContext('2d');
+        const pointsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 34 }, (_, i) => `Game Day ${i + 1}`),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

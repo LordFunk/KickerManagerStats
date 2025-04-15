@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fieberkurve Legend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Saisonpunkte</h1>
+    <div class="chart-container">
+        <canvas id="fieberkurveChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const cumulativeData = [
+            [59, 51, 61, 40, 49, 52, 66, 67, 47, 92],  // Game Day 1
+			[141, 132, 131, 60, 105, 98, 108, 154, 91, 189],  // Game Day 2
+			[206, 190, 157, 92, 169, 121, 164, 208, 164, 252],  // Game Day 3
+			[239, 261, 232, 110, 223, 135, 192, 265, 256, 313],  // Game Day 4
+			[298, 316, 289, 178, 260, 206, 250, 327, 309, 366],  // Game Day 5
+			[365, 356, 372, 190, 307, 247, 295, 375, 374, 440],  // Game Day 6
+			[401, 405, 373, 223, 327, 293, 337, 421, 403, 505],  // Game Day 7
+			[427, 435, 409, 245, 373, 322, 387, 464, 437, 573],  // Game Day 8
+			[472, 504, 443, 255, 408, 357, 432, 539, 467, 676],  // Game Day 9		
+			[513, 547, 502, 290, 473, 403, 463, 592, 497, 748],  // Game Day 10
+			[525, 609, 551, 325, 529, 421, 519, 652, 519, 814],  // Game Day 11
+			[554, 657, 655, 355, 579, 468, 556, 686, 566, 882],  // Game Day 12
+			[607, 707, 715, 382, 642, 524, 594, 724, 639, 918],  // Game Day 13
+			[646, 744, 792, 412, 664, 570, 618, 783, 703, 991],  // Game Day 14
+			[662, 787, 808, 426, 696, 613, 649, 818, 742, 1014], // Game Day 15
+			[722, 853, 872, 469, 724, 682, 688, 885, 815, 1093], // Game Day 16
+			[788, 898, 960, 504, 761, 725, 726, 960, 880, 1170], // Game Day 17
+			[844, 963, 999, 536, 792, 752, 787, 1017, 934, 1219], // Game Day 18
+			[908, 1044, 1069, 587, 832, 798, 835, 1079, 988, 1287], // Game Day 19
+			[950, 1090, 1108, 618, 872, 830, 884, 1116, 1022, 1320],
+			[1017, 1174, 1177, 662, 931, 893, 932, 1171, 1072, 1367],
+			[1049, 1219, 1227, 702, 947, 948, 966, 1226, 1130, 1438],
+			[1101, 1281, 1265, 728, 973, 994, 1044, 1269, 1201, 1491],
+			[1165, 1335, 1329, 764, 1012, 1044, 1091, 1320, 1227, 1545],
+			[1219, 1360, 1373, 807, 1036, 1098, 1120, 1366, 1268, 1612],
+			[1286, 1426, 1421, 850, 1070, 1140, 1161, 1417, 1325, 1688],
+			[1333, 1463, 1444, 884, 1109, 1181, 1231, 1460, 1347, 1728],
+			[1380, 1519, 1482, 933, 1166, 1241, 1300, 1523, 1386, 1767],
+			[1447, 1579, 1547, 983, 1221, 1293, 1346, 1566, 1432, 1806],
+        ];
+
+        const players = ['Markus', 'Erwin', 'Phil', 'Didi', 'Steffo', 'Basti', 'Eirik', 'Emil', 'Kempka', 'Espen'];
+        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
+        const datasets = players.map((player, index) => ({
+            label: player,
+            data: cumulativeData.map(row => row[index]),
+            borderColor: colors[index],
+            backgroundColor: colors[index],
+            fill: false,
+            pointBackgroundColor: colors[index], // Color of points
+            pointBorderColor: colors[index], // Border color of points
+            pointBorderWidth: 0, // Remove border around points
+            hidden: false
+        }));
+
+        const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+        const fieberkurveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: cumulativeData.map((_, index) => `Game Day ${index + 1}`),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Game Day'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Cumulative Points'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
