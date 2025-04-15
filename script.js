@@ -14,7 +14,7 @@ const leaderboardData = [
 ];
 
 // Data for the highlights section
-const highlights 24/25 = [
+const highlights = [
     "Keine Spieltagssiege in der Saison von Emil Markus, Eirik, Steffo, Didi",			
     "Keine Spieltagsniederlagen von Espen, Emil, Erwin, Eirik,",
     "Höchste Spieltagspunkte von Phil mit 104 am 12. Spieltag",
