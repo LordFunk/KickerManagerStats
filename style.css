@@ -38,8 +38,29 @@ ul {
     list-style-type: none;
     padding: 0;
 }
+
 /* Remove bullets for empty list items */
 #highlight-list li:empty {
-    list-style-type: none;  /* No bullet dot */
-    margin-bottom: 10px;    /* Adds space below the empty item for separation */
+    list-style-type: none;
+    margin-bottom: 10px;
+}
+
+/* Mobile responsive styling */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; /* Less padding for smaller screens */
+    }
+
+    ul {
+        padding: 0 10px; /* Add padding on the sides to prevent text from touching the edges */
+    }
+
+    #highlight-list li {
+        word-wrap: break-word; /* Allow long words to break and wrap */
+        word-break: break-word; /* Ensure words break in long strings */
+    }
+
+    .highlight-container {
+        width: 100%; /* Ensure the container takes up full width */
+    }
 }
