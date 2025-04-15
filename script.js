@@ -63,7 +63,6 @@ const highlights = [
 	"",
 	
     "*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert"
-	"Seit der Saison gibt es Zwei punkte für eine Vorlage anstelle von Einem. Ist mir Wurst, werde das nicht neu nachrechnen!"
 ];
 
 // Populate leaderboard table
