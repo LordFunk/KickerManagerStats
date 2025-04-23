@@ -15,14 +15,14 @@ const leaderboardData = [
 
 // Data for the highlights section
 const highlights = [
-    "- Keine Spieltagssiege in der Saison von Emil, Markus, Eirik, Steffo, Didi",			
-    "- Keine Spieltagsniederlagen von Espen, Emil, Erwin, Eirik,",
+    "- Keine Spieltagssiege in der Saison von Emil, Steffo, Didi",			
+    "- Keine Spieltagsniederlagen von Emil, Erwin, Eirik,",
     "- Höchste Spieltagspunkte von Phil mit 104 am 12. Spieltag",
     "- Niedrigste Spieltagspunkte von Phil mit 1 am 7. Spieltag",
     "- 5 Spieltagssiege in Folge Espen",
-    "- 2 Spieltagsniederlagen in Folge von Markus, Basti, Didi",
+    "- 2 Spieltagsniederlagen in Folge von Markus, Basti, Didi, Steffo",
     "- Schlechtester Erster: Basti und Erwin mit 43 Punkten am 15. Spieltag",
-    "- Bester Letzter: Didi mit 40 Punkten am 1. Spieltag",
+    "- Bester Letzter: Didi mit 44 Punkten am 21. Spieltag",
     "- 8 Spieltagssiege von Espen",
     "- 8 Spieltagsniederlagen von Didi",
 	 "",
