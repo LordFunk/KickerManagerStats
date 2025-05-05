@@ -57,8 +57,6 @@
       function renderTable(data, title, highlightTop = false) {
         const sorted = [...data].sort((a, b) => b.points - a.points);
         const topScore = sorted.length > 0 ? sorted[0].points : null;
-        const secondScore = sorted.length > 1 ? sorted[1].points : null;
-        const thirdScore = sorted.length > 2 ? sorted[2].points : null;
 
         let html = `
           <div style="margin-bottom: 2rem;">
@@ -75,15 +73,10 @@
         `;
 
         sorted.forEach((entry, i) => {
-          let highlight = "";
-          if (highlightTop && entry.points === topScore) {
-            highlight = ' style="background-color: #fff9c4; font-weight: bold;"'; // Gold
-          } else if (highlightTop && entry.points === secondScore) {
-            highlight = ' style="background-color: #e0e0e0; font-weight: bold;"'; // Silver
-          } else if (highlightTop && entry.points === thirdScore) {
-            highlight = ' style="background-color: #cd7f32; font-weight: bold;"'; // Bronze
-          }
-
+          const highlight =
+            highlightTop && entry.points === topScore
+              ? ' style="background-color: #fff9c4; font-weight: bold;"'
+              : "";
           html += `
             <tr${highlight}>
               <td style="padding: 0.5rem;">${i + 1}</td>
