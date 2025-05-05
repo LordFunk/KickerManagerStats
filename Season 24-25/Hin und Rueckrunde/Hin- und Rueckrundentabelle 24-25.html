@@ -11,23 +11,53 @@
     <div id="tables"></div>
 
     <script>
-      const hinrunde = [
-        { name: "Espen", points: 1170 },
-        { name: "Phil", points: 960 },
-        { name: "Emil", points: 954 },
-        { name: "Erwin", points: 898 },
-        { name: "Kempka", points: 880 },
-        { name: "Markus", points: 788 },
-        { name: "Steffen", points: 761 },
-        { name: "Eirik", points: 726 },
-        { name: "Basti", points: 725 },
-        { name: "Didi", points: 504 },
-      ];
+      const pointsAfter17 = {
+        Espen: 1170,
+        Phil: 960,
+        Emil: 954,
+        Erwin: 898,
+        Kempka: 880,
+        Markus: 788,
+        Steffen: 761,
+        Eirik: 726,
+        Basti: 725,
+        Didi: 504
+      };
 
-      const rueckrunde = []; // Fill in later
+      const pointsAfter34 = {
+        Espen: 0,
+        Phil: 0,
+        Emil: 0,
+        Erwin: 0,
+        Kempka: 0,
+        Markus: 0,
+        Steffen: 0,
+        Eirik: 0,
+        Basti: 0,
+        Didi: 0
+      };
 
-      function renderTable(data, title) {
+      function toArray(obj) {
+        return Object.entries(obj).map(([name, points]) => ({ name, points }));
+      }
+
+      function calculateRueckrunde(after17, after34) {
+        const result = [];
+        for (const name in after17) {
+          if (after34[name] !== undefined) {
+            result.push({
+              name,
+              points: after34[name] - after17[name]
+            });
+          }
+        }
+        return result;
+      }
+
+      function renderTable(data, title, highlightTop = false) {
         const sorted = [...data].sort((a, b) => b.points - a.points);
+        const topScore = sorted.length > 0 ? sorted[0].points : null;
+
         let html = `
           <div style="margin-bottom: 2rem;">
             <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">${title}</h2>
@@ -43,8 +73,12 @@
         `;
 
         sorted.forEach((entry, i) => {
+          const highlight =
+            highlightTop && entry.points === topScore
+              ? ' style="background-color: #fff9c4; font-weight: bold;"'
+              : "";
           html += `
-            <tr>
+            <tr${highlight}>
               <td style="padding: 0.5rem;">${i + 1}</td>
               <td style="padding: 0.5rem;">${entry.name}</td>
               <td style="padding: 0.5rem;">${entry.points}</td>
@@ -57,9 +91,11 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        const hinrunde = toArray(pointsAfter17);
+        const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
         document.getElementById("tables").innerHTML =
           renderTable(hinrunde, "Hinrunde Tabelle") +
-          renderTable(rueckrunde, "Rückrunde Tabelle");
+          renderTable(rueckrunde, "Rückrunde Tabelle", true);
       });
     </script>
   </body>
