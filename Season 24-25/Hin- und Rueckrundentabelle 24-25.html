@@ -1,51 +1,66 @@
-<script>
-  const hinrunde = [
-    { name: "Espen", points: 1170 },
-    { name: "Phil", points: 960 },
-    { name: "Emil", points: 954 },
-    { name: "Erwin", points: 898 },
-    { name: "Kempka", points: 880 },
-    { name: "Markus", points: 788 },
-    { name: "Steffen", points: 761 },
-    { name: "Eirik", points: 726 },
-    { name: "Basti", points: 725 },
-    { name: "Didi", points: 504 },
-  ];
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hin- und Rückrundentabelle 24-25</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Hin- und Rückrundentabelle 24-25</h1>
+    <div id="tables"></div>
 
-  const rückrunde = []; // Add Rückrunde data here later
+    <script>
+      const hinrunde = [
+        { name: "Espen", points: 1170 },
+        { name: "Phil", points: 960 },
+        { name: "Emil", points: 954 },
+        { name: "Erwin", points: 898 },
+        { name: "Kempka", points: 880 },
+        { name: "Markus", points: 788 },
+        { name: "Steffen", points: 761 },
+        { name: "Eirik", points: 726 },
+        { name: "Basti", points: 725 },
+        { name: "Didi", points: 504 },
+      ];
 
-  function renderTable(data, title) {
-    const sorted = [...data].sort((a, b) => b.points - a.points);
+      const rueckrunde = []; // Fill in later
 
-    let html = `<div style="margin-bottom: 2rem;">
-      <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">${title}</h2>
-      <table style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead>
-          <tr style="border-bottom: 2px solid #ccc;">
-            <th style="padding: 0.5rem;">Place</th>
-            <th style="padding: 0.5rem;">Name</th>
-            <th style="padding: 0.5rem;">Points</th>
-          </tr>
-        </thead>
-        <tbody>`;
+      function renderTable(data, title) {
+        const sorted = [...data].sort((a, b) => b.points - a.points);
+        let html = `
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">${title}</h2>
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid #ccc;">
+                  <th style="padding: 0.5rem;">Place</th>
+                  <th style="padding: 0.5rem;">Name</th>
+                  <th style="padding: 0.5rem;">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
 
-    sorted.forEach((entry, i) => {
-      html += `<tr>
-        <td style="padding: 0.5rem;">${i + 1}</td>
-        <td style="padding: 0.5rem;">${entry.name}</td>
-        <td style="padding: 0.5rem;">${entry.points}</td>
-      </tr>`;
-    });
+        sorted.forEach((entry, i) => {
+          html += `
+            <tr>
+              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${entry.name}</td>
+              <td style="padding: 0.5rem;">${entry.points}</td>
+            </tr>
+          `;
+        });
 
-    html += `</tbody></table></div>`;
-    return html;
-  }
+        html += `</tbody></table></div>`;
+        return html;
+      }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("tables").innerHTML =
-      renderTable(hinrunde, "Hinrunde Tabelle") +
-      renderTable(rückrunde, "Rückrunde Tabelle");
-  });
-</script>
-
-<div id="tables"></div>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("tables").innerHTML =
+          renderTable(hinrunde, "Hinrunde Tabelle") +
+          renderTable(rueckrunde, "Rückrunde Tabelle");
+      });
+    </script>
+  </body>
+</html>
