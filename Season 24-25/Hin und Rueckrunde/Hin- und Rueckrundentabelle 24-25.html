@@ -91,12 +91,12 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const hinrunde = toArray(pointsAfter17);
-        const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
-        document.getElementById("tables").innerHTML =
-          renderTable(hinrunde, "Hinrunde Tabelle") +
-          renderTable(rueckrunde, "Rückrunde Tabelle", true);
-      });
+  const hinrunde = toArray(pointsAfter17);
+  const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
+  document.getElementById("tables").innerHTML =
+    renderTable(hinrunde, "Hinrunde Tabelle") +
+    renderTable(rueckrunde, "Rückrunde Tabelle");
+});
     </script>
   </body>
 </html>
