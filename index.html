@@ -26,7 +26,7 @@
         margin-right: auto;
         background: white;
         border-radius: 8px;
-        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         padding: 10px 20px;
       }
 
@@ -56,14 +56,26 @@
       li a:hover {
         background-color: #003f80;
       }
+
+      .static-block {
+        text-align: left;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        padding: 10px 20px;
+      }
     </style>
   </head>
   <body>
     <h1>Kicker Interactive Statistiken</h1>
 
-    <ul>
-      <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
-    </ul>
+    <div class="static-block">
+      <ul>
+        <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
+      </ul>
+    </div>
 
     <details open>
       <summary>Season 24-25</summary>
@@ -93,6 +105,5 @@
         <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
       </ul>
     </details>
-
   </body>
 </html>
