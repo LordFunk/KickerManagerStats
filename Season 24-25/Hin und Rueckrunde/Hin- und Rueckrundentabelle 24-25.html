@@ -42,21 +42,24 @@
       }
 
       function calculateRueckrunde(after17, after34) {
-        const rueckrundeData = [];
+        const result = [];
         for (const name in after17) {
           if (after34[name] !== undefined) {
-            rueckrundeData.push({
+            const hin = after17[name];
+            const rueck = after34[name] - hin;
+            result.push({
               name,
-              points: after34[name] - after17[name]
+              rueckrunde: rueck,
+              hinrunde: hin,
+              diff: rueck - hin
             });
           }
         }
-        return rueckrundeData;
+        return result;
       }
 
-      function renderTable(data, title, highlightTop = false, positionMap = null) {
-        const sorted = [...data].sort((a, b) => b.points - a.points);
-        const topScore = sorted.length > 0 ? sorted[0].points : null;
+      function renderTable(data, title, showDiff = false) {
+        const sorted = [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
 
         let html = `
           <div style="margin-bottom: 2rem;">
@@ -66,38 +69,31 @@
                 <tr style="border-bottom: 2px solid #ccc;">
                   <th style="padding: 0.5rem;">Place</th>
                   <th style="padding: 0.5rem;">Name</th>
-                  <th style="padding: 0.5rem;">Points</th>
-                  ${positionMap ? '<th style="padding: 0.5rem;">Change</th>' : ''}
+                  <th style="padding: 0.5rem;">Rückrunde</th>
+                  ${showDiff ? '<th style="padding: 0.5rem;">Hinrunde</th><th style="padding: 0.5rem;">Veränderung</th>' : ''}
                 </tr>
               </thead>
               <tbody>
         `;
 
         sorted.forEach((entry, i) => {
-          const highlight =
-            highlightTop && entry.points === topScore
-              ? ' style="background-color: #fff9c4; font-weight: bold;"'
-              : "";
-          const currentPlace = i + 1;
-          const oldPlace = positionMap?.[entry.name];
-          const change = oldPlace ? oldPlace - currentPlace : null;
-          let changeText = "";
-          if (change !== null) {
-            if (change > 0) {
-              changeText = `<span style="color: green;">↑${change}</span>`;
-            } else if (change < 0) {
-              changeText = `<span style="color: red;">↓${-change}</span>`;
+          let diffText = "";
+          if (showDiff) {
+            if (entry.diff > 0) {
+              diffText = `<span style="color: green;">+${entry.diff}</span>`;
+            } else if (entry.diff < 0) {
+              diffText = `<span style="color: red;">${entry.diff}</span>`;
             } else {
-              changeText = "–";
+              diffText = "0";
             }
           }
 
           html += `
-            <tr${highlight}>
-              <td style="padding: 0.5rem;">${currentPlace}</td>
+            <tr>
+              <td style="padding: 0.5rem;">${i + 1}</td>
               <td style="padding: 0.5rem;">${entry.name}</td>
-              <td style="padding: 0.5rem;">${entry.points}</td>
-              ${positionMap ? `<td style="padding: 0.5rem;">${changeText}</td>` : ''}
+              <td style="padding: 0.5rem;">${entry.rueckrunde}</td>
+              ${showDiff ? `<td style="padding: 0.5rem;">${entry.hinrunde}</td><td style="padding: 0.5rem;">${diffText}</td>` : ''}
             </tr>
           `;
         });
@@ -107,17 +103,12 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const hinrunde = toArray(pointsAfter17);
-        const hinrundeSorted = [...hinrunde].sort((a, b) => b.points - a.points);
-        const hinrundePositions = {};
-        hinrundeSorted.forEach((entry, i) => {
-          hinrundePositions[entry.name] = i + 1;
-        });
-
+        const hinrunde = toArray(pointsAfter17).sort((a, b) => b.points - a.points);
         const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
+
         document.getElementById("tables").innerHTML =
           renderTable(hinrunde, "Hinrunde Tabelle") +
-          renderTable(rueckrunde, "Rückrunde Tabelle", false, hinrundePositions);
+          renderTable(rueckrunde, "Rückrunde Tabelle (inkl. Veränderung)", true);
       });
     </script>
   </body>
