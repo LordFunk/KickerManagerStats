@@ -58,9 +58,7 @@
         return result;
       }
 
-      function renderTable(data, title, showDiff = false) {
-        const sorted = [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
-
+      function renderTable(data, title, type = "hinrunde") {
         let html = `
           <div style="margin-bottom: 2rem;">
             <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">${title}</h2>
@@ -69,33 +67,49 @@
                 <tr style="border-bottom: 2px solid #ccc;">
                   <th style="padding: 0.5rem;">Place</th>
                   <th style="padding: 0.5rem;">Name</th>
-                  <th style="padding: 0.5rem;">Rückrunde</th>
-                  ${showDiff ? '<th style="padding: 0.5rem;">Hinrunde</th><th style="padding: 0.5rem;">Veränderung</th>' : ''}
+                  <th style="padding: 0.5rem;">Points</th>
+                  <th style="padding: 0.5rem;">Hinrunde</th>
+                  <th style="padding: 0.5rem;">Veränderung</th>
                 </tr>
               </thead>
               <tbody>
         `;
 
+        const sorted =
+          type === "hinrunde"
+            ? [...data].sort((a, b) => b.points - a.points)
+            : [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
+
         sorted.forEach((entry, i) => {
-          let diffText = "";
-          if (showDiff) {
-            if (entry.diff > 0) {
-              diffText = `<span style="color: green;">+${entry.diff}</span>`;
-            } else if (entry.diff < 0) {
-              diffText = `<span style="color: red;">${entry.diff}</span>`;
-            } else {
-              diffText = "0";
-            }
+          let name = entry.name;
+          let row;
+
+          if (type === "hinrunde") {
+            row = `
+              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${name}</td>
+              <td style="padding: 0.5rem;">${entry.points}</td>
+              <td style="padding: 0.5rem;">–</td>
+              <td style="padding: 0.5rem;">–</td>
+            `;
+          } else {
+            let diffText =
+              entry.diff > 0
+                ? `<span style="color: green;">+${entry.diff}</span>`
+                : entry.diff < 0
+                ? `<span style="color: red;">${entry.diff}</span>`
+                : "0";
+
+            row = `
+              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${name}</td>
+              <td style="padding: 0.5rem;">${entry.rueckrunde}</td>
+              <td style="padding: 0.5rem;">${entry.hinrunde}</td>
+              <td style="padding: 0.5rem;">${diffText}</td>
+            `;
           }
 
-          html += `
-            <tr>
-              <td style="padding: 0.5rem;">${i + 1}</td>
-              <td style="padding: 0.5rem;">${entry.name}</td>
-              <td style="padding: 0.5rem;">${entry.rueckrunde}</td>
-              ${showDiff ? `<td style="padding: 0.5rem;">${entry.hinrunde}</td><td style="padding: 0.5rem;">${diffText}</td>` : ''}
-            </tr>
-          `;
+          html += `<tr>${row}</tr>`;
         });
 
         html += `</tbody></table></div>`;
@@ -103,12 +117,12 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const hinrunde = toArray(pointsAfter17).sort((a, b) => b.points - a.points);
+        const hinrunde = toArray(pointsAfter17);
         const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
 
         document.getElementById("tables").innerHTML =
-          renderTable(hinrunde, "Hinrunde Tabelle") +
-          renderTable(rueckrunde, "Rückrunde Tabelle (inkl. Veränderung)", true);
+          renderTable(hinrunde, "Hinrunde Tabelle", "hinrunde") +
+          renderTable(rueckrunde, "Rückrunde Tabelle (inkl. Veränderung)", "rueckrunde");
       });
     </script>
   </body>
