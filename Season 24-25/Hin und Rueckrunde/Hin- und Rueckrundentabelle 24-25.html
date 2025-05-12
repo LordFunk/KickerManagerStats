@@ -42,19 +42,19 @@
       }
 
       function calculateRueckrunde(after17, after34) {
-        const result = [];
+        const rueckrundeData = [];
         for (const name in after17) {
           if (after34[name] !== undefined) {
-            result.push({
+            rueckrundeData.push({
               name,
               points: after34[name] - after17[name]
             });
           }
         }
-        return result;
+        return rueckrundeData;
       }
 
-      function renderTable(data, title, highlightTop = false) {
+      function renderTable(data, title, highlightTop = false, positionMap = null) {
         const sorted = [...data].sort((a, b) => b.points - a.points);
         const topScore = sorted.length > 0 ? sorted[0].points : null;
 
@@ -67,6 +67,7 @@
                   <th style="padding: 0.5rem;">Place</th>
                   <th style="padding: 0.5rem;">Name</th>
                   <th style="padding: 0.5rem;">Points</th>
+                  ${positionMap ? '<th style="padding: 0.5rem;">Change</th>' : ''}
                 </tr>
               </thead>
               <tbody>
@@ -77,11 +78,26 @@
             highlightTop && entry.points === topScore
               ? ' style="background-color: #fff9c4; font-weight: bold;"'
               : "";
+          const currentPlace = i + 1;
+          const oldPlace = positionMap?.[entry.name];
+          const change = oldPlace ? oldPlace - currentPlace : null;
+          let changeText = "";
+          if (change !== null) {
+            if (change > 0) {
+              changeText = `<span style="color: green;">↑${change}</span>`;
+            } else if (change < 0) {
+              changeText = `<span style="color: red;">↓${-change}</span>`;
+            } else {
+              changeText = "–";
+            }
+          }
+
           html += `
             <tr${highlight}>
-              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${currentPlace}</td>
               <td style="padding: 0.5rem;">${entry.name}</td>
               <td style="padding: 0.5rem;">${entry.points}</td>
+              ${positionMap ? `<td style="padding: 0.5rem;">${changeText}</td>` : ''}
             </tr>
           `;
         });
@@ -91,12 +107,18 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-  const hinrunde = toArray(pointsAfter17);
-  const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
-  document.getElementById("tables").innerHTML =
-    renderTable(hinrunde, "Hinrunde Tabelle") +
-    renderTable(rueckrunde, "Rückrunde Tabelle");
-});
+        const hinrunde = toArray(pointsAfter17);
+        const hinrundeSorted = [...hinrunde].sort((a, b) => b.points - a.points);
+        const hinrundePositions = {};
+        hinrundeSorted.forEach((entry, i) => {
+          hinrundePositions[entry.name] = i + 1;
+        });
+
+        const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
+        document.getElementById("tables").innerHTML =
+          renderTable(hinrunde, "Hinrunde Tabelle") +
+          renderTable(rueckrunde, "Rückrunde Tabelle", false, hinrundePositions);
+      });
     </script>
   </body>
 </html>
