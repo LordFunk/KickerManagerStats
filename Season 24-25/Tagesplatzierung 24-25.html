@@ -96,32 +96,36 @@
                             pointStyle: 'circle'
                         },
                         onClick: (e, legendItem) => {
-                            const clickedPlayer = legendItem.text;
+                            const selectedPlayers = new Set();
 
-                            if (selectedPlayer === clickedPlayer) {
-                                selectedPlayer = null;
-                            } else {
-                                selectedPlayer = clickedPlayer;
-                            }
+plugins: {
+    legend: {
+        onClick: (e, legendItem) => {
+            const clickedPlayer = legendItem.text;
+            if (selectedPlayers.has(clickedPlayer)) {
+                selectedPlayers.delete(clickedPlayer);
+            } else {
+                selectedPlayers.add(clickedPlayer);
+            }
 
-                            fieberkurveChart.data.datasets.forEach((dataset, i) => {
-                                if (!selectedPlayer || dataset.label === selectedPlayer) {
-                                    const color = colors[players.indexOf(dataset.label)];
-                                    dataset.borderColor = color;
-                                    dataset.backgroundColor = color;
-                                    dataset.pointBackgroundColor = color;
-                                    dataset.pointBorderColor = color;
-                                    dataset.borderWidth = dataset.label === selectedPlayer ? 3 : 2;
-                                } else {
-                                    dataset.borderColor = 'lightgrey';
-                                    dataset.backgroundColor = 'lightgrey';
-                                    dataset.pointBackgroundColor = 'lightgrey';
-                                    dataset.pointBorderColor = 'lightgrey';
-                                    dataset.borderWidth = 1;
-                                }
-                            });
+            fieberkurveChart.data.datasets.forEach((dataset) => {
+                if (selectedPlayers.size === 0 || selectedPlayers.has(dataset.label)) {
+                    const color = colors[players.indexOf(dataset.label)];
+                    dataset.borderColor = color;
+                    dataset.backgroundColor = color;
+                    dataset.pointBackgroundColor = color;
+                    dataset.pointBorderColor = color;
+                    dataset.borderWidth = selectedPlayers.has(dataset.label) ? 3 : 2;
+                } else {
+                    dataset.borderColor = 'lightgrey';
+                    dataset.backgroundColor = 'lightgrey';
+                    dataset.pointBackgroundColor = 'lightgrey';
+                    dataset.pointBorderColor = 'lightgrey';
+                    dataset.borderWidth = 1;
+                }
+            });
 
-                            fieberkurveChart.update();
+            fieberkurveChart.update();
                         }
                     },
                     tooltip: {
