@@ -50,14 +50,28 @@
             'Espen': [92, 97, 63, 61, 53, 74, 65, 68, 103, 72, 66, 68, 36, 73, 23, 79, 77, 49, 68, 33, 47, 71, 53, 54, 67, 76, 40, 39, 39, 52, 27, 44, 60, 53],
         };
 
-        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
+        // RGBA colors for full opacity
+        const colorsRGBA = [
+            'rgba(255, 0, 0, 1)',       // red
+            'rgba(0, 0, 255, 1)',       // blue
+            'rgba(0, 128, 0, 1)',       // green
+            'rgba(128, 0, 128, 1)',     // purple
+            'rgba(255, 165, 0, 1)',     // orange
+            'rgba(165, 42, 42, 1)',     // brown
+            'rgba(255, 192, 203, 1)',   // pink
+            'rgba(0, 0, 0, 1)',         // black
+            'rgba(128, 128, 128, 1)',   // gray
+            'rgba(0, 255, 255, 1)',     // cyan
+        ];
 
-        // Prepare datasets array from playerData object
+        // Color for faded datasets
+        const fadedColor = 'rgba(200, 200, 200, 0.3)';
+
         const datasets = Object.keys(playerData).map((playerName, index) => ({
             label: playerName,
             data: playerData[playerName],
-            borderColor: colors[index],
-            backgroundColor: colors[index],
+            borderColor: colorsRGBA[index],
+            backgroundColor: colorsRGBA[index],
             fill: false,
             pointRadius: 2,
             borderWidth: 2,
@@ -67,6 +81,7 @@
         }));
 
         const ctx = document.getElementById('pointsChart').getContext('2d');
+
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -87,31 +102,35 @@
                         onClick: function(e, legendItem, legend) {
                             const index = legendItem.datasetIndex;
                             const ds = chart.data.datasets[index];
+
+                            // Toggle highlight state
                             ds.highlighted = !ds.highlighted;
 
+                            // Check if any dataset is highlighted
+                            const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+
                             chart.data.datasets.forEach((dataset, i) => {
-                                if (dataset.highlighted) {
-                                    dataset.borderWidth = 4;
-                                    dataset.borderColor = colors[i];
-                                    dataset.backgroundColor = colors[i];
-                                    dataset.hidden = false;
+                                if (anyHighlighted) {
+                                    if (dataset.highlighted) {
+                                        dataset.borderColor = colorsRGBA[i];
+                                        dataset.backgroundColor = colorsRGBA[i];
+                                        dataset.borderWidth = 4;
+                                        dataset.hidden = false;
+                                    } else {
+                                        dataset.borderColor = fadedColor;
+                                        dataset.backgroundColor = fadedColor;
+                                        dataset.borderWidth = 2;
+                                        dataset.hidden = false;
+                                    }
                                 } else {
+                                    // No highlights, reset to normal colors
+                                    dataset.borderColor = colorsRGBA[i];
+                                    dataset.backgroundColor = colorsRGBA[i];
                                     dataset.borderWidth = 2;
-                                    dataset.borderColor = colors[i];
-                                    dataset.backgroundColor = colors[i];
                                     dataset.hidden = false;
                                 }
                             });
 
-                            // If none highlighted, reset all borderWidths to 2 and colors normal
-                            if (!chart.data.datasets.some(d => d.highlighted)) {
-                                chart.data.datasets.forEach((dataset, i) => {
-                                    dataset.borderWidth = 2;
-                                    dataset.borderColor = colors[i];
-                                    dataset.backgroundColor = colors[i];
-                                    dataset.hidden = false;
-                                });
-                            }
                             chart.update();
                         }
                     },
