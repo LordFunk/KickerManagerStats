@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Points Per Game Day 24-25</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -52,20 +52,68 @@
             'Espen': [92, 97, 63, 61, 53, 74, 65, 68, 103, 72, 66, 68, 36, 73, 23, 79, 77, 49, 68, 33, 47, 71, 53, 54, 67, 76, 40, 39, 39, 52, 27, 44, 60, 53],
         };
 
-        // Define colors based on the previous color scheme
-        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'Cyan'];
+        const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
 
         const datasets = Object.keys(playerData).map((name, index) => ({
             label: name,
             data: playerData[name],
-            borderColor: colors[index], // Line color
-            backgroundColor: colors[index], // Fill color of points
+            borderColor: colors[index],
+            backgroundColor: colors[index],
             fill: false,
-            pointBackgroundColor: colors[index], // Color of points
-            pointBorderColor: colors[index], // Border color of points
-            pointBorderWidth: 0, // Remove border around points
+            pointBackgroundColor: colors[index],
+            pointBorderColor: colors[index],
+            pointBorderWidth: 0,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 6,
             hidden: false
         }));
+
+        // Plugin to highlight hovered dataset
+        const highlightPlugin = {
+            id: 'highlightPlugin',
+            afterEvent(chart, args) {
+                const event = args.event;
+                const points = chart.getElementsAtEventForMode(event, 'dataset', { intersect: false }, false);
+
+                if (points.length) {
+                    const hoveredDatasetIndex = points[0].datasetIndex;
+
+                    chart.data.datasets.forEach((ds, idx) => {
+                        const meta = chart.getDatasetMeta(idx);
+                        if (idx === hoveredDatasetIndex) {
+                            ds.borderWidth = 4;
+                            ds.pointRadius = 6;
+                            ds.pointHoverRadius = 8;
+                            meta.opacity = 1;
+                        } else {
+                            ds.borderWidth = 2;
+                            ds.pointRadius = 3;
+                            ds.pointHoverRadius = 6;
+                            meta.opacity = 0.3;
+                        }
+                    });
+                } else {
+                    // Reset all on no hover
+                    chart.data.datasets.forEach((ds, idx) => {
+                        const meta = chart.getDatasetMeta(idx);
+                        ds.borderWidth = 2;
+                        ds.pointRadius = 3;
+                        ds.pointHoverRadius = 6;
+                        meta.opacity = 1;
+                    });
+                }
+            },
+            beforeDatasetDraw(chart, args, options) {
+                const { ctx, dataset, index } = args;
+                const meta = chart.getDatasetMeta(index);
+                ctx.save();
+                ctx.globalAlpha = meta.opacity ?? 1;
+            },
+            afterDatasetDraw(chart, args, options) {
+                chart.ctx.restore();
+            }
+        };
 
         const ctx = document.getElementById('pointsChart').getContext('2d');
         const pointsChart = new Chart(ctx, {
@@ -80,10 +128,12 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            stepSize: 10
-                        }
+                        ticks: { stepSize: 10 }
                     }
+                },
+                interaction: {
+                    mode: 'dataset',
+                    intersect: false
                 },
                 plugins: {
                     legend: {
@@ -95,14 +145,30 @@
                         }
                     },
                     tooltip: {
+                        mode: 'nearest',
+                        intersect: false,
                         callbacks: {
                             label: function(tooltipItem) {
                                 return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
                             }
                         }
                     }
+                },
+                hover: {
+                    mode: 'dataset',
+                    intersect: false
+                },
+                elements: {
+                    line: {
+                        borderWidth: 2
+                    },
+                    point: {
+                        radius: 3,
+                        hoverRadius: 6
+                    }
                 }
-            }
+            },
+            plugins: [highlightPlugin]
         });
     </script>
 </body>
