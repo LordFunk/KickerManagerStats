@@ -66,95 +66,65 @@
             pointRadius: 3
         }));
 
-        const ctx = document.getElementById('pointsChart').getContext('2d');
-
-        // Track which dataset is highlighted (-1 means none)
-        let highlightedIndex = -1;
-
-        const pointsChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array.from({ length: 34 }, (_, i) => `Game Day ${i + 1}`),
-                datasets: datasets
+        const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: cumulativeData.map((_, i) => `Game Day ${i + 1}`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 10
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: 'circle'
-                        },
-                        onClick(e, legendItem, legend) {
-                            const ci = legend.chart;
-                            const index = legendItem.datasetIndex;
-                            if (highlightedIndex === index) {
-                                // Turn off highlight
-                                highlightedIndex = -1;
-                            } else {
-                                highlightedIndex = index;
-                            }
+            onClick: function(e, legendItem, legend) {
+              const index = legendItem.datasetIndex;
+              const selectedDataset = chart.data.datasets[index];
+              const isHighlighted = selectedDataset.borderWidth === 4;
 
-                            ci.data.datasets.forEach((ds, i) => {
-                                if (highlightedIndex === -1) {
-                                    ds.borderWidth = 2;
-                                    ds.pointRadius = 3;
-                                    ds.hidden = false;
-                                } else if (i === highlightedIndex) {
-                                    ds.borderWidth = 5;
-                                    ds.pointRadius = 6;
-                                    ds.hidden = false;
-                                } else {
-                                    ds.borderWidth = 2;
-                                    ds.pointRadius = 3;
-                                    ds.hidden = false;
-                                }
-                            });
-
-                            // Override the color and opacity of lines and points dynamically
-                            ci.options.elements.line.borderColor = ctx => {
-                                if (highlightedIndex === -1) return colors[ctx.datasetIndex];
-                                return ctx.datasetIndex === highlightedIndex
-                                    ? colors[ctx.datasetIndex]
-                                    : 'rgba(200,200,200,0.3)';
-                            };
-                            ci.options.elements.point.backgroundColor = ctx => {
-                                if (highlightedIndex === -1) return colors[ctx.datasetIndex];
-                                return ctx.datasetIndex === highlightedIndex
-                                    ? colors[ctx.datasetIndex]
-                                    : 'rgba(200,200,200,0.3)';
-                            };
-                            ci.options.elements.point.borderColor = ctx => {
-                                if (highlightedIndex === -1) return colors[ctx.datasetIndex];
-                                return ctx.datasetIndex === highlightedIndex
-                                    ? colors[ctx.datasetIndex]
-                                    : 'rgba(200,200,200,0.3)';
-                            };
-
-                            ci.update();
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
-                            }
-                        }
-                    }
+              chart.data.datasets.forEach((ds, i) => {
+                if (i === index) {
+                  ds.borderWidth = isHighlighted ? 2 : 4;
+                  ds.borderColor = colors[i];
+                  ds.backgroundColor = colors[i];
+                  ds.hidden = false;
+                } else {
+                  if (!isHighlighted) {
+                    ds.borderColor = '#ccc';
+                    ds.backgroundColor = '#ccc';
+                    ds.borderWidth = 1;
+                  } else {
+                    ds.borderColor = colors[i];
+                    ds.backgroundColor = colors[i];
+                    ds.borderWidth = 2;
+                  }
                 }
+              });
+              chart.update();
             }
-        });
-    </script>
+          },
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
 </body>
 </html>
