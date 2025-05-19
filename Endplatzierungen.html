@@ -38,76 +38,103 @@
   </div>
 
   <script>
-    const finalPlacements = {
-      'Markus': [2, 3, 2, 1, 5],
-      'Erwin': [4, 4, 1, 4, 2],
-      'Phil': [3, 1, 5, 5, 4],
-      'Didi': [5, 2, 7, 6, 10],
-      'Steffo': [0, 7, 4, 7, 9],
-      'Basti': [0, 5, 6, 3, 8],
-      'Eirik': [1, 6, 3, 8, 7],
-      'Emil': [0, 0, 0, 2, 3],
-      'Kempka': [0, 0, 0, 0, 6],
-      'Espen': [0, 0, 0, 0, 1]
+  const finalPlacements = {
+    'Markus': [2, 3, 2, 1, 5],
+    'Erwin': [4, 4, 1, 4, 2],
+    'Phil': [3, 1, 5, 5, 4],
+    'Didi': [5, 2, 7, 6, 10],
+    'Steffo': [0, 7, 4, 7, 9],
+    'Basti': [0, 5, 6, 3, 8],
+    'Eirik': [1, 6, 3, 8, 7],
+    'Emil': [0, 0, 0, 2, 3],
+    'Kempka': [0, 0, 0, 0, 6],
+    'Espen': [0, 0, 0, 0, 1]
+  };
+
+  const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
+  const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
+
+  const players = Object.keys(finalPlacements);
+  const datasets = players.map((name, index) => {
+    const data = finalPlacements[name].map(val => val === 0 ? null : val);
+    return {
+      label: name,
+      data: data,
+      borderColor: colors[index],
+      backgroundColor: colors[index],
+      fill: false,
+      tension: 0,
+      spanGaps: true,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      borderWidth: 2,
+      hidden: false
     };
+  });
 
-    const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
-    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
-
-    const players = Object.keys(finalPlacements);
-    const datasets = players.map((name, index) => {
-      const data = finalPlacements[name].map(val => val === 0 ? null : val);
-      return {
-        label: name,
-        data: data,
-        borderColor: colors[index],
-        backgroundColor: colors[index],
-        fill: false,
-        tension: 0,
-        spanGaps: true,
-        pointRadius: 4,
-        pointHoverRadius: 6
-      };
-    });
-
-    const ctx = document.getElementById('endplatzierungChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: seasonLabels,
-        datasets: datasets
+  const ctx = document.getElementById('endplatzierungChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: seasonLabels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          reverse: true,
+          beginAtZero: false,
+          ticks: {
+            stepSize: 1
+          }
+        }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            reverse: true,
-            beginAtZero: false,
-            ticks: {
-              stepSize: 1
-            }
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle'
+          },
+          onClick: function(e, legendItem, legend) {
+            const index = legendItem.datasetIndex;
+            const selectedDataset = chart.data.datasets[index];
+            const isHighlighted = selectedDataset.borderWidth === 4;
+
+            chart.data.datasets.forEach((ds, i) => {
+              if (i === index) {
+                ds.borderWidth = isHighlighted ? 2 : 4;
+                ds.borderColor = colors[i];
+                ds.backgroundColor = colors[i];
+                ds.hidden = false;
+              } else {
+                if (!isHighlighted) {
+                  ds.borderColor = '#ccc';
+                  ds.backgroundColor = '#ccc';
+                  ds.borderWidth = 1;
+                } else {
+                  ds.borderColor = colors[i];
+                  ds.backgroundColor = colors[i];
+                  ds.borderWidth = 2;
+                }
+              }
+            });
+            chart.update();
           }
         },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(tooltipItem) {
-                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
-              }
+        tooltip: {
+          callbacks: {
+            label: function(tooltipItem) {
+              return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
             }
           }
         }
       }
-    });
-  </script>
+    }
+  });
+</script>
 </body>
 </html>
