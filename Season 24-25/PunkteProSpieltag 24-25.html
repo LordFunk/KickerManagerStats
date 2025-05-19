@@ -71,39 +71,50 @@
 
         // Plugin to highlight hovered dataset
         const highlightPlugin = {
-            id: 'highlightPlugin',
-            afterEvent(chart, args) {
-                const event = args.event;
-                const points = chart.getElementsAtEventForMode(event, 'dataset', { intersect: false }, false);
+    id: 'highlightPlugin',
+    afterEvent(chart, args) {
+        const event = args.event;
+        const points = chart.getElementsAtEventForMode(event, 'dataset', { intersect: false }, false);
 
-                if (points.length) {
-                    const hoveredDatasetIndex = points[0].datasetIndex;
+        if (points.length) {
+            const hoveredDatasetIndex = points[0].datasetIndex;
 
-                    chart.data.datasets.forEach((ds, idx) => {
-                        const meta = chart.getDatasetMeta(idx);
-                        if (idx === hoveredDatasetIndex) {
-                            ds.borderWidth = 4;
-                            ds.pointRadius = 6;
-                            ds.pointHoverRadius = 8;
-                            meta.opacity = 1;
-                        } else {
-                            ds.borderWidth = 2;
-                            ds.pointRadius = 3;
-                            ds.pointHoverRadius = 6;
-                            meta.opacity = 0.3;
-                        }
-                    });
+            chart.data.datasets.forEach((ds, idx) => {
+                const meta = chart.getDatasetMeta(idx);
+                if (idx === hoveredDatasetIndex) {
+                    meta.hidden = false;
+                    meta.opacity = 1;
+                    ds.borderWidth = 4;
+                    ds.pointRadius = 6;
+                    ds.pointHoverRadius = 8;
                 } else {
-                    // Reset all on no hover
-                    chart.data.datasets.forEach((ds, idx) => {
-                        const meta = chart.getDatasetMeta(idx);
-                        ds.borderWidth = 2;
-                        ds.pointRadius = 3;
-                        ds.pointHoverRadius = 6;
-                        meta.opacity = 1;
-                    });
+                    meta.opacity = 0.3;
+                    ds.borderWidth = 2;
+                    ds.pointRadius = 3;
+                    ds.pointHoverRadius = 6;
                 }
-            },
+            });
+        } else {
+            chart.data.datasets.forEach((ds, idx) => {
+                const meta = chart.getDatasetMeta(idx);
+                meta.opacity = 1;
+                ds.borderWidth = 2;
+                ds.pointRadius = 3;
+                ds.pointHoverRadius = 6;
+            });
+        }
+        chart.draw();
+    },
+    beforeDatasetDraw(chart, args) {
+        const { ctx, index } = args;
+        const meta = chart.getDatasetMeta(index);
+        ctx.save();
+        ctx.globalAlpha = meta.opacity ?? 1;
+    },
+    afterDatasetDraw(chart, args) {
+        chart.ctx.restore();
+    }
+};
             beforeDatasetDraw(chart, args, options) {
                 const { ctx, dataset, index } = args;
                 const meta = chart.getDatasetMeta(index);
