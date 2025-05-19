@@ -62,7 +62,8 @@
             pointRadius: 2,
             borderWidth: 2,
             spanGaps: true,
-            hidden: false
+            hidden: false,
+            highlighted: false // custom flag
         }));
 
         const ctx = document.getElementById('pointsChart').getContext('2d');
@@ -85,27 +86,32 @@
                         },
                         onClick: function(e, legendItem, legend) {
                             const index = legendItem.datasetIndex;
-                            const selectedDataset = chart.data.datasets[index];
-                            const isHighlighted = selectedDataset.borderWidth === 4;
+                            const ds = chart.data.datasets[index];
+                            ds.highlighted = !ds.highlighted;
 
-                            chart.data.datasets.forEach((ds, i) => {
-                                if (i === index) {
-                                    ds.borderWidth = isHighlighted ? 2 : 4;
-                                    ds.borderColor = colors[i];
-                                    ds.backgroundColor = colors[i];
-                                    ds.hidden = false;
+                            chart.data.datasets.forEach((dataset, i) => {
+                                if (dataset.highlighted) {
+                                    dataset.borderWidth = 4;
+                                    dataset.borderColor = colors[i];
+                                    dataset.backgroundColor = colors[i];
+                                    dataset.hidden = false;
                                 } else {
-                                    if (!isHighlighted) {
-                                        ds.borderColor = '#ccc';
-                                        ds.backgroundColor = '#ccc';
-                                        ds.borderWidth = 1;
-                                    } else {
-                                        ds.borderColor = colors[i];
-                                        ds.backgroundColor = colors[i];
-                                        ds.borderWidth = 2;
-                                    }
+                                    dataset.borderWidth = 2;
+                                    dataset.borderColor = colors[i];
+                                    dataset.backgroundColor = colors[i];
+                                    dataset.hidden = false;
                                 }
                             });
+
+                            // If none highlighted, reset all borderWidths to 2 and colors normal
+                            if (!chart.data.datasets.some(d => d.highlighted)) {
+                                chart.data.datasets.forEach((dataset, i) => {
+                                    dataset.borderWidth = 2;
+                                    dataset.borderColor = colors[i];
+                                    dataset.backgroundColor = colors[i];
+                                    dataset.hidden = false;
+                                });
+                            }
                             chart.update();
                         }
                     },
