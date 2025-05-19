@@ -52,79 +52,78 @@
 
         const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
 
-        const datasets = Object.keys(playerData).map((name, index) => ({
-            label: name,
-            data: playerData[name],
+        // Prepare datasets array from playerData object
+        const datasets = Object.keys(playerData).map((playerName, index) => ({
+            label: playerName,
+            data: playerData[playerName],
             borderColor: colors[index],
             backgroundColor: colors[index],
             fill: false,
-            pointBackgroundColor: colors[index],
-            pointBorderColor: colors[index],
-            pointBorderWidth: 0,
-            hidden: false,
+            pointRadius: 2,
             borderWidth: 2,
-            pointRadius: 3
+            spanGaps: true,
+            hidden: false
         }));
 
-        const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: cumulativeData.map((_, i) => `Game Day ${i + 1}`),
-        datasets: datasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
+        const ctx = document.getElementById('pointsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: playerData['Markus'].map((_, i) => `Game Day ${i + 1}`),
+                datasets: datasets
             },
-            onClick: function(e, legendItem, legend) {
-              const index = legendItem.datasetIndex;
-              const selectedDataset = chart.data.datasets[index];
-              const isHighlighted = selectedDataset.borderWidth === 4;
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        },
+                        onClick: function(e, legendItem, legend) {
+                            const index = legendItem.datasetIndex;
+                            const selectedDataset = chart.data.datasets[index];
+                            const isHighlighted = selectedDataset.borderWidth === 4;
 
-              chart.data.datasets.forEach((ds, i) => {
-                if (i === index) {
-                  ds.borderWidth = isHighlighted ? 2 : 4;
-                  ds.borderColor = colors[i];
-                  ds.backgroundColor = colors[i];
-                  ds.hidden = false;
-                } else {
-                  if (!isHighlighted) {
-                    ds.borderColor = '#ccc';
-                    ds.backgroundColor = '#ccc';
-                    ds.borderWidth = 1;
-                  } else {
-                    ds.borderColor = colors[i];
-                    ds.backgroundColor = colors[i];
-                    ds.borderWidth = 2;
-                  }
+                            chart.data.datasets.forEach((ds, i) => {
+                                if (i === index) {
+                                    ds.borderWidth = isHighlighted ? 2 : 4;
+                                    ds.borderColor = colors[i];
+                                    ds.backgroundColor = colors[i];
+                                    ds.hidden = false;
+                                } else {
+                                    if (!isHighlighted) {
+                                        ds.borderColor = '#ccc';
+                                        ds.backgroundColor = '#ccc';
+                                        ds.borderWidth = 1;
+                                    } else {
+                                        ds.borderColor = colors[i];
+                                        ds.backgroundColor = colors[i];
+                                        ds.borderWidth = 2;
+                                    }
+                                }
+                            });
+                            chart.update();
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
-              });
-              chart.update();
             }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(tooltipItem) {
-                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
-              }
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
-  </script>
+        });
+    </script>
 </body>
 </html>
