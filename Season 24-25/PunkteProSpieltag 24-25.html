@@ -96,44 +96,56 @@ const pointsChart = new Chart(ctx, {
           font: { weight: 'normal' },
         },
         onClick(e, legendItem, legend) {
-          const ci = legend.chart;
-          const index = legendItem.datasetIndex;
+  const ci = legend.chart;
+  const index = legendItem.datasetIndex;
 
-          if (highlightedIndex === index) {
-            highlightedIndex = null; // reset
-          } else {
-            highlightedIndex = index;
-          }
+  if (highlightedIndex === index) {
+    highlightedIndex = null; // turn off highlight
+  } else {
+    highlightedIndex = index;
+  }
 
-          ci.data.datasets.forEach((ds, i) => {
-            if (highlightedIndex === null) {
-              ds.borderWidth = 2;
-              ds.pointRadius = 3;
-              ds.hidden = false;
-            } else if (i === highlightedIndex) {
-              ds.borderWidth = 5;
-              ds.pointRadius = 6;
-              ds.hidden = false;
-            } else {
-              ds.borderWidth = 2;
-              ds.pointRadius = 3;
-              ds.hidden = false;
-            }
-          });
+  ci.data.datasets.forEach((ds, i) => {
+    if (highlightedIndex === null) {
+      ds.borderWidth = 2;
+      ds.pointRadius = 3;
+      ds.hidden = false;
+    } else if (i === highlightedIndex) {
+      ds.borderWidth = 5;
+      ds.pointRadius = 6;
+      ds.hidden = false;
+    } else {
+      ds.borderWidth = 2;
+      ds.pointRadius = 3;
+      ds.hidden = false;
+    }
+  });
 
-          // override colors with opacity for non-highlighted
-          ci.options.elements.line.borderColor = function(ctx) {
-            if (highlightedIndex === null) return ctx.dataset.borderColor;
-            return ctx.datasetIndex === highlightedIndex ? ctx.dataset.borderColor : 'rgba(200,200,200,0.3)';
-          };
+  // Set opacity for all lines and points depending on highlight
+  ci.options.elements.line.borderColor = ctx => {
+    if (highlightedIndex === null) return colors[ctx.datasetIndex];
+    return ctx.datasetIndex === highlightedIndex
+      ? colors[ctx.datasetIndex]
+      : 'rgba(200,200,200,0.3)';
+  };
 
-          ci.options.elements.point.backgroundColor = function(ctx) {
-            if (highlightedIndex === null) return ctx.dataset.pointBackgroundColor;
-            return ctx.datasetIndex === highlightedIndex ? ctx.dataset.pointBackgroundColor : 'rgba(200,200,200,0.3)';
-          };
+  ci.options.elements.point.backgroundColor = ctx => {
+    if (highlightedIndex === null) return colors[ctx.datasetIndex];
+    return ctx.datasetIndex === highlightedIndex
+      ? colors[ctx.datasetIndex]
+      : 'rgba(200,200,200,0.3)';
+  };
 
-          ci.update();
-        }
+  ci.options.elements.point.borderColor = ctx => {
+    if (highlightedIndex === null) return colors[ctx.datasetIndex];
+    return ctx.datasetIndex === highlightedIndex
+      ? colors[ctx.datasetIndex]
+      : 'rgba(200,200,200,0.3)';
+  };
+
+  ci.update();
+}
+
       },
       tooltip: {
         mode: 'nearest',
