@@ -71,12 +71,103 @@
     });
 
     const ctx = document.getElementById('endplatzierungChart').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: seasonLabels,
-        datasets: datasets
+    const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: seasonLabels,
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        reverse: true,
+        beginAtZero: false,
+        ticks: {
+          stepSize: 1
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          generateLabels: function(chart) {
+            return chart.data.datasets.map((dataset, i) => ({
+              text: dataset.label,
+              fillStyle: dataset.borderColor,
+              hidden: false,
+              lineCap: dataset.borderCapStyle,
+              lineDash: dataset.borderDash,
+              lineDashOffset: dataset.borderDashOffset,
+              lineJoin: dataset.borderJoinStyle,
+              strokeStyle: dataset.borderColor,
+              pointStyle: 'circle',
+              datasetIndex: i
+            }));
+          }
+        },
+        onClick: function(e, legendItem, legend) {
+          const index = legendItem.datasetIndex;
+          const selectedDataset = chart.data.datasets[index];
+
+          const alreadyHighlighted = selectedDataset._highlighted;
+          chart.data.datasets.forEach(ds => {
+            ds._highlighted = false;
+            ds.borderWidth = 2;
+            ds.opacity = 0.2;
+          });
+
+          if (!alreadyHighlighted) {
+            selectedDataset._highlighted = true;
+            selectedDataset.opacity = 1;
+            selectedDataset.borderWidth = 4;
+          } else {
+            // Reset all
+            chart.data.datasets.forEach(ds => {
+              ds.opacity = 1;
+              ds.borderWidth = 2;
+            });
+          }
+
+          chart.update();
+        }
       },
+      tooltip: {
+        callbacks: {
+          label: function(tooltipItem) {
+            return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+          }
+        }
+      }
+    },
+    elements: {
+      line: {
+        borderWidth: ctx => ctx.dataset.borderWidth || 2,
+      },
+      point: {
+        radius: ctx => ctx.dataset._highlighted ? 6 : 4
+      }
+    },
+    datasets: {
+      line: {
+        borderColor: ctx => {
+          const o = ctx.dataset.opacity !== undefined ? ctx.dataset.opacity : 1;
+          return ctx.dataset.borderColor + (o < 1 ? Math.floor(o * 255).toString(16).padStart(2, '0') : '');
+        },
+        backgroundColor: ctx => {
+          const o = ctx.dataset.opacity !== undefined ? ctx.dataset.opacity : 1;
+          return ctx.dataset.backgroundColor + (o < 1 ? Math.floor(o * 255).toString(16).padStart(2, '0') : '');
+        }
+      }
+    }
+  }
+});
+
       options: {
         responsive: true,
         maintainAspectRatio: false,
