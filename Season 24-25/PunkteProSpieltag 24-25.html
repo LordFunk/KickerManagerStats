@@ -74,47 +74,34 @@
                 labels: Array.from({ length: 34 }, (_, i) => `Game Day ${i + 1}`),
                 datasets: datasets
             },
-           options: {
-  interaction: {
-    mode: 'nearest',
-    axis: 'x',
-    intersect: false
-  },
-  plugins: {
-    legend: {
-      onHover: (event, legendItem, legend) => {
-        const datasets = legend.chart.data.datasets;
-        datasets.forEach((dataset, index) => {
-          const meta = legend.chart.getDatasetMeta(index);
-          meta.hidden = index !== legendItem.datasetIndex;
-        });
-        legend.chart.update();
-      },
-      onLeave: (event, legendItem, legend) => {
-        const datasets = legend.chart.data.datasets;
-        datasets.forEach((dataset, index) => {
-          const meta = legend.chart.getDatasetMeta(index);
-          meta.hidden = false;
-        });
-        legend.chart.update();
-      }
-    },
-    tooltip: {
-      mode: 'index',
-      intersect: false
-    }
-  },
-  hover: {
-    mode: 'nearest',
-    intersect: false
-  },
-  elements: {
-    line: {
-      borderWidth: 2
-    },
-    point: {
-      radius: 3,
-      hoverRadius: 6
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.parsed.y}`;
+                            }
+                        }
+                    }
+                }
             }
         });
     </script>
