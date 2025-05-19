@@ -91,6 +91,10 @@
     }));
 
     const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+
+    // Track which datasets are selected (highlighted)
+    const selectedIndices = new Set();
+
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -110,27 +114,37 @@
             },
             onClick: function(e, legendItem, legend) {
               const index = legendItem.datasetIndex;
-              const selectedDataset = chart.data.datasets[index];
-              const isHighlighted = selectedDataset.borderWidth === 4;
 
-              chart.data.datasets.forEach((ds, i) => {
-                if (i === index) {
-                  ds.borderWidth = isHighlighted ? 2 : 4;
+              if (selectedIndices.has(index)) {
+                selectedIndices.delete(index);
+              } else {
+                selectedIndices.add(index);
+              }
+
+              if (selectedIndices.size === 0) {
+                // No highlight, reset all
+                chart.data.datasets.forEach((ds, i) => {
                   ds.borderColor = colors[i];
                   ds.backgroundColor = colors[i];
+                  ds.borderWidth = 2;
                   ds.hidden = false;
-                } else {
-                  if (!isHighlighted) {
+                });
+              } else {
+                // Highlight selected, fade others
+                chart.data.datasets.forEach((ds, i) => {
+                  if (selectedIndices.has(i)) {
+                    ds.borderColor = colors[i];
+                    ds.backgroundColor = colors[i];
+                    ds.borderWidth = 4;
+                    ds.hidden = false;
+                  } else {
                     ds.borderColor = '#ccc';
                     ds.backgroundColor = '#ccc';
                     ds.borderWidth = 1;
-                  } else {
-                    ds.borderColor = colors[i];
-                    ds.backgroundColor = colors[i];
-                    ds.borderWidth = 2;
+                    ds.hidden = false;
                   }
-                }
-              });
+                });
+              }
               chart.update();
             }
           },
