@@ -40,7 +40,7 @@
 
     <script>
         const playerData = {
-            'Markus': [5, 3, 2, 7, 4, 3,6, 9, 4,7, 10, 10, 5, 6, 8, 7, 4, 4, 4, 3, 3, 9, 5, 1, 2, 2, 2, 7, 1, 6, 2, 3, 7, 2],
+            'Markus': [5, 3, 2, 7, 4, 3, 6, 9, 4, 7, 10, 10, 5, 6, 8, 7, 4, 4, 4, 3, 3, 9, 5, 1, 2, 2, 2, 7, 1, 6, 2, 3, 7, 2],
             'Erwin': [7, 4, 5, 3, 7, 9, 2, 7, 3, 6, 2, 4, 6, 7, 1, 5, 6, 1, 1, 2, 1, 6, 3, 3, 9, 3, 7, 5, 3, 5, 1, 2, 5, 2],
             'Phil': [4, 5, 9, 2, 6, 1, 10, 5, 8, 3, 6, 1, 3, 1, 8, 6, 1, 7, 2, 5, 2, 5, 8, 1, 5, 6, 9, 10, 2, 1, 7, 10, 6, 1],
             'Didi': [10, 10, 8, 9, 2, 10, 7, 10, 10, 8, 7, 9, 10, 8, 10, 8, 10, 8, 7, 10, 10, 7, 9, 9, 6, 7, 8, 6, 6, 3, 6, 5, 8, 10],
@@ -52,19 +52,20 @@
             'Espen': [1, 1, 4, 4, 8, 2, 1, 1, 1, 1, 1, 2, 9, 2, 7, 1, 2, 6, 3, 8, 9, 1, 4, 3, 1, 1, 5, 8, 10, 1, 9, 7, 3, 9]
         };
 
-        const players = ['Markus', 'Erwin', 'Phil', 'Didi', 'Steffo', 'Basti', 'Eirik', 'Emil', 'Kempka', 'Espen'];
+        const players = Object.keys(playerData);
         const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'pink', 'black', 'gray', 'cyan'];
+
+        let selectedPlayer = null;
 
         const datasets = players.map((name, index) => ({
             label: name,
             data: playerData[name],
             borderColor: colors[index],
-            backgroundColor: colors[index], // Set backgroundColor for point colors
+            backgroundColor: colors[index],
             fill: false,
-            pointBackgroundColor: colors[index], // Color of points
-            pointBorderColor: colors[index], // Set the same color for point border
-            pointBorderWidth: 0, // Remove the border width
-            hidden: false
+            pointBackgroundColor: colors[index],
+            pointBorderColor: colors[index],
+            pointBorderWidth: 0
         }));
 
         const ctx = document.getElementById('fieberkurveChart').getContext('2d');
@@ -93,6 +94,34 @@
                         labels: {
                             usePointStyle: true,
                             pointStyle: 'circle'
+                        },
+                        onClick: (e, legendItem) => {
+                            const clickedPlayer = legendItem.text;
+
+                            if (selectedPlayer === clickedPlayer) {
+                                selectedPlayer = null;
+                            } else {
+                                selectedPlayer = clickedPlayer;
+                            }
+
+                            fieberkurveChart.data.datasets.forEach((dataset, i) => {
+                                if (!selectedPlayer || dataset.label === selectedPlayer) {
+                                    const color = colors[players.indexOf(dataset.label)];
+                                    dataset.borderColor = color;
+                                    dataset.backgroundColor = color;
+                                    dataset.pointBackgroundColor = color;
+                                    dataset.pointBorderColor = color;
+                                    dataset.borderWidth = dataset.label === selectedPlayer ? 3 : 2;
+                                } else {
+                                    dataset.borderColor = 'lightgrey';
+                                    dataset.backgroundColor = 'lightgrey';
+                                    dataset.pointBackgroundColor = 'lightgrey';
+                                    dataset.pointBorderColor = 'lightgrey';
+                                    dataset.borderWidth = 1;
+                                }
+                            });
+
+                            fieberkurveChart.update();
                         }
                     },
                     tooltip: {
