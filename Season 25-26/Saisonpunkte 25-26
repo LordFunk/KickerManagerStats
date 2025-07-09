@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saisonpunkte 25-26</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      margin: 20px 0;
+      font-size: 24px;
+      text-align: center;
+    }
+    .chart-container {
+      width: 90%;
+      max-width: 1200px;
+      height: 70vh;
+      position: relative;
+      margin-bottom: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Saisonpunkte 25-26</h1>
+  <div class="chart-container">
+    <canvas id="fieberkurveChart"></canvas>
+  </div>
+
+  <script>
+    const playerPoints = {
+      'Markus': [1],
+      'Erwin': [1],
+      'Phil': [1],
+      'Didi': [1],
+      'Steffo': [1],
+      'Basti': [1],
+      'Eirik': [1],
+      'Emil': [1],
+      'Kempka': [1],
+      'Espen': [1],
+    };
+
+    const players = Object.keys(playerPoints);
+    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+    const selectedPlayers = new Set();
+
+    // Determine max length of all arrays for labels
+    const maxLength = Math.max(...players.map(p => playerPoints[p].length));
+
+    const datasets = players.map((name, index) => ({
+      label: name,
+      data: playerPoints[name],
+      borderColor: colors[index],
+      backgroundColor: colors[index],
+      fill: false,
+      pointRadius: 2,
+      borderWidth: 2,
+      spanGaps: true,
+      hidden: false
+    }));
+
+    const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+
+    const selectedIndices = new Set();
+
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({length: maxLength}, (_, i) => `Game Day ${i + 1}`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            },
+            onClick: function(e, legendItem, legend) {
+              const index = legendItem.datasetIndex;
+
+              if (selectedIndices.has(index)) {
+                selectedIndices.delete(index);
+              } else {
+                selectedIndices.add(index);
+              }
+
+              if (selectedIndices.size === 0) {
+                chart.data.datasets.forEach((ds, i) => {
+                  ds.borderColor = colors[i];
+                  ds.backgroundColor = colors[i];
+                  ds.borderWidth = 2;
+                  ds.hidden = false;
+                });
+              } else {
+                chart.data.datasets.forEach((ds, i) => {
+                  if (selectedIndices.has(i)) {
+                    ds.borderColor = colors[i];
+                    ds.backgroundColor = colors[i];
+                    ds.borderWidth = 4;
+                    ds.hidden = false;
+                  } else {
+                    ds.borderColor = '#ccc';
+                    ds.backgroundColor = '#ccc';
+                    ds.borderWidth = 1;
+                    ds.hidden = false;
+                  }
+                });
+              }
+              chart.update();
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
