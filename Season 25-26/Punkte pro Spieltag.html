@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Points Per Game Day 25-26</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+        .chart-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 70vh;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <h1>Punkte je Spieltag 25-26</h1>
+    <div class="chart-container">
+        <canvas id="pointsChart"></canvas>
+    </div>
+
+    <script>
+        const playerData = {
+            'Markus': [1],
+            'Erwin': [1],
+            'Phil': [1],
+            'Didi': [1],
+            'Steffo': [1],
+            'Basti': [1],
+            'Eirik': [1],
+            'Emil': [1],
+            'Kempka': [1],
+            'Espen': [1],
+        };
+
+        // RGBA colors for full opacity
+        const colorsRGBA = [
+            'rgba(255, 0, 0, 1)',       // red
+            'rgba(0, 0, 255, 1)',       // blue
+            'rgba(0, 128, 0, 1)',       // green
+            'rgba(128, 0, 128, 1)',     // purple
+            'rgba(255, 165, 0, 1)',     // orange
+            'rgba(165, 42, 42, 1)',     // brown
+            'rgba(127, 255, 0, 1)',     // chartreuse 
+            'rgba(0, 0, 0, 1)',         // black
+            'rgba(128, 128, 128, 1)',   // gray
+            'rgba(0, 255, 255, 1)',     // cyan
+        ];
+
+        // Color for faded datasets
+        const fadedColor = 'rgba(200, 200, 200, 0.3)';
+
+        const datasets = Object.keys(playerData).map((playerName, index) => ({
+            label: playerName,
+            data: playerData[playerName],
+            borderColor: colorsRGBA[index],
+            backgroundColor: colorsRGBA[index],
+            fill: false,
+            pointRadius: 2,
+            borderWidth: 2,
+            spanGaps: true,
+            hidden: false,
+            highlighted: false // custom flag
+        }));
+
+        const ctx = document.getElementById('pointsChart').getContext('2d');
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: playerData['Markus'].map((_, i) => `Game Day ${i + 1}`),
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        },
+                        onClick: function(e, legendItem, legend) {
+                            const index = legendItem.datasetIndex;
+                            const ds = chart.data.datasets[index];
+
+                            // Toggle highlight state
+                            ds.highlighted = !ds.highlighted;
+
+                            // Check if any dataset is highlighted
+                            const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+
+                            chart.data.datasets.forEach((dataset, i) => {
+                                if (anyHighlighted) {
+                                    if (dataset.highlighted) {
+                                        dataset.borderColor = colorsRGBA[i];
+                                        dataset.backgroundColor = colorsRGBA[i];
+                                        dataset.borderWidth = 4;
+                                        dataset.hidden = false;
+                                    } else {
+                                        dataset.borderColor = fadedColor;
+                                        dataset.backgroundColor = fadedColor;
+                                        dataset.borderWidth = 2;
+                                        dataset.hidden = false;
+                                    }
+                                } else {
+                                    // No highlights, reset to normal colors
+                                    dataset.borderColor = colorsRGBA[i];
+                                    dataset.backgroundColor = colorsRGBA[i];
+                                    dataset.borderWidth = 2;
+                                    dataset.hidden = false;
+                                }
+                            });
+
+                            chart.update();
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
