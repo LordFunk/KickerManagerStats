@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Fieberkurve</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f5f5f5;
+    }
+
+    h1 {
+      margin: 20px 0;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .chart-container {
+      width: 90%;
+      max-width: 1200px;
+      height: 70vh;
+      position: relative;
+    }
+
+    canvas {
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tabellenplatzentwicklung 25-26</h1>
+  <div class="chart-container">
+    <canvas id="fieberkurveChart"></canvas>
+  </div>
+
+  <script>
+    const playerData = {
+      'Markus': [1],
+      'Erwin': [2],
+      'Phil': [3],
+      'Didi': [4],
+      'Steffo': [5],
+      'Basti': [6],
+      'Eirik': [7],
+      'Emil': [8],
+      'Kempka': [9],
+      'Espen': [10]
+    };
+
+    const playerPoints = {
+    'Markus': [10],
+    'Erwin': [9],
+    'Phil': [8],
+    'Didi': [7],
+    'Steffo': [6],
+    'Basti': [5],
+    'Eirik': [4],
+    'Emil': [3],
+    'Kempka': [2],
+    'Espen': [1],
+
+};
+
+    const players = Object.keys(playerData);
+    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+    const selectedPlayers = new Set();
+
+    const datasets = players.map((name, index) => ({
+      label: name,
+      data: playerData[name],
+      borderColor: colors[index],
+      backgroundColor: colors[index],
+      pointBackgroundColor: colors[index],
+      pointBorderColor: colors[index],
+      pointBorderWidth: 0,
+      borderWidth: 2,
+    }));
+
+    const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({ length: 34 }, (_, i) => `Matchday ${i + 1}`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            reverse: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            onClick: (e, legendItem) => {
+              const playerName = legendItem.text;
+              if (selectedPlayers.has(playerName)) {
+                selectedPlayers.delete(playerName);
+              } else {
+                selectedPlayers.add(playerName);
+              }
+
+              chart.data.datasets.forEach((ds) => {
+                const selected = selectedPlayers.size === 0 || selectedPlayers.has(ds.label);
+                const originalColor = colors[players.indexOf(ds.label)];
+                ds.borderColor = selected ? originalColor : '#ccc';
+                ds.pointBackgroundColor = selected ? originalColor : '#ccc';
+                ds.pointBorderColor = selected ? originalColor : '#ccc';
+              });
+
+              chart.update();
+            },
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            }
+          },
+          tooltip: {
+            callbacks: {
+              title: function (tooltipItems) {
+                return tooltipItems[0].label;
+              },
+              label: function (tooltipItem) {
+                const player = tooltipItem.dataset.label;
+                const matchdayIndex = tooltipItem.dataIndex;
+                const place = tooltipItem.parsed.y;
+                const points = playerPoints[player]?.[matchdayIndex] ?? 'N/A';
+                return `${player}: Place ${place}, Points ${points}`;
+              }
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
