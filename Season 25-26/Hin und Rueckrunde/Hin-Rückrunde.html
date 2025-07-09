@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hin- und Rückrundentabelle 25-26</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Hin- und Rückrundentabelle 25-26</h1>
+    <div id="tables"></div>
+
+    <script>
+      const pointsAfter17 = {
+        Espen: 1,
+        Phil: 2,
+        Emil: 3,
+        Erwin: 4,
+        Kempka: 5,
+        Markus: 6,
+        Steffen: 7,
+        Eirik: 8,
+        Basti: 9,
+        Didi: 10
+      };
+
+      const pointsAfter34 = {
+        Espen: 11,
+        Phil: 12,
+        Emil: 13,
+        Erwin: 14,
+        Kempka: 15,
+        Markus: 16,
+        Steffen: 17,
+        Eirik: 18,
+        Basti: 19,
+        Didi: 20,
+      };
+
+      function toArray(obj) {
+        return Object.entries(obj).map(([name, points]) => ({ name, points }));
+      }
+
+      function calculateRueckrunde(after17, after34) {
+        const result = [];
+        for (const name in after17) {
+          if (after34[name] !== undefined) {
+            const hin = after17[name];
+            const rueck = after34[name] - hin;
+            result.push({
+              name,
+              rueckrunde: rueck,
+              veraenderung: rueck - hin
+            });
+          }
+        }
+        return result;
+      }
+
+      function renderHinrundeTable(data) {
+        const sorted = [...data].sort((a, b) => b.points - a.points);
+        let html = `
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Hinrunde Tabelle</h2>
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid #ccc;">
+                  <th style="padding: 0.5rem;">Place</th>
+                  <th style="padding: 0.5rem;">Name</th>
+                  <th style="padding: 0.5rem;">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        sorted.forEach((entry, i) => {
+          html += `
+            <tr>
+              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${entry.name}</td>
+              <td style="padding: 0.5rem;">${entry.points}</td>
+            </tr>
+          `;
+        });
+        html += `</tbody></table></div>`;
+        return html;
+      }
+
+      function renderRueckrundeTable(data) {
+        const sorted = [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
+        let html = `
+          <div style="margin-bottom: 2rem;">
+            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Rückrunde Tabelle (inkl. Veränderung)</h2>
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid #ccc;">
+                  <th style="padding: 0.5rem;">Place</th>
+                  <th style="padding: 0.5rem;">Name</th>
+                  <th style="padding: 0.5rem;">Rückrunde</th>
+                  <th style="padding: 0.5rem;">Veränderung</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        sorted.forEach((entry, i) => {
+          const diff = entry.veraenderung;
+          const diffText =
+            diff > 0
+              ? `<span style="color: green;">+${diff}</span>`
+              : diff < 0
+              ? `<span style="color: red;">${diff}</span>`
+              : "0";
+          html += `
+            <tr>
+              <td style="padding: 0.5rem;">${i + 1}</td>
+              <td style="padding: 0.5rem;">${entry.name}</td>
+              <td style="padding: 0.5rem;">${entry.rueckrunde}</td>
+              <td style="padding: 0.5rem;">${diffText}</td>
+            </tr>
+          `;
+        });
+        html += `</tbody></table></div>`;
+        return html;
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const hinrunde = toArray(pointsAfter17);
+        const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
+
+        document.getElementById("tables").innerHTML =
+          renderHinrundeTable(hinrunde) + renderRueckrundeTable(rueckrunde);
+      });
+    </script>
+  </body>
+</html>
