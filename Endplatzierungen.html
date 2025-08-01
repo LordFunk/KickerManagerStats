@@ -55,6 +55,8 @@
   const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
 
   const players = Object.keys(finalPlacements);
+  const selectedPlayers = new Set();
+
   const datasets = players.map((name, index) => {
     const data = finalPlacements[name].map(val => val === 0 ? null : val);
     return {
@@ -67,8 +69,7 @@
       spanGaps: true,
       pointRadius: 4,
       pointHoverRadius: 6,
-      borderWidth: 2,
-      hidden: false
+      borderWidth: 2
     };
   });
 
@@ -101,27 +102,22 @@
           },
           onClick: function(e, legendItem, legend) {
             const index = legendItem.datasetIndex;
-            const selectedDataset = chart.data.datasets[index];
-            const isHighlighted = selectedDataset.borderWidth === 4;
+            const dataset = chart.data.datasets[index];
+            const player = dataset.label;
 
-            chart.data.datasets.forEach((ds, i) => {
-              if (i === index) {
-                ds.borderWidth = isHighlighted ? 2 : 4;
-                ds.borderColor = colors[i];
-                ds.backgroundColor = colors[i];
-                ds.hidden = false;
-              } else {
-                if (!isHighlighted) {
-                  ds.borderColor = '#ccc';
-                  ds.backgroundColor = '#ccc';
-                  ds.borderWidth = 1;
-                } else {
-                  ds.borderColor = colors[i];
-                  ds.backgroundColor = colors[i];
-                  ds.borderWidth = 2;
-                }
-              }
+            if (selectedPlayers.has(player)) {
+              selectedPlayers.delete(player);
+            } else {
+              selectedPlayers.add(player);
+            }
+
+            chart.data.datasets.forEach(ds => {
+              const isSelected = selectedPlayers.has(ds.label);
+              ds.borderWidth = isSelected ? 3 : 1;
+              ds.borderColor = isSelected ? ds.borderColor : '#ccc';
+              ds.backgroundColor = isSelected ? ds.backgroundColor : '#ccc';
             });
+
             chart.update();
           }
         },
