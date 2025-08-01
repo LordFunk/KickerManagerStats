@@ -38,102 +38,111 @@
   </div>
 
   <script>
-const finalPlacements = {
-  'Markus': [2, 3, 2, 1, 5],
-  'Erwin': [4, 4, 1, 4, 2],
-  'Phil': [3, 1, 5, 5, 4],
-  'Didi': [5, 2, 7, 6, 10],
-  'Steffo': [0, 7, 4, 7, 9],
-  'Basti': [0, 5, 6, 3, 8],
-  'Eirik': [1, 6, 3, 8, 7],
-  'Emil': [0, 0, 0, 2, 3],
-  'Kempka': [0, 0, 0, 0, 6],
-  'Espen': [0, 0, 0, 0, 1]
-};
+    const finalPlacements = {
+      'Markus': [2, 3, 2, 1, 5],
+      'Erwin': [4, 4, 1, 4, 2],
+      'Phil': [3, 1, 5, 5, 4],
+      'Didi': [5, 2, 7, 6, 10],
+      'Steffo': [0, 7, 4, 7, 9],
+      'Basti': [0, 5, 6, 3, 8],
+      'Eirik': [1, 6, 3, 8, 7],
+      'Emil': [0, 0, 0, 2, 3],
+      'Kempka': [0, 0, 0, 0, 6],
+      'Espen': [0, 0, 0, 0, 1]
+    };
 
-const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
-const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+    const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
+    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
 
-const selectedPlayers = new Set();
+    const selectedPlayers = new Set();
 
-const datasets = Object.entries(finalPlacements).map(([name, data], index) => {
-  const cleanData = data.map(val => val === 0 ? null : val);
-  const color = colors[index];
-  return {
-    label: name,
-    data: cleanData,
-    borderColor: color,
-    backgroundColor: color,
-    originalColor: color,
-    originalBgColor: color,
-    fill: false,
-    tension: 0,
-    spanGaps: true,
-    pointRadius: 4,
-    pointHoverRadius: 6,
-    borderWidth: 2
-  };
-});
+    const datasets = Object.entries(finalPlacements).map(([name, data], index) => {
+      const cleanData = data.map(val => val === 0 ? null : val);
+      const color = colors[index];
+      return {
+        label: name,
+        data: cleanData,
+        borderColor: color,
+        backgroundColor: color,
+        originalColor: color,
+        originalBgColor: color,
+        fill: false,
+        tension: 0,
+        spanGaps: true,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2
+      };
+    });
 
-const ctx = document.getElementById('endplatzierungChart').getContext('2d');
-const chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: seasonLabels,
-    datasets: datasets
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        reverse: true,
-        beginAtZero: false,
-        ticks: {
-          stepSize: 1
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-        labels: {
-          usePointStyle: true,
-          pointStyle: 'circle'
-        },
-        onClick: function(e, legendItem, legend) {
-          const index = legendItem.datasetIndex;
-          const dataset = chart.data.datasets[index];
-          const name = dataset.label;
-
-          // Toggle player selection
-          if (selectedPlayers.has(name)) {
-            selectedPlayers.delete(name);
-          } else {
-            selectedPlayers.add(name);
-          }
-
-          chart.data.datasets.forEach(ds => {
-            const isSelected = selectedPlayers.has(ds.label);
-            ds.borderColor = isSelected ? ds.originalColor : '#ccc';
-            ds.backgroundColor = isSelected ? ds.originalBgColor : '#ccc';
-            ds.borderWidth = isSelected ? 3 : 1;
-          });
-
-          chart.update();
-        }
+    const ctx = document.getElementById('endplatzierungChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: seasonLabels,
+        datasets: datasets
       },
-      tooltip: {
-        callbacks: {
-          label: function(tooltipItem) {
-            return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            reverse: true,
+            beginAtZero: false,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle'
+            },
+            onClick: function(e, legendItem, legend) {
+              const index = legendItem.datasetIndex;
+              const dataset = chart.data.datasets[index];
+              const name = dataset.label;
+
+              // Toggle player
+              if (selectedPlayers.has(name)) {
+                selectedPlayers.delete(name);
+              } else {
+                selectedPlayers.add(name);
+              }
+
+              const noneSelected = selectedPlayers.size === 0;
+
+              chart.data.datasets.forEach(ds => {
+                const isSelected = selectedPlayers.has(ds.label);
+                if (noneSelected || isSelected) {
+                  ds.borderColor = ds.originalColor;
+                  ds.backgroundColor = ds.originalBgColor;
+                  ds.borderWidth = 3;
+                } else {
+                  ds.borderColor = '#ccc';
+                  ds.backgroundColor = '#ccc';
+                  ds.borderWidth = 1;
+                }
+              });
+
+              chart.update();
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              }
+            }
           }
         }
       }
-    }
-  }
-});
-</script>
+    });
+  </script>
+
 </body>
 </html>
