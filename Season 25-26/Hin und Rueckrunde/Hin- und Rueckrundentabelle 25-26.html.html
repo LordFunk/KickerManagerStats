@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hin- und Rückrundentabelle 25-26</title>
   <style>
+    /* Box sizing globally */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #e9eff5, #f9fafc);
@@ -15,6 +22,24 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+    }
+
+    /* Add horizontal padding on small screens */
+    @media (max-width: 600px) {
+      body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .table-wrapper {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        overflow-x: auto;
+      }
+      h2 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
 
     h1 {
@@ -59,6 +84,13 @@
       text-align: left;
       border-bottom: 1px solid #ddd;
     }
+
+    /* Add extra left padding to first column */
+    th:first-child,
+    td:first-child {
+      padding-left: 1.5rem;
+    }
+
     th {
       background-color: #f0f4fa;
       font-weight: 600;
