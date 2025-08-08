@@ -7,20 +7,24 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
+      color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      background-color: #f5f5f5;
     }
 
     h1 {
-      margin: 20px 0;
-      font-size: 24px;
+      margin: 30px 0 20px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #0056b3, #0091ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-align: center;
     }
 
@@ -28,11 +32,16 @@
       width: 90%;
       max-width: 1200px;
       height: 70vh;
-      position: relative;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 40px;
+      transition: box-shadow 0.3s ease;
     }
 
-    canvas {
-      background-color: white;
+    .chart-container:hover {
+      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -98,9 +107,13 @@
       pointBorderColor: colors[index],
       pointBorderWidth: 0,
       borderWidth: 2,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: false
     }));
 
     const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -122,6 +135,14 @@
           legend: {
             display: true,
             position: 'top',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: {
+                size: 14,
+                weight: '600'
+              }
+            },
             onClick: (e, legendItem) => {
               const playerName = legendItem.text;
               if (selectedPlayers.has(playerName)) {
@@ -131,26 +152,23 @@
               }
 
               chart.data.datasets.forEach((ds) => {
-                const selected = selectedPlayers.size === 0 || selectedPlayers.has(ds.label);
+                const isSelected = selectedPlayers.size === 0 || selectedPlayers.has(ds.label);
                 const originalColor = colors[players.indexOf(ds.label)];
-                ds.borderColor = selected ? originalColor : '#ccc';
-                ds.pointBackgroundColor = selected ? originalColor : '#ccc';
-                ds.pointBorderColor = selected ? originalColor : '#ccc';
+                ds.borderColor = isSelected ? originalColor : '#ccc';
+                ds.pointBackgroundColor = isSelected ? originalColor : '#ccc';
+                ds.pointBorderColor = isSelected ? originalColor : '#ccc';
+                ds.borderWidth = isSelected ? 3 : 1.5;
+                ds.pointRadius = isSelected ? 6 : 3;
+                ds.pointHoverRadius = isSelected ? 7 : 4;
               });
 
               chart.update();
-            },
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
             }
           },
           tooltip: {
             callbacks: {
-              title: function (tooltipItems) {
-                return tooltipItems[0].label;
-              },
-              label: function (tooltipItem) {
+              title: (tooltipItems) => tooltipItems[0].label,
+              label: (tooltipItem) => {
                 const player = tooltipItem.dataset.label;
                 const matchdayIndex = tooltipItem.dataIndex;
                 const place = tooltipItem.parsed.y;
