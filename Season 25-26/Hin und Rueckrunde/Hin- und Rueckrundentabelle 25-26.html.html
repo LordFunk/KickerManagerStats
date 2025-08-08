@@ -6,9 +6,7 @@
   <title>Hin- und Rückrundentabelle 25-26</title>
   <style>
     /* Box sizing globally */
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       box-sizing: border-box;
     }
 
@@ -24,24 +22,6 @@
       min-height: 100vh;
     }
 
-    /* Add horizontal padding on small screens */
-    @media (max-width: 600px) {
-      body {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-      .table-wrapper {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-        overflow-x: auto;
-      }
-      h2 {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-    }
-
     h1 {
       font-weight: 700;
       font-size: 2.25rem;
@@ -50,6 +30,11 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-align: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: auto;
+      white-space: normal;
     }
 
     .table-wrapper {
@@ -61,6 +46,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       padding: 1.5rem;
       transition: box-shadow 0.3s ease;
+      box-sizing: border-box;
     }
     .table-wrapper:hover {
       box-shadow: 0 6px 25px rgba(0,0,0,0.1);
@@ -71,6 +57,12 @@
       font-size: 1.5rem;
       margin-bottom: 1rem;
       color: #003366;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: auto;
+      white-space: normal;
+      text-align: center;
     }
 
     table {
@@ -112,6 +104,33 @@
     .neutral {
       color: #6c757d; /* bootstrap secondary gray */
     }
+
+    /* --- Mobile fixes --- */
+    @media (max-width: 600px) {
+      body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        /* Remove align-items: center on mobile to prevent horizontal shifting */
+        align-items: stretch;
+      }
+      h1, h2 {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: auto;
+        white-space: normal;
+        text-align: center;
+      }
+      .table-wrapper {
+        padding-left: 0;
+        padding-right: 0;
+        overflow-x: auto;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
   </style>
 </head>
 <body>
@@ -119,7 +138,7 @@
   <div id="tables"></div>
 
   <script>
-    // Added Alex with sample points for demonstration
+    // Sample data
     const pointsAfter17 = {
       Espen: 1,
       Phil: 1,
