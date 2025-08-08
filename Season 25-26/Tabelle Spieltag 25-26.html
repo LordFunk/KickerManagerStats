@@ -53,25 +53,40 @@
       'Eirik': [7],
       'Emil': [8],
       'Kempka': [9],
-      'Espen': [10]
+      'Espen': [10],
+      'Alex': [11]
     };
 
     const playerPoints = {
-    'Markus': [10],
-    'Erwin': [9],
-    'Phil': [8],
-    'Didi': [7],
-    'Steffo': [6],
-    'Basti': [5],
-    'Eirik': [4],
-    'Emil': [3],
-    'Kempka': [2],
-    'Espen': [1],
-
-};
+      'Markus': [10],
+      'Erwin': [9],
+      'Phil': [8],
+      'Didi': [7],
+      'Steffo': [6],
+      'Basti': [5],
+      'Eirik': [4],
+      'Emil': [3],
+      'Kempka': [2],
+      'Espen': [1],
+      'Alex': [12]
+    };
 
     const players = Object.keys(playerData);
-    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+
+    const colors = [
+      'red',         // Markus
+      'blue',        // Erwin
+      'green',       // Phil
+      'purple',      // Didi
+      'orange',      // Steffo
+      'brown',       // Basti
+      'chartreuse',  // Eirik
+      'black',       // Emil
+      'gray',        // Kempka
+      'cyan',        // Espen
+      'magenta'      // Alex
+    ];
+
     const selectedPlayers = new Set();
 
     const datasets = players.map((name, index) => ({
