@@ -3,30 +3,49 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Points Per Game Day 25-26</title>
+    <title>Punkte je Spieltag 25-26</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Base page styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, #e9eff5, #f9fafc);
+            color: #222;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            background-color: #f5f5f5;
         }
+
+        /* Page title */
         h1 {
-            margin: 20px 0;
-            font-size: 24px;
+            margin: 30px 0 20px 0;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #0056b3, #0091ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
         }
+
+        /* Chart card container */
         .chart-container {
             width: 90%;
             max-width: 1200px;
             height: 70vh;
-            position: relative;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 40px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
     </style>
 </head>
