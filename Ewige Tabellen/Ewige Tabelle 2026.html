@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      margin: 2rem;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 1200px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    thead {
+      background: linear-gradient(90deg, #004e92, #000428);
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: left;
+    }
+    thead th {
+      padding: 12px 16px;
+    }
+    tbody tr {
+      transition: background-color 0.25s ease;
+      cursor: default;
+    }
+    tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+    tbody tr:hover {
+      background: #e1eaff;
+    }
+    tbody td {
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid #ddd;
+    }
+    h2 {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 0 1rem 0;
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    ul#highlight-list {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+      padding: 1rem 1.5rem;
+      list-style: inside disc;
+      color: #444;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <table id="leaderboard" aria-label="Leaderboard table">
+    <thead>
+      <tr>
+        <th>Platz</th>
+        <th>Spieler</th>
+        <th>Spiele</th>
+        <th>Punkte</th>
+        <th>Meister</th>
+        <th>Letzter</th>
+        <th>Spieltagssiege</th>
+        <th>Spieltagsletzter</th>
+        <th>Tabellenerster</th>
+        <th>Tabellenletzter</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Highlights</h2>
+  <ul id="highlight-list"></ul>
+
+  <script>
+    const leaderboardData = [
+      {
+        platz: 1,
+        spieler: 'Markus',
+        spiele: 170,
+        punkte: 9287,
+        meister: 1,
+        letzter: 0,
+        spieltagssiege: 43,
+        spieltagsletzter: 10,
+        tabellenerster: 52,
+        tabellenletzter: 3
+      },
+      {
+        platz: 2,
+        spieler: 'Erwin',
+        spiele: 170,
+        punkte: 8812,
+        meister: 1,
+        letzter: 0,
+        spieltagssiege: 24,
+        spieltagsletzter: 11,
+        tabellenerster: 34,
+        tabellenletzter: 19
+      },
+      {
+        platz: 3,
+        spieler: 'Phil',
+        spiele: 170,
+        punkte: 8432,
+        meister: 1,
+        letzter: 0,
+        spieltagssiege: 32,
+        spieltagsletzter: 31,
+        tabellenerster: 38,
+        tabellenletzter: 2
+      },
+      {
+        platz: 4,
+        spieler: 'Eirik',
+        spiele: 170,
+        punkte: 7585,
+        meister: 1,
+        letzter: 1,
+        spieltagssiege: 19,
+        spieltagsletzter: 26,
+        tabellenerster: 6,
+        tabellenletzter: 32
+      },
+      {
+        platz: 5,
+        spieler: 'Didi',
+        spiele: 170,
+        punkte: 7272,
+        meister: 0,
+        letzter: 3,
+        spieltagssiege: 16,
+        spieltagsletzter: 38,
+        tabellenerster: 1,
+        tabellenletzter: 79
+      },
+      {
+        platz: 6,
+        spieler: 'Basti',
+        spiele: 136,
+        punkte: 6183,
+        meister: 0,
+        letzter: 0,
+        spieltagssiege: 16,
+        spieltagsletzter: 19,
+        tabellenerster: 1,
+        tabellenletzter: 2
+      },
+      {
+        platz: 7,
+        spieler: 'Steffo',
+        spiele: 136,
+        punkte: 5573,
+        meister: 0,
+        letzter: 1,
+        spieltagssiege: 4,
+        spieltagsletzter: 31,
+        tabellenerster: 0,
+        tabellenletzter: 33
+      },
+      {
+        platz: 8,
+        spieler: 'Emil',
+        spiele: 68,
+        punkte: 3887,
+        meister: 0,
+        letzter: 0,
+        spieltagssiege: 8,
+        spieltagsletzter: 1,
+        tabellenerster: 3,
+        tabellenletzter: 0
+      },
+      {
+        platz: 9,
+        spieler: 'Espen',
+        spiele: 34,
+        punkte: 2042,
+        meister: 1,
+        letzter: 0,
+        spieltagssiege: 12,
+        spieltagsletzter: 1,
+        tabellenerster: 34,
+        tabellenletzter: 0
+      },
+      {
+        platz: 10,
+        spieler: 'Kempka',
+        spiele: 34,
+        punkte: 1750,
+        meister: 0,
+        letzter: 0,
+        spieltagssiege: 4,
+        spieltagsletzter: 3,
+        tabellenerster: 0,
+        tabellenletzter: 0
+      },
+      {
+        platz: 11 '',
+        spieler: 'Alex',
+        spiele: 17'',
+        punkte: '',
+        meister: 0'',
+        letzter: 0'',
+        spieltagssiege: '',
+        spieltagsletzter: '',
+        tabellenerster: '',
+        tabellenletzter: ''
+      }
+    ];
+
+    const highlights = [
+      "- Keine Spieltagssiege in der Saison ",
+      "- Keine Spieltagsniederlagen von ",
+      "- Höchste Spieltagspunkte von  ",
+      "- Niedrigste Spieltagspunkte von ",
+      "- 5 Spieltagssiege in Folge Espen",
+      "- 2 Spieltagsniederlagen in Folge von Markus, Basti, Didi, Steffo",
+      "- Schlechtester Erster:",
+      "- Bester Letzter:",
+      "- 12 Spieltagssiege von Espen",
+      "- 12 Spieltagsniederlagen von Didi",
+      "- Erstmals keine top 1000 platzierung",
+      "- Espen mit ewig bester Gesamtplatzierung mit Platz 6066",
+      "",
+      "",
+      "",
+      "",
+      "Ewig beste Gesamtplatzierung Spieltag:",
+      "27. Markus mit 108 Punkten 22/23",
+      "36. Phil mit 93 Punkten 22/23",
+      "108. Phil mit 104 Punkten 24/25",
+      "278. Phil mit 91 Punkten 22/23",
+      "444. Markus mit 104 Punkten 20/21",
+      "614. Phil mit 87 Punkten 22/23",
+      "739. Eirik mit 93* Punkten 20/21",
+      "766. Phil mit 96 Punkten 21/22",
+      "984. Didi mit 91 Punkten 23/24",
+      "989. Markus mit 94 Punkten 23/24",
+      "",
+      "",
+      "",
+      "",
+      "Ewige statistiken:",
+      "- Meiste Spieltagssiege in einer Saison vom Markus mit 13 (21/22)",
+      "- Meiste Spieltagsniederlagen in einer Saison von Steffo mit 15 (21/22)",
+      "- Ewig wenigste Punkte für Spieltagssieg von Erwin mit 31* Punkten (20/21)",
+      "- Ewig wenigste Punkte von Phil mit -9 (22/23) (nur 20 Leute haben weniger punkte gemacht)",
+      "- Ewig Höchstpunktzahl von Emil mit 113 (23/24) (leider nicht unter den Top 1000 an dem Spieltag)",
+      "",
+      "",
+      "",
+      "",
+      "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga)",
+      "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga)",
+      "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga)",
+      "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga)",
+      "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga)",
+      "",
+      "",
+      "",
+      "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
+      "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
+    ];
+
+    // Populate leaderboard table
+    const leaderboardTable = document.querySelector("#leaderboard tbody");
+    leaderboardData.forEach(player => {
+      const row = document.createElement("tr");
+      Object.values(player).forEach(value =
