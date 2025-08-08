@@ -7,24 +7,35 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 2rem 1rem 3rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
       min-height: 100vh;
-      background-color: #f5f5f5;
+      color: #222;
     }
     h1 {
-      margin: 20px 0 10px;
-      font-size: 24px;
+      margin: 0 0 1rem;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #004e92, #000428);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      width: 100%;
+      max-width: 1200px;
     }
     .chart-container {
       width: 90%;
       max-width: 1200px;
       height: 70vh;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      padding: 1rem 1.5rem;
       position: relative;
       margin-bottom: 40px;
     }
@@ -32,12 +43,13 @@
 </head>
 <body>
 
-  <h1>Endplatzierungen-</h1>
+  <h1>Endplatzierungen der letzten 4 Saisons</h1>
   <div class="chart-container">
     <canvas id="endplatzierungChart"></canvas>
   </div>
 
   <script>
+    // Added Alex without any stats (empty array)
     const finalPlacements = {
       'Markus': [2, 3, 2, 1, 5],
       'Erwin': [4, 4, 1, 4, 2],
@@ -48,16 +60,24 @@
       'Eirik': [1, 6, 3, 8, 7],
       'Emil': [0, 0, 0, 2, 3],
       'Kempka': [0, 0, 0, 0, 6],
-      'Espen': [0, 0, 0, 0, 1]
+      'Espen': [0, 0, 0, 0, 1],
+      'Alex': []  // Alex added with no data
     };
 
     const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
-    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+    const colors = [
+      'red', 'blue', 'green', 'purple', 'orange',
+      'brown', 'chartreuse', 'black', 'gray', 'cyan',
+      'magenta' // Alex color
+    ];
 
     const selectedPlayers = new Set();
 
     const datasets = Object.entries(finalPlacements).map(([name, data], index) => {
-      const cleanData = data.map(val => val === 0 ? null : val);
+      const cleanData = data.length
+        ? data.map(val => val === 0 ? null : val)
+        : Array(seasonLabels.length).fill(null); // fill with null if no data
+
       const color = colors[index];
       return {
         label: name,
@@ -102,12 +122,11 @@
               usePointStyle: true,
               pointStyle: 'circle'
             },
-            onClick: function(e, legendItem, legend) {
+            onClick: (e, legendItem) => {
               const index = legendItem.datasetIndex;
               const dataset = chart.data.datasets[index];
               const name = dataset.label;
 
-              // Toggle player
               if (selectedPlayers.has(name)) {
                 selectedPlayers.delete(name);
               } else {
@@ -134,8 +153,9 @@
           },
           tooltip: {
             callbacks: {
-              label: function(tooltipItem) {
-                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              label: ctx => {
+                const val = ctx.raw;
+                return `${ctx.dataset.label}: ${val === null ? 'N/A' : val}`;
               }
             }
           }
@@ -146,4 +166,3 @@
 
 </body>
 </html>
-
