@@ -1,134 +1,208 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Hin- und Rückrundentabelle 25-26</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <h1>Hin- und Rückrundentabelle 25-26</h1>
-    <div id="tables"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hin- und Rückrundentabelle 25-26</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
+      color: #222;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-    <script>
-      const pointsAfter17 = {
-        Espen: 1,
-        Phil: 1,
-        Emil: 1,
-        Erwin: 1,
-        Kempka: 1,
-        Markus: 1,
-        Steffen: 1,
-        Eirik: 1,
-        Basti: 1,
-        Didi: 1,
-      };
+    h1 {
+      font-weight: 700;
+      font-size: 2.25rem;
+      margin-bottom: 2rem;
+      background: linear-gradient(90deg, #0056b3, #0091ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
 
-      const pointsAfter34 = {
-        Espen: 2,
-        Phil: 2,
-        Emil: 2,
-        Erwin: 2,
-        Kempka: 2,
-        Markus: 2,
-        Steffen: 2,
-        Eirik: 2,
-        Basti: 2,
-        Didi: 2,
-      };
+    .table-wrapper {
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 3rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      transition: box-shadow 0.3s ease;
+    }
+    .table-wrapper:hover {
+      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+    }
 
-      function toArray(obj) {
-        return Object.entries(obj).map(([name, points]) => ({ name, points }));
-      }
+    h2 {
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #003366;
+    }
 
-      function calculateRueckrunde(after17, after34) {
-        const result = [];
-        for (const name in after17) {
-          if (after34[name] !== undefined) {
-            const hin = after17[name];
-            const rueck = after34[name] - hin;
-            result.push({
-              name,
-              rueckrunde: rueck,
-              veraenderung: rueck - hin
-            });
-          }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+      color: #444;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f0f4fa;
+      font-weight: 600;
+      color: #0056b3;
+    }
+    tbody tr:hover {
+      background-color: #f5faff;
+    }
+
+    /* Positive and negative changes */
+    .positive {
+      color: #198754; /* bootstrap success green */
+      font-weight: 600;
+    }
+    .negative {
+      color: #dc3545; /* bootstrap danger red */
+      font-weight: 600;
+    }
+    .neutral {
+      color: #6c757d; /* bootstrap secondary gray */
+    }
+  </style>
+</head>
+<body>
+  <h1>Hin- und Rückrundentabelle 25-26</h1>
+  <div id="tables"></div>
+
+  <script>
+    // Added Alex with sample points for demonstration
+    const pointsAfter17 = {
+      Espen: 1,
+      Phil: 1,
+      Emil: 1,
+      Erwin: 1,
+      Kempka: 1,
+      Markus: 1,
+      Steffen: 1,
+      Eirik: 1,
+      Basti: 1,
+      Didi: 1,
+      Alex: 1
+    };
+
+    const pointsAfter34 = {
+      Espen: 2,
+      Phil: 2,
+      Emil: 2,
+      Erwin: 2,
+      Kempka: 2,
+      Markus: 2,
+      Steffen: 2,
+      Eirik: 2,
+      Basti: 2,
+      Didi: 2,
+      Alex: 3
+    };
+
+    function toArray(obj) {
+      return Object.entries(obj).map(([name, points]) => ({ name, points }));
+    }
+
+    function calculateRueckrunde(after17, after34) {
+      const result = [];
+      for (const name in after17) {
+        if (after34[name] !== undefined) {
+          const hin = after17[name];
+          const rueck = after34[name] - hin;
+          result.push({
+            name,
+            rueckrunde: rueck,
+            veraenderung: rueck - hin
+          });
         }
-        return result;
       }
+      return result;
+    }
 
-      function renderHinrundeTable(data) {
-        const sorted = [...data].sort((a, b) => b.points - a.points);
-        let html = `
-          <div style="margin-bottom: 2rem;">
-            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Hinrunde Tabelle</h2>
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-              <thead>
-                <tr style="border-bottom: 2px solid #ccc;">
-                  <th style="padding: 0.5rem;">Place</th>
-                  <th style="padding: 0.5rem;">Name</th>
-                  <th style="padding: 0.5rem;">Points</th>
-                </tr>
-              </thead>
-              <tbody>
+    function renderHinrundeTable(data) {
+      const sorted = [...data].sort((a, b) => b.points - a.points);
+      let html = `
+        <div class="table-wrapper">
+          <h2>Hinrunde Tabelle</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Place</th>
+                <th>Name</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      sorted.forEach((entry, i) => {
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${entry.name}</td>
+            <td>${entry.points}</td>
+          </tr>
         `;
-        sorted.forEach((entry, i) => {
-          html += `
-            <tr>
-              <td style="padding: 0.5rem;">${i + 1}</td>
-              <td style="padding: 0.5rem;">${entry.name}</td>
-              <td style="padding: 0.5rem;">${entry.points}</td>
-            </tr>
-          `;
-        });
-        html += `</tbody></table></div>`;
-        return html;
-      }
-
-      function renderRueckrundeTable(data) {
-        const sorted = [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
-        let html = `
-          <div style="margin-bottom: 2rem;">
-            <h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">Rückrunde Tabelle (inkl. Veränderung)</h2>
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-              <thead>
-                <tr style="border-bottom: 2px solid #ccc;">
-                  <th style="padding: 0.5rem;">Place</th>
-                  <th style="padding: 0.5rem;">Name</th>
-                  <th style="padding: 0.5rem;">Rückrunde</th>
-                  <th style="padding: 0.5rem;">Veränderung</th>
-                </tr>
-              </thead>
-              <tbody>
-        `;
-        sorted.forEach((entry, i) => {
-          const diff = entry.veraenderung;
-          const diffText =
-            diff > 0
-              ? `<span style="color: green;">+${diff}</span>`
-              : diff < 0
-              ? `<span style="color: red;">${diff}</span>`
-              : "0";
-          html += `
-            <tr>
-              <td style="padding: 0.5rem;">${i + 1}</td>
-              <td style="padding: 0.5rem;">${entry.name}</td>
-              <td style="padding: 0.5rem;">${entry.rueckrunde}</td>
-              <td style="padding: 0.5rem;">${diffText}</td>
-            </tr>
-          `;
-        });
-        html += `</tbody></table></div>`;
-        return html;
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const hinrunde = toArray(pointsAfter17);
-        const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
-
-        document.getElementById("tables").innerHTML =
-          renderHinrundeTable(hinrunde) + renderRueckrundeTable(rueckrunde);
       });
-    </script>
-  </body>
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function renderRueckrundeTable(data) {
+      const sorted = [...data].sort((a, b) => b.rueckrunde - a.rueckrunde);
+      let html = `
+        <div class="table-wrapper">
+          <h2>Rückrunde Tabelle (inkl. Veränderung)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Place</th>
+                <th>Name</th>
+                <th>Rückrunde</th>
+                <th>Veränderung</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      sorted.forEach((entry, i) => {
+        const diff = entry.veraenderung;
+        const diffClass = diff > 0 ? "positive" : diff < 0 ? "negative" : "neutral";
+        const diffText = diff > 0 ? `+${diff}` : diff.toString();
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${entry.name}</td>
+            <td>${entry.rueckrunde}</td>
+            <td class="${diffClass}">${diffText}</td>
+          </tr>
+        `;
+      });
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const hinrunde = toArray(pointsAfter17);
+      const rueckrunde = calculateRueckrunde(pointsAfter17, pointsAfter34);
+      document.getElementById("tables").innerHTML =
+        renderHinrundeTable(hinrunde) + renderRueckrundeTable(rueckrunde);
+    });
+  </script>
+</body>
 </html>
