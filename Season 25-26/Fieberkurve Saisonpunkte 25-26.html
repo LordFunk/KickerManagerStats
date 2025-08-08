@@ -67,10 +67,24 @@
       'Emil': [3],
       'Kempka': [2],
       'Espen': [1],
+      'Alex': [11] // New player in magenta
     };
 
     const players = Object.keys(playerPoints);
-    const colors = ['red', 'blue', 'green', 'purple', 'orange', 'brown', 'chartreuse', 'black', 'gray', 'cyan'];
+    const colors = [
+      'red',         // Markus
+      'blue',        // Erwin
+      'green',       // Phil
+      'purple',      // Didi
+      'orange',      // Steffo
+      'brown',       // Basti
+      'chartreuse',  // Eirik
+      'black',       // Emil
+      'gray',        // Kempka
+      'cyan',        // Espen
+      'magenta'      // Alex
+    ];
+
     const selectedIndices = new Set();
 
     const maxLength = Math.max(...players.map(p => playerPoints[p].length));
