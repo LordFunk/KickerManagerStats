@@ -95,6 +95,21 @@
     <tbody></tbody>
   </table>
 
+  <h2>Fiebertabelle (Season points)</h2>
+  <table id="fiebertabelle" aria-label="Fiebertabelle table">
+    <thead>
+      <tr>
+        <th>Spieler</th>
+        <th>S1</th>
+        <th>S2</th>
+        <th>S3</th>
+        <th>S4</th>
+        <th>S5</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
   <h2>Highlights</h2>
   <ul id="highlight-list"></ul>
 
@@ -221,12 +236,12 @@
         tabellenletzter: 0
       },
       {
-        platz: 11 '',
+        platz: 11,
         spieler: 'Alex',
-        spiele: 17'',
+        spiele: 17,
         punkte: '',
-        meister: 0'',
-        letzter: 0'',
+        meister: 0,
+        letzter: 0,
         spieltagssiege: '',
         spieltagsletzter: '',
         tabellenerster: '',
@@ -292,4 +307,56 @@
     const leaderboardTable = document.querySelector("#leaderboard tbody");
     leaderboardData.forEach(player => {
       const row = document.createElement("tr");
-      Object.values(player).forEach(value =
+      Object.values(player).forEach(value => {
+        const cell = document.createElement("td");
+        cell.textContent = value;
+        row.appendChild(cell);
+      });
+      leaderboardTable.appendChild(row);
+    });
+
+    // Populate fiebertabelle
+    const fiebertabelleData = {
+      'Eirik': { s1: 1288, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
+      'Markus': { s1: 1275, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
+      'Phil': { s1: 1181, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
+      'Erwin': { s1: 959, s2: 1571, s3: 1957, s4: 1845, s5: 1903 },
+      'Didi': { s1: 845, s2: 1735, s3: 1267, s4: 1667, s5: 1212 },
+      'Steffo': { s2: 957, s3: 1558, s4: 1620, s5: 1438 },
+      'Basti': { s2: 1441, s3: 1303, s4: 1924, s5: 1512 },
+      'Emil': { s4: 2014, s5: 1873 },
+      'Kempka': { s5: 1750 },
+      'Espen': { s5: 2042 }
+    };
+
+    const fiebertabelleTableBody = document.querySelector("#fiebertabelle tbody");
+
+    Object.entries(fiebertabelleData).forEach(([spieler, seasons]) => {
+      const row = document.createElement("tr");
+
+      // Spieler name cell
+      const nameCell = document.createElement("td");
+      nameCell.textContent = spieler;
+      row.appendChild(nameCell);
+
+      // Seasons S1 to S5 cells
+      ['s1', 's2', 's3', 's4', 's5'].forEach(seasonKey => {
+        const cell = document.createElement("td");
+        cell.textContent = seasons[seasonKey] !== undefined ? seasons[seasonKey] : '';
+        row.appendChild(cell);
+      });
+
+      fiebertabelleTableBody.appendChild(row);
+    });
+
+    // Populate highlights list
+    const highlightList = document.getElementById("highlight-list");
+    highlights.forEach(text => {
+      const li = document.createElement("li");
+      li.textContent = text;
+      highlightList.appendChild(li);
+    });
+  </script>
+
+</body>
+</html>
