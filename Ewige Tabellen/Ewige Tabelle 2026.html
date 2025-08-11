@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Leaderboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -15,42 +14,29 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      font-size: 16px;
-    }
-    /* Make the table container scroll horizontally on small screens */
-    #table-wrapper {
-      width: 100%;
-      max-width: 1200px;
-      overflow-x: auto;
-      margin-bottom: 2rem;
-      -webkit-overflow-scrolling: touch;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      min-width: 900px; /* ensure table doesn't shrink too much */
+      max-width: 1200px;
+      background: white;
       border-radius: 10px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
       overflow: hidden;
-      table-layout: fixed;
+      margin-bottom: 2rem;
     }
     thead {
       background: linear-gradient(90deg, #004e92, #000428);
       color: white;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.95rem;
       text-align: left;
       user-select: none;
       cursor: pointer;
     }
     thead th {
-      padding: 14px 16px;
+      padding: 12px 16px;
       position: relative;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     thead th.sort-asc::after {
       content: " ▲";
@@ -73,19 +59,16 @@
       background: #e1eaff;
     }
     tbody td {
-      padding: 14px 16px;
-      font-size: 1rem;
+      padding: 12px 16px;
+      font-size: 0.9rem;
       border-bottom: 1px solid #ddd;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     h2 {
       max-width: 1200px;
       width: 100%;
       margin: 0 0 1rem 0;
       font-weight: 700;
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       background: linear-gradient(90deg, #6a11cb, #2575fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -99,7 +82,7 @@
       padding: 1rem 1.5rem;
       list-style: inside disc;
       color: #444;
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1.5;
       max-height: 400px;
       overflow-y: auto;
@@ -120,67 +103,27 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
-
-    /* MOBILE OPTIMIZATION */
-    @media (max-width: 900px) {
-      body {
-        margin: 1rem;
-        font-size: 14px;
-      }
-      h2 {
-        font-size: 1.5rem;
-      }
-      ul#highlight-list {
-        font-size: 0.9rem;
-        padding: 0.75rem 1rem;
-      }
-      .chart-container {
-        height: 300px;
-        padding: 15px;
-        width: 100%;
-      }
-    }
-
-    @media (max-width: 480px) {
-      body {
-        margin: 0.5rem;
-        font-size: 13px;
-      }
-      h2 {
-        font-size: 1.3rem;
-      }
-      ul#highlight-list {
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
-      }
-      .chart-container {
-        height: 250px;
-        padding: 10px;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <div id="table-wrapper">
-    <table id="leaderboard" aria-label="Leaderboard table">
-      <thead>
-        <tr>
-          <th data-key="platz">Platz</th>
-          <th data-key="spieler">Spieler</th>
-          <th data-key="spiele">Spiele</th>
-          <th data-key="punkte">Punkte</th>
-          <th data-key="meister">Meister</th>
-          <th data-key="letzter">Letzter</th>
-          <th data-key="spieltagssiege">Spieltagssiege</th>
-          <th data-key="spieltagsletzter">Spieltagsletzter</th>
-          <th data-key="tabellenerster">Tabellenerster</th>
-          <th data-key="tabellenletzter">Tabellenletzter</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <table id="leaderboard" aria-label="Leaderboard table">
+    <thead>
+      <tr>
+        <th data-key="platz">Platz</th>
+        <th data-key="spieler">Spieler</th>
+        <th data-key="spiele">Spiele</th>
+        <th data-key="punkte">Punkte</th>
+        <th data-key="meister">Meister</th>
+        <th data-key="letzter">Letzter</th>
+        <th data-key="spieltagssiege">Spieltagssiege</th>
+        <th data-key="spieltagsletzter">Spieltagsletzter</th>
+        <th data-key="tabellenerster">Tabellenerster</th>
+        <th data-key="tabellenletzter">Tabellenletzter</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <h2>Fieberkurve (Cumulative Season Points Over Time)</h2>
   <div class="chart-container">
@@ -259,10 +202,12 @@
       "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
     ];
 
+    // Helper to check if value is numeric
     function isNumeric(value) {
       return !isNaN(parseFloat(value)) && isFinite(value);
     }
 
+    // Render leaderboard rows
     function renderLeaderboard(data) {
       const tbody = document.querySelector("#leaderboard tbody");
       tbody.innerHTML = '';
@@ -277,6 +222,7 @@
       });
     }
 
+    // Initial render sorted by punkte desc
     let currentSortKey = 'punkte';
     let currentSortAsc = false;
 
@@ -284,11 +230,15 @@
       return data.slice().sort((a, b) => {
         const valA = a[key];
         const valB = b[key];
+
+        // Handle empty string as lowest
         if(valA === '') return 1;
         if(valB === '') return -1;
+
         if(isNumeric(valA) && isNumeric(valB)) {
           return asc ? valA - valB : valB - valA;
         } else {
+          // text comparison
           if(asc) return valA.toString().localeCompare(valB.toString());
           else return valB.toString().localeCompare(valA.toString());
         }
@@ -305,27 +255,34 @@
       th.classList.add(asc ? 'sort-asc' : 'sort-desc');
     }
 
+    // Setup sorting event listeners on headers
     const headers = document.querySelectorAll("#leaderboard thead th");
     headers.forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.key;
         if (!key) return;
+
         if(currentSortKey === key) {
           currentSortAsc = !currentSortAsc;
         } else {
           currentSortKey = key;
-          currentSortAsc = false;
+          currentSortAsc = false; // default descending
         }
+
         clearSortIndicators();
         updateSortIndicator(th, currentSortAsc);
+
         const sortedData = sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc);
         renderLeaderboard(sortedData);
       });
     });
 
+    // Initial render & indicator
     renderLeaderboard(sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc));
+    // Add initial sort indicator on Punkte header
     document.querySelector("#leaderboard thead th[data-key='punkte']").classList.add('sort-desc');
 
+    // Populate highlights list
     const highlightList = document.getElementById("highlight-list");
     highlights.forEach(text => {
       const li = document.createElement("li");
@@ -333,7 +290,7 @@
       highlightList.appendChild(li);
     });
 
-    // Chart code (unchanged)
+    // Fieberkurve data and chart setup (unchanged from before)
     const fiebertabelleData = {
       'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
       'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
@@ -373,7 +330,7 @@
           sum += seasonPoints[season];
           cumulative.push(sum);
         } else {
-          cumulative.push(null);
+          cumulative.push(null); // Use null so Chart.js skips and starts line at first actual data
         }
       });
       return cumulative;
@@ -382,42 +339,112 @@
     const datasets = players.map((spieler, index) => ({
       label: spieler,
       data: cumulativePoints(fiebertabelleData[spieler]),
-      borderColor: colors[index % colors.length],
-      backgroundColor: 'transparent',
-      tension: 0.2,
-      spanGaps: true,
-      borderWidth: 2,
+      borderColor: colors[index],
+      backgroundColor: colors[index],
+      fill: false,
       pointRadius: 3,
-      pointHoverRadius: 5,
+      borderWidth: 2,
+      spanGaps: true,
+      hidden: false,
+      opacity: 1
     }));
 
     const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-    new Chart(ctx, {
+
+    const selectedIndices = new Set();
+
+    const fieberChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['Season 1', 'Season 2', 'Season 3', 'Season 4', 'Season 5'],
+        labels: seasons.map(s => s.toUpperCase()),
         datasets: datasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'nearest', axis: 'x', intersect: false },
         plugins: {
-          legend: { position: 'bottom', labels: { font: { size: 14 } } },
-          tooltip: { mode: 'index', intersect: false }
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              color: '#222',
+              filter: (legendItem) => {
+                // Always show all legend items
+                return true;
+              }
+            },
+            onClick: function(e, legendItem) {
+              const index = legendItem.datasetIndex;
+              if(selectedIndices.has(index)) {
+                selectedIndices.delete(index);
+              } else {
+                selectedIndices.add(index);
+              }
+              if(selectedIndices.size === 0) {
+                // Reset all
+                fieberChart.data.datasets.forEach((ds, i) => {
+                  ds.borderColor = colors[i];
+                  ds.backgroundColor = colors[i];
+                  ds.borderWidth = 2;
+                  ds.hidden = false;
+                  ds.opacity = 1;
+                });
+              } else {
+                fieberChart.data.datasets.forEach((ds, i) => {
+                  if(selectedIndices.has(i)) {
+                    ds.borderColor = colors[i];
+                    ds.backgroundColor = colors[i];
+                    ds.borderWidth = 4;
+                    ds.hidden = false;
+                    ds.opacity = 1;
+                  } else {
+                    ds.borderColor = '#ccc';
+                    ds.backgroundColor = '#ccc';
+                    ds.borderWidth = 1;
+                    ds.hidden = false;
+                    ds.opacity = 0.3;
+                  }
+                });
+              }
+              fieberChart.update();
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}
+            }
+          }
         },
         scales: {
           y: {
-            beginAtZero: false,
-            title: { display: true, text: 'Cumulative Points' },
-            ticks: { font: { size: 12 } }
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Cumulative Points'
+            }
           },
           x: {
-            title: { display: true, text: 'Seasons' },
-            ticks: { font: { size: 12 } }
+            title: {
+              display: true,
+              text: 'Season'
+            }
           }
         }
-      }
+      },
+      plugins: [{
+        // Plugin to set line opacity dynamically
+        id: 'opacityPlugin',
+        beforeDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          chart.data.datasets.forEach((ds, i) => {
+            ctx.save();
+            ctx.globalAlpha = ds.opacity !== undefined ? ds.opacity : 1;
+            ctx.restore();
+          });
+        }
+      }]
     });
   </script>
 
