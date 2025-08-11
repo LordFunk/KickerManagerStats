@@ -47,17 +47,6 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
         }
-
-        /* Custom tooltip styling via Chart.js plugin class */
-        .custom-tooltip {
-            background: rgba(0, 145, 255, 0.9) !important;
-            color: #fff !important;
-            border-radius: 8px !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.18) !important;
-            padding: 8px 14px !important;
-            font-size: 1rem !important;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
     </style>
 </head>
 <body>
@@ -68,122 +57,57 @@
 
     <script>
         const playerData = {
-            'Markus': [1, 2, 2, 3, 4, 3, 5],
-            'Erwin': [2, 2, 1, 2, 3, 4, 3],
-            'Phil': [3, 2, 3, 2, 4, 4, 4],
-            'Didi': [4, 5, 4, 3, 2, 5, 6],
-            'Steffo': [5, 4, 6, 6, 6, 7, 7],
-            'Basti': [6, 6, 5, 7, 7, 6, 5],
-            'Eirik': [7, 8, 8, 7, 8, 8, 8],
-            'Emil': [8, 7, 7, 8, 9, 9, 9],
-            'Kempka': [9, 9, 9, 9, 10, 10, 10],
-            'Espen': [10, 10, 10, 10, 11, 11, 11],
-            'Alex': [11, 11, 11, 11, 12, 12, 12]
-        };
+    'Markus': [1],
+    'Erwin': [2],
+    'Phil': [3],
+    'Didi': [4],
+    'Steffo': [5],
+    'Basti': [6],
+    'Eirik': [7],
+    'Emil': [8],
+    'Kempka': [9],
+    'Espen': [10],
+    'Alex': [11] // ← New player
+};
 
-        // Distinct RGBA colors for each player
-        const colorsRGBA = [
-            'rgba(255, 0, 0, 1)',       // Markus - red
-            'rgba(0, 0, 255, 1)',       // Erwin - blue
-            'rgba(0, 128, 0, 1)',       // Phil - green
-            'rgba(128, 0, 128, 1)',     // Didi - purple
-            'rgba(255, 165, 0, 1)',     // Steffo - orange
-            'rgba(165, 42, 42, 1)',     // Basti - brown
-            'rgba(127, 255, 0, 1)',     // Eirik - chartreuse 
-            'rgba(0, 0, 0, 1)',         // Emil - black
-            'rgba(128, 128, 128, 1)',   // Kempka - gray
-            'rgba(0, 255, 255, 1)',     // Espen - cyan
-            'rgba(255, 0, 255, 1)',     // Alex - magenta
-        ];
+// RGBA colors for full opacity
+const colorsRGBA = [
+    'rgba(255, 0, 0, 1)',       // red
+    'rgba(0, 0, 255, 1)',       // blue
+    'rgba(0, 128, 0, 1)',       // green
+    'rgba(128, 0, 128, 1)',     // purple
+    'rgba(255, 165, 0, 1)',     // orange
+    'rgba(165, 42, 42, 1)',     // brown
+    'rgba(127, 255, 0, 1)',     // chartreuse 
+    'rgba(0, 0, 0, 1)',         // black
+    'rgba(128, 128, 128, 1)',   // gray
+    'rgba(0, 255, 255, 1)',     // cyan
+    'rgba(255, 0, 255, 1)',     // magenta (Alex)
+];
 
-        // Distinct point styles for each player
-        const pointStyles = [
-            'circle',      // Markus
-            'rect',        // Erwin
-            'triangle',    // Phil
-            'rectRounded', // Didi
-            'rectRot',     // Steffo
-            'cross',       // Basti
-            'star',        // Eirik
-            'line',        // Emil
-            'dash',        // Kempka
-            'crossRot',    // Espen
-            'triangle',    // Alex (repeat if needed)
-        ];
 
         // Color for faded datasets
         const fadedColor = 'rgba(200, 200, 200, 0.3)';
 
-        // Game day labels
-        const gameDays = Array.from({length: playerData['Markus'].length}, (_, i) => `Game Day ${i + 1}`);
-
-        // Construct datasets
         const datasets = Object.keys(playerData).map((playerName, index) => ({
             label: playerName,
             data: playerData[playerName],
             borderColor: colorsRGBA[index],
             backgroundColor: colorsRGBA[index],
             fill: false,
-            pointRadius: 5,
-            pointStyle: pointStyles[index],
+            pointRadius: 2,
             borderWidth: 2,
             spanGaps: true,
             hidden: false,
-            highlighted: false, // custom flag
-            tension: 0.4 // smooth lines
+            highlighted: false // custom flag
         }));
 
-        // Chart.js custom external tooltip handler for advanced styling
-        const externalTooltipHandler = (context) => {
-            // Tooltip Element
-            let tooltipEl = document.getElementById('chartjs-tooltip');
-
-            // Create element on first render
-            if (!tooltipEl) {
-                tooltipEl = document.createElement('div');
-                tooltipEl.id = 'chartjs-tooltip';
-                tooltipEl.className = 'custom-tooltip';
-                tooltipEl.style.opacity = 1;
-                tooltipEl.style.pointerEvents = 'none';
-                tooltipEl.style.position = 'absolute';
-                tooltipEl.style.zIndex = 9999;
-                document.body.appendChild(tooltipEl);
-            }
-
-            // Hide if no tooltip
-            const {chart, tooltip} = context;
-            if (tooltip.opacity === 0) {
-                tooltipEl.style.opacity = 0;
-                return;
-            }
-
-            // Set text & style
-            if (tooltip.body) {
-                const dataPoint = tooltip.dataPoints[0];
-                const player = dataPoint.dataset.label;
-                const value = dataPoint.formattedValue;
-                const gameDay = dataPoint.label;
-                tooltipEl.innerHTML =
-                  `<div>
-                      <b>${player}</b><br>
-                      <span>${gameDay}</span><br>
-                      <span>Punkte: <b>${value}</b></span>
-                  </div>`;
-            }
-
-            // Position
-            const {offsetLeft: positionX, offsetTop: positionY} = chart.canvas;
-            tooltipEl.style.opacity = 1;
-            tooltipEl.style.left = positionX + tooltip.caretX + 20 + 'px';
-            tooltipEl.style.top = positionY + tooltip.caretY + 20 + 'px';
-        };
-
-        // Setup Chart
         const ctx = document.getElementById('pointsChart').getContext('2d');
+
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: gameDays,
+                labels: playerData['Markus'].map((_, i) => `Game Day ${i + 1}`),
                 datasets: datasets
             },
             options: {
@@ -195,13 +119,18 @@
                         position: 'top',
                         labels: {
                             usePointStyle: true,
-                            pointStyle: pointStyles
+                            pointStyle: 'circle'
                         },
                         onClick: function(e, legendItem, legend) {
                             const index = legendItem.datasetIndex;
                             const ds = chart.data.datasets[index];
+
+                            // Toggle highlight state
                             ds.highlighted = !ds.highlighted;
+
+                            // Check if any dataset is highlighted
                             const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+
                             chart.data.datasets.forEach((dataset, i) => {
                                 if (anyHighlighted) {
                                     if (dataset.highlighted) {
@@ -216,39 +145,28 @@
                                         dataset.hidden = false;
                                     }
                                 } else {
+                                    // No highlights, reset to normal colors
                                     dataset.borderColor = colorsRGBA[i];
                                     dataset.backgroundColor = colorsRGBA[i];
                                     dataset.borderWidth = 2;
                                     dataset.hidden = false;
                                 }
                             });
+
                             chart.update();
                         }
                     },
                     tooltip: {
-                        enabled: false, // Disable default
-                        external: externalTooltipHandler
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0,0,0,0.07)',
-                            borderDash: [4, 4]
-                        },
-                        ticks: {
-                            color: '#555'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(0,0,0,0.04)',
-                            borderDash: [2, 2]
-                        },
-                        ticks: {
-                            color: '#555'
-                        }
+                        beginAtZero: true
                     }
                 }
             }
