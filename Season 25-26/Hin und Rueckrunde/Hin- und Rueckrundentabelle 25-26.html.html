@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -6,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hin- und Rückrundentabelle 25-26</title>
   <style>
-    /* Box sizing globally */
     *, *::before, *::after {
       box-sizing: border-box;
     }
-
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #e9eff5, #f9fafc);
@@ -22,7 +19,6 @@
       align-items: center;
       min-height: 100vh;
     }
-
     h1 {
       font-weight: 700;
       font-size: 2.25rem;
@@ -34,10 +30,7 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      overflow-x: auto;
-      white-space: normal;
     }
-
     .table-wrapper {
       width: 100%;
       max-width: 800px;
@@ -52,7 +45,6 @@
     .table-wrapper:hover {
       box-shadow: 0 6px 25px rgba(0,0,0,0.1);
     }
-
     h2 {
       font-weight: 600;
       font-size: 1.5rem;
@@ -61,29 +53,21 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      overflow-x: auto;
-      white-space: normal;
       text-align: center;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 1rem;
       color: #444;
+      table-layout: auto;
     }
     th, td {
       padding: 0.75rem 1rem;
-      text-align: left;
+      text-align: center;
       border-bottom: 1px solid #ddd;
+      vertical-align: middle;
     }
-
-    /* Add extra left padding to first column */
-    th:first-child,
-    td:first-child {
-      padding-left: 1.5rem;
-    }
-
     th {
       background-color: #f0f4fa;
       font-weight: 600;
@@ -92,44 +76,31 @@
     tbody tr:hover {
       background-color: #f5faff;
     }
-
     /* Positive and negative changes */
     .positive {
-      color: #198754; /* bootstrap success green */
+      color: #198754; /* success green */
       font-weight: 600;
     }
     .negative {
-      color: #dc3545; /* bootstrap danger red */
+      color: #dc3545; /* danger red */
       font-weight: 600;
     }
     .neutral {
-      color: #6c757d; /* bootstrap secondary gray */
+      color: #6c757d; /* secondary gray */
     }
-
-    /* --- Mobile fixes --- */
+    /* Responsive: allow horizontal scroll if needed, but keep centered content */
     @media (max-width: 600px) {
       body {
-        padding-left: 1rem;
-        padding-right: 1rem;
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        /* Remove align-items: center on mobile to prevent horizontal shifting */
+        padding: 1rem;
         align-items: stretch;
       }
-      h1, h2 {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-        overflow-x: auto;
-        white-space: normal;
-        text-align: center;
-      }
       .table-wrapper {
-        padding-left: 0;
-        padding-right: 0;
+        padding: 0.5rem;
         overflow-x: auto;
-        width: 100%;
-        box-sizing: border-box;
+      }
+      th, td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.95rem;
       }
     }
   </style>
@@ -137,7 +108,6 @@
 <body>
   <h1>Hin- und Rückrundentabelle 25-26</h1>
   <div id="tables"></div>
-
   <script>
     // Beispieldaten
     const pointsAfter17 = {
