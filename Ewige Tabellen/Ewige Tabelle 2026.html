@@ -302,7 +302,7 @@
       'Emil': { s4: 2014, s5: 1873 },
       'Kempka': { s5: 1750 },
       'Espen': { s5: 2042 }
-    };
+    };;
 
     const players = Object.keys(fiebertabelleData);
 
@@ -413,7 +413,7 @@
           },
           tooltip: {
             callbacks: {
-              label: ctx => ${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}`
             }
           }
         },
