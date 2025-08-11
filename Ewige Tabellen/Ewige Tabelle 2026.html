@@ -1,297 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Leaderboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leaderboard & Fieberkurve</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --color-primary-start: #004e92;
+    --color-primary-end: #000428;
+    --color-highlight-start: #6a11cb;
+    --color-highlight-end: #2575fc;
+    --color-bg: #f0f4f8;
+    --color-text: #222;
+    --color-table-bg: #fff;
+    --color-table-alt-bg: #f9fafb;
+    --color-table-border: #ddd;
+    --color-table-hover: #e1eaff;
+    --color-disabled: #ccc;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--color-bg);
+    margin: 2rem;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  h1, h2 {
+    max-width: 1200px;
+    width: 100%;
+    margin: 1rem 0;
+    font-weight: 700;
+    user-select: none;
+  }
+
+  h1 {
+    font-size: 2rem;
+    background: linear-gradient(90deg, var(--color-primary-start), var(--color-primary-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    background: linear-gradient(90deg, var(--color-highlight-start), var(--color-highlight-end));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 1200px;
+    background: var(--color-table-bg);
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+
+  thead {
+    background: linear-gradient(90deg, var(--color-primary-start), var(--color-primary-end));
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: left;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+
+  thead th:focus {
+    outline: 2px solid #2575fc;
+    outline-offset: 2px;
+  }
+
+  thead th.sort-asc::after,
+  thead th.sort-desc::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    border: 6px solid transparent;
+    transform: translateY(-50%);
+  }
+
+  thead th.sort-asc::after {
+    border-bottom-color: white;
+  }
+
+  thead th.sort-desc::after {
+    border-top-color: white;
+  }
+
+  tbody tr {
+    transition: background-color 0.25s ease;
+    cursor: default;
+  }
+
+  tbody tr:nth-child(even) {
+    background: var(--color-table-alt-bg);
+  }
+
+  tbody tr:hover {
+    background: var(--color-table-hover);
+  }
+
+  tbody td {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--color-table-border);
+  }
+
+  /* Responsive: horizontal scroll for narrow view */
+  @media (max-width: 850px) {
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f4f8;
-      margin: 2rem;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      margin: 1rem;
     }
     table {
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 1200px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      overflow: hidden;
-      margin-bottom: 2rem;
+      display: block;
+      overflow-x: auto;
+      max-width: 100%;
     }
-    thead {
-      background: linear-gradient(90deg, #004e92, #000428);
-      color: white;
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-align: left;
-      user-select: none;
-      cursor: pointer;
-    }
-    thead th {
-      padding: 12px 16px;
-      position: relative;
-    }
-    thead th.sort-asc::after {
-      content: " ▲";
-      position: absolute;
-      right: 10px;
-    }
-    thead th.sort-desc::after {
-      content: " ▼";
-      position: absolute;
-      right: 10px;
-    }
-    tbody tr {
-      transition: background-color 0.25s ease;
-      cursor: default;
-    }
-    tbody tr:nth-child(even) {
-      background: #f9fafb;
-    }
-    tbody tr:hover {
-      background: #e1eaff;
-    }
-    tbody td {
-      padding: 12px 16px;
-      font-size: 0.9rem;
-      border-bottom: 1px solid #ddd;
-    }
-    h2 {
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 0 1rem 0;
-      font-weight: 700;
-      font-size: 1.5rem;
-      background: linear-gradient(90deg, #6a11cb, #2575fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    ul#highlight-list {
-      max-width: 1200px;
-      width: 100%;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-      padding: 1rem 1.5rem;
-      list-style: inside disc;
-      color: #444;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 2rem;
-    }
-    .chart-container {
-      width: 90%;
-      max-width: 1200px;
-      height: 400px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      padding: 20px;
-      margin-bottom: 3rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .chart-container:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    }
-  </style>
+  }
+
+  /* Chart container */
+  .chart-container {
+    width: 90%;
+    max-width: 1200px;
+    height: 70vh;
+    background: var(--color-table-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 40px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .chart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+  /* Highlight list */
+  ul#highlight-list {
+    max-width: 1200px;
+    width: 100%;
+    background: var(--color-table-bg);
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+    padding: 1rem 1.5rem;
+    list-style: inside disc;
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  /* Screen reader only */
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    border: 0 !important;
+  }
+
+  /* Focus visible for accessibility */
+  :focus-visible {
+    outline: 3px solid #2575fc;
+    outline-offset: 2px;
+  }
+</style>
 </head>
 <body>
 
-  <table id="leaderboard" aria-label="Leaderboard table">
+  <h1>Leaderboard</h1>
+  <table id="leaderboard" aria-label="Leaderboard table" role="grid" tabindex="0">
     <thead>
       <tr>
-        <th data-key="platz">Platz</th>
-        <th data-key="spieler">Spieler</th>
-        <th data-key="spiele">Spiele</th>
-        <th data-key="punkte">Punkte</th>
-        <th data-key="meister">Meister</th>
-        <th data-key="letzter">Letzter</th>
-        <th data-key="spieltagssiege">Spieltagssiege</th>
-        <th data-key="spieltagsletzter">Spieltagsletzter</th>
-        <th data-key="tabellenerster">Tabellenerster</th>
-        <th data-key="tabellenletzter">Tabellenletzter</th>
+        <th scope="col" tabindex="0" aria-sort="descending" data-key="platz">Platz</th>
+        <th scope="col" tabindex="0" data-key="spieler">Spieler</th>
+        <th scope="col" tabindex="0" data-key="spiele">Spiele</th>
+        <th scope="col" tabindex="0" data-key="punkte">Punkte</th>
+        <th scope="col" tabindex="0" data-key="meister">Meister</th>
+        <th scope="col" tabindex="0" data-key="letzter">Letzter</th>
+        <th scope="col" tabindex="0" data-key="spieltagssiege">Spieltagssiege</th>
+        <th scope="col" tabindex="0" data-key="spieltagsletzter">Spieltagsletzter</th>
+        <th scope="col" tabindex="0" data-key="tabellenerster">Tabellenerster</th>
+        <th scope="col" tabindex="0" data-key="tabellenletzter">Tabellenletzter</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <h2>Fieberkurve (Cumulative Season Points Over Time)</h2>
-  <div class="chart-container">
-    <canvas id="fieberkurveChart"></canvas>
+  <h2>Fieberkurve (Cumulative Season Points)</h2>
+  <div class="chart-container" role="region" aria-label="Fieberkurve chart showing cumulative season points">
+    <canvas id="fieberkurveChart" aria-describedby="chart-desc"></canvas>
   </div>
+  <p id="chart-desc" class="sr-only">Line chart showing cumulative points over seasons for players. Click legend names to highlight.</p>
 
   <h2>Highlights</h2>
-  <ul id="highlight-list"></ul>
+  <ul id="highlight-list" aria-live="polite"></ul>
 
-  <script>
-    const leaderboardData = [
-      { platz: 1, spieler: 'Markus', spiele: 170, punkte: 9287, meister: 1, letzter: 0, spieltagssiege: 43, spieltagsletzter: 10, tabellenerster: 52, tabellenletzter: 3 },
-      { platz: 2, spieler: 'Erwin', spiele: 170, punkte: 8812, meister: 1, letzter: 0, spieltagssiege: 24, spieltagsletzter: 11, tabellenerster: 34, tabellenletzter: 19 },
-      { platz: 3, spieler: 'Phil', spiele: 170, punkte: 8432, meister: 1, letzter: 0, spieltagssiege: 32, spieltagsletzter: 31, tabellenerster: 38, tabellenletzter: 2 },
-      { platz: 4, spieler: 'Eirik', spiele: 170, punkte: 7585, meister: 1, letzter: 1, spieltagssiege: 19, spieltagsletzter: 26, tabellenerster: 6, tabellenletzter: 32 },
-      { platz: 5, spieler: 'Didi', spiele: 170, punkte: 7272, meister: 0, letzter: 3, spieltagssiege: 16, spieltagsletzter: 38, tabellenerster: 1, tabellenletzter: 79 },
-      { platz: 6, spieler: 'Basti', spiele: 136, punkte: 6183, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 19, tabellenerster: 1, tabellenletzter: 2 },
-      { platz: 7, spieler: 'Steffo', spiele: 136, punkte: 5573, meister: 0, letzter: 1, spieltagssiege: 4, spieltagsletzter: 31, tabellenerster: 0, tabellenletzter: 33 },
-      { platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0 },
-      { platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0 },
-      { platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0 },
-      { platz: 11, spieler: 'Alex', spiele: 17, punkte: '', meister: 0, letzter: 0, spieltagssiege: '', spieltagsletzter: '', tabellenerster: '', tabellenletzter: '' }
-    ];
+<script>
+  'use strict';
 
-    const highlights = [
-      "- Keine Spieltagssiege in der Saison ",
-      "- Keine Spieltagsniederlagen von ",
-      "- Höchste Spieltagpunkte von  ",
-      "- Niedrigste Spieltagspunkte von ",
-      "- 5 Spieltagssiege in Folge Espen",
-      "- 2 Spieltagsniederlagen in Folge von Markus, Basti, Didi, Steffo",
-      "- Schlechtester Erster:",
-      "- Bester Letzter:",
-      "- 12 Spieltagssiege von Espen",
-      "- 12 Spieltagsniederlagen von Didi",
-      "- Erstmals keine top 1000 platzierung",
-      "- Espen mit ewig bester Gesamtplatzierung mit Platz 6066",
-      "",
-      "",
-      "",
-      "",
-      "Ewig beste Gesamtplatzierung Spieltag:",
-      "27. Markus mit 108 Punkten 22/23",
-      "36. Phil mit 93 Punkten 22/23",
-      "108. Phil mit 104 Punkten 24/25",
-      "278. Phil mit 91 Punkten 22/23",
-      "444. Markus mit 104 Punkten 20/21",
-      "614. Phil mit 87 Punkten 22/23",
-      "739. Eirik mit 93* Punkten 20/21",
-      "766. Phil mit 96 Punkten 21/22",
-      "984. Didi mit 91 Punkten 23/24",
-      "989. Markus mit 94 Punkten 23/24",
-      "",
-      "",
-      "",
-      "",
-      "Ewige statistiken:",
-      "- Meiste Spieltagssiege in einer Saison vom Markus mit 13 (21/22)",
-      "- Meiste Spieltagsniederlagen in einer Saison von Steffo mit 15 (21/22)",
-      "- Ewig wenigste Punkte für Spieltagssieg von Erwin mit 31* Punkten (20/21)",
-      "- Ewig wenigste Punkte von Phil mit -9 (22/23) (nur 20 Leute haben weniger punkte gemacht)",
-      "- Ewig Höchstpunktzahl von Emil mit 113 (23/24) (leider nicht unter den Top 1000 an dem Spieltag)",
-      "",
-      "",
-      "",
-      "",
-      "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga)",
-      "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga)",
-      "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga)",
-      "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga)",
-      "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga)",
-      "",
-      "",
-      "",
-      "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
-      "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
-    ];
+  // Data
+  const leaderboardData = [
+    {platz: 1, spieler: 'Markus', spiele: 170, punkte: 9287, meister: 1, letzter: 0, spieltagssiege: 43, spieltagsletzter: 10, tabellenerster: 52, tabellenletzter: 3},
+    {platz: 2, spieler: 'Erwin', spiele: 170, punkte: 8812, meister: 1, letzter: 0, spieltagssiege: 24, spieltagsletzter: 11, tabellenerster: 34, tabellenletzter: 19},
+    {platz: 3, spieler: 'Phil', spiele: 170, punkte: 8432, meister: 1, letzter: 0, spieltagssiege: 32, spieltagsletzter: 31, tabellenerster: 38, tabellenletzter: 2},
+    {platz: 4, spieler: 'Eirik', spiele: 170, punkte: 7585, meister: 1, letzter: 1, spieltagssiege: 19, spieltagsletzter: 26, tabellenerster: 6, tabellenletzter: 32},
+    {platz: 5, spieler: 'Didi', spiele: 170, punkte: 7272, meister: 0, letzter: 3, spieltagssiege: 16, spieltagsletzter: 38, tabellenerster: 1, tabellenletzter: 79},
+    {platz: 6, spieler: 'Basti', spiele: 136, punkte: 6183, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 19, tabellenerster: 1, tabellenletzter: 2},
+    {platz: 7, spieler: 'Steffo', spiele: 136, punkte: 5573, meister: 0, letzter: 1, spieltagssiege: 4, spieltagsletzter: 31, tabellenerster: 0, tabellenletzter: 33},
+    {platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0},
+    {platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0},
+    {platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0},
+    {platz: 11, spieler: 'Alex', spiele: 17, punkte: null, meister: 0, letzter: 0, spieltagssiege: null, spieltagsletzter: null, tabellenerster: null, tabellenletzter: null}
+  ];
 
-    // Helper to check if value is numeric
-    function isNumeric(value) {
-      return !isNaN(parseFloat(value)) && isFinite(value);
-    }
+  const highlights = [
+    "- Keine Spieltagssiege in der Saison ",
+    "- Keine Spieltagsniederlagen von ",
+    "- Höchste Spieltagspunkte von  ",
+    "- Niedrigste Spieltagspunkte von ",
+    "- 5 Spieltagssiege in Folge Espen",
+    "- 2 Spieltagsniederlagen in Folge von Markus, Basti, Didi, Steffo",
+    "- Schlechtester Erster:",
+    "- Bester Letzter:",
+    "- 12 Spieltagssiege von Espen",
+    "- 12 Spieltagsniederlagen von Didi",
+    "- Erstmals keine top 1000 platzierung",
+    "- Espen mit ewig bester Gesamtplatzierung mit Platz 6066",
+    "Ewig beste Gesamtplatzierung Spieltag:",
+    "27. Markus mit 108 Punkten 22/23",
+    "36. Phil mit 93 Punkten 22/23",
+    "108. Phil mit 104 Punkten 24/25",
+    "278. Phil mit 91 Punkten 22/23",
+    "444. Markus mit 104 Punkten 20/21",
+    "614. Phil mit 87 Punkten 22/23",
+    "739. Eirik mit 93* Punkten 20/21",
+    "766. Phil mit 96 Punkten 21/22",
+    "984. Didi mit 91 Punkten 23/24",
+    "989. Markus mit 94 Punkten 23/24",
+    "- Meiste Spieltagssiege in einer Saison vom Markus mit 13 (21/22)",
+    "- Meiste Spieltagsniederlagen in einer Saison von Steffo mit 15 (21/22)",
+    "- Ewig wenigste Punkte für Spieltagssieg von Erwin mit 31* Punkten (20/21)",
+    "- Ewig wenigste Punkte von Phil mit -9 (22/23) (nur 20 Leute haben weniger punkte gemacht)",
+    "- Ewig Höchstpunktzahl von Emil mit 113 (23/24) (leider nicht unter den Top 1000 an dem Spieltag)",
+    "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga)",
+    "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga)",
+    "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga)",
+    "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga)",
+    "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga)",
+    "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
+    "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
+  ];
 
-    // Render leaderboard rows
-    function renderLeaderboard(data) {
-      const tbody = document.querySelector("#leaderboard tbody");
-      tbody.innerHTML = '';
-      data.forEach(player => {
-        const row = document.createElement("tr");
-        Object.values(player).forEach(value => {
-          const cell = document.createElement("td");
-          cell.textContent = value;
-          row.appendChild(cell);
-        });
-        tbody.appendChild(row);
-      });
-    }
-
-    // Initial render sorted by punkte desc
-    let currentSortKey = 'punkte';
-    let currentSortAsc = false;
-
-    function sortLeaderboard(data, key, asc) {
-      return data.slice().sort((a, b) => {
-        const valA = a[key];
-        const valB = b[key];
-
-        // Handle empty string as lowest
-        if(valA === '') return 1;
-        if(valB === '') return -1;
-
-        if(isNumeric(valA) && isNumeric(valB)) {
-          return asc ? valA - valB : valB - valA;
-        } else {
-          // text comparison
-          if(asc) return valA.toString().localeCompare(valB.toString());
-          else return valB.toString().localeCompare(valA.toString());
-        }
-      });
-    }
-
-    function clearSortIndicators() {
-      document.querySelectorAll("#leaderboard thead th").forEach(th => {
-        th.classList.remove('sort-asc', 'sort-desc');
-      });
-    }
-
-    function updateSortIndicator(th, asc) {
-      th.classList.add(asc ? 'sort-asc' : 'sort-desc');
-    }
-
-    // Setup sorting event listeners on headers
-    const headers = document.querySelectorAll("#leaderboard thead th");
-    headers.forEach(th => {
-      th.addEventListener('click', () => {
-        const key = th.dataset.key;
-        if (!key) return;
-
-        if(currentSortKey === key) {
-          currentSortAsc = !currentSortAsc;
-        } else {
-          currentSortKey = key;
-          currentSortAsc = false; // default descending
-        }
-
-        clearSortIndicators();
-        updateSortIndicator(th, currentSortAsc);
-
-        const sortedData = sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc);
-        renderLeaderboard(sortedData);
-      });
-    });
-
-    // Initial render & indicator
-    renderLeaderboard(sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc));
-    // Add initial sort indicator on Punkte header
-    document.querySelector("#leaderboard thead th[data-key='punkte']").classList.add('sort-desc');
-
-    // Populate highlights list
-    const highlightList = document.getElementById("highlight-list");
-    highlights.forEach(text => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      highlightList.appendChild(li);
-    });
-
-    // Fieberkurve data and chart setup (unchanged from before)
-    const fiebertabelleData = {
+  const fiebertabelleData = {
       'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
       'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
       'Phil': { s1: 1717, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
@@ -304,149 +286,252 @@
       'Espen': { s5: 2042 }
     };
 
-    const players = Object.keys(fiebertabelleData);
+  const seasons = ['s1','s2','s3','s4','s5'];
+  const colors = [
+    '#E41A1C', // Markus (red)
+    '#377EB8', // Erwin (blue)
+    '#4DAF4A', // Phil (green)
+    '#984EA3', // Didi (purple)
+    '#FF7F00', // Steffo (orange)
+    '#A65628', // Basti (brown)
+    '#F781BF', // Eirik (pink)
+    '#999999', // Emil (gray)
+    '#66C2A5', // Kempka (teal)
+    '#FFD92F', // Espen (yellow)
+    '#000000'  // Alex (black)
+  ];
 
-    const colors = [
-      '#E41A1C', // Markus (red)
-      '#377EB8', // Erwin (blue)
-      '#4DAF4A', // Phil (green)
-      '#984EA3', // Didi (purple)
-      '#FF7F00', // Steffo (orange)
-      '#A65628', // Basti (brown)
-      '#F781BF', // Eirik (pink)
-      '#999999', // Emil (gray)
-      '#66C2A5', // Kempka (teal)
-      '#FFD92F', // Espen (yellow)
-      '#000000'  // Alex (black)
-    ];
+  // Utility: cumulative sums, but before first data season put null to skip drawing
+  function cumulativePoints(seasonPoints) {
+    let sum = 0;
+    let firstDataFound = false;
+    return seasons.map(season => {
+      if (seasonPoints[season] !== undefined) {
+        firstDataFound = true;
+        sum += seasonPoints[season];
+        return sum;
+      } else {
+        return firstDataFound ? sum : null;
+      }
+    });
+  }
 
-    const seasons = ['s1','s2','s3','s4','s5'];
+  // Populate leaderboard table with sorting
+  const leaderboardTableBody = document.querySelector('#leaderboard tbody');
+  const columns = ['platz', 'spieler', 'spiele', 'punkte', 'meister', 'letzter', 'spieltagssiege', 'spieltagsletzter', 'tabellenerster', 'tabellenletzter'];
 
-    function cumulativePoints(seasonPoints) {
-      const cumulative = [];
-      let sum = 0;
-      seasons.forEach(season => {
-        if (seasonPoints[season] !== undefined) {
-          sum += seasonPoints[season];
-          cumulative.push(sum);
-        } else {
-          cumulative.push(null); // Use null so Chart.js skips and starts line at first actual data
-        }
+  let currentSortKey = 'punkte';
+  let currentSortOrder = 'desc';
+
+  function renderLeaderboard() {
+    // Sort data
+    leaderboardData.sort((a, b) => {
+      let valA = a[currentSortKey];
+      let valB = b[currentSortKey];
+
+      // Handle null or empty as smallest
+      if (valA === null || valA === '' || valA === undefined) valA = Number.NEGATIVE_INFINITY;
+      if (valB === null || valB === '' || valB === undefined) valB = Number.NEGATIVE_INFINITY;
+
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return currentSortOrder === 'asc' ? valA - valB : valB - valA;
+      } else { // string compare
+        valA = String(valA).toLowerCase();
+        valB = String(valB).toLowerCase();
+        if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+        return 0;
+      }
+    });
+
+    leaderboardTableBody.innerHTML = '';
+    leaderboardData.forEach(player => {
+      const tr = document.createElement('tr');
+      columns.forEach(col => {
+        const td = document.createElement('td');
+        let val = player[col];
+        td.textContent = (val !== null && val !== undefined) ? val : '';
+        tr.appendChild(td);
       });
-      return cumulative;
-    }
+      leaderboardTableBody.appendChild(tr);
+    });
+    updateSortIndicators();
+  }
 
-    const datasets = players.map((spieler, index) => ({
-      label: spieler,
-      data: cumulativePoints(fiebertabelleData[spieler]),
-      borderColor: colors[index],
-      backgroundColor: colors[index],
+  // Sort indicator UI
+  function updateSortIndicators() {
+    document.querySelectorAll('#leaderboard thead th').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+      const key = th.dataset.key;
+      if (key === currentSortKey) {
+        th.classList.add(currentSortOrder === 'asc' ? 'sort-asc' : 'sort-desc');
+        th.setAttribute('aria-sort', currentSortOrder === 'asc' ? 'ascending' : 'descending');
+      } else {
+        th.setAttribute('aria-sort', 'none');
+      }
+    });
+  }
+
+  // Sorting header click handler
+  document.querySelectorAll('#leaderboard thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (!key) return;
+      if (currentSortKey === key) {
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSortKey = key;
+        currentSortOrder = 'desc';
+      }
+      renderLeaderboard();
+    });
+
+    // Keyboard accessibility: Enter or Space triggers click
+    th.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        th.click();
+      }
+    });
+  });
+
+  // Initial render
+  renderLeaderboard();
+
+  // Render highlights list
+  const highlightList = document.getElementById('highlight-list');
+  highlights.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    highlightList.appendChild(li);
+  });
+
+  // Chart.js for Fieberkurve
+  const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+
+  // Prepare datasets for Chart.js
+  const playerNames = Object.keys(fiebertabelleData);
+  const datasets = playerNames.map((player, i) => {
+    const points = cumulativePoints(fiebertabelleData[player]);
+    return {
+      label: player,
+      data: points,
       fill: false,
-      pointRadius: 3,
-      borderWidth: 2,
+      borderColor: colors[i % colors.length],
+      backgroundColor: colors[i % colors.length],
+      borderWidth: 3,
+      pointRadius: 5,
+      pointHoverRadius: 7,
       spanGaps: true,
-      hidden: false,
-      opacity: 1
-    }));
+      hidden: false
+    };
+  });
 
-    const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-
-    const selectedIndices = new Set();
-
-    const fieberChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: seasons.map(s => s.toUpperCase()),
-        datasets: datasets
+  const fieberChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Season 1', 'Season 2', 'Season 3', 'Season 4', 'Season 5'],
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      interaction: {
+        mode: 'nearest',
+        intersect: false
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              color: '#222',
-              filter: (legendItem) => {
-                // Always show all legend items
-                return true;
-              }
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            font: {
+              size: 14
             },
-            onClick: function(e, legendItem) {
-              const index = legendItem.datasetIndex;
-              if(selectedIndices.has(index)) {
-                selectedIndices.delete(index);
-              } else {
-                selectedIndices.add(index);
-              }
-              if(selectedIndices.size === 0) {
-                // Reset all
-                fieberChart.data.datasets.forEach((ds, i) => {
-                  ds.borderColor = colors[i];
-                  ds.backgroundColor = colors[i];
-                  ds.borderWidth = 2;
-                  ds.hidden = false;
-                  ds.opacity = 1;
-                });
-              } else {
-                fieberChart.data.datasets.forEach((ds, i) => {
-                  if(selectedIndices.has(i)) {
-                    ds.borderColor = colors[i];
-                    ds.backgroundColor = colors[i];
-                    ds.borderWidth = 4;
-                    ds.hidden = false;
-                    ds.opacity = 1;
-                  } else {
-                    ds.borderColor = '#ccc';
-                    ds.backgroundColor = '#ccc';
-                    ds.borderWidth = 1;
-                    ds.hidden = false;
-                    ds.opacity = 0.3;
-                  }
-                });
-              }
-              fieberChart.update();
+            filter: function(item, chart) {
+              return item.text !== undefined;
             }
           },
-          tooltip: {
-            callbacks: {
-              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}`
+          onClick: (e, legendItem, legend) => {
+            const ci = legend.chart;
+            const index = legendItem.datasetIndex;
+            const meta = ci.getDatasetMeta(index);
+
+            // Toggle visibility for clicked dataset
+            meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+            ci.update();
+
+            // Manage highlighting: fade others when one or more selected
+            // Let's store which are highlighted:
+            const highlightedIndices = ci.data.datasets.reduce((arr, ds, i) => {
+              const m = ci.getDatasetMeta(i);
+              if (!m.hidden) arr.push(i);
+              return arr;
+            }, []);
+
+            if (highlightedIndices.length === 0) {
+              // none selected -> show all fully
+              ci.data.datasets.forEach((ds, i) => {
+                ci.getDatasetMeta(i).hidden = false;
+                ds.borderWidth = 3;
+                ds.borderColor = colors[i % colors.length];
+                ds.backgroundColor = colors[i % colors.length];
+              });
+            } else {
+              // Fade non-selected
+              ci.data.datasets.forEach((ds, i) => {
+                if (highlightedIndices.includes(i)) {
+                  ds.borderWidth = 5;
+                  ds.borderColor = colors[i % colors.length];
+                  ds.backgroundColor = colors[i % colors.length];
+                  ci.getDatasetMeta(i).hidden = false;
+                } else {
+                  ds.borderWidth = 2;
+                  const fadedColor = colors[i % colors.length] + '44'; // add transparency
+                  ds.borderColor = fadedColor;
+                  ds.backgroundColor = fadedColor;
+                  ci.getDatasetMeta(i).hidden = false;
+                }
+              });
             }
+            ci.update();
+          },
+          onHover: (e, legendItem) => {
+            e.native.target.style.cursor = 'pointer';
+          },
+          onLeave: (e, legendItem) => {
+            e.native.target.style.cursor = 'default';
           }
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Cumulative Points'
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: 'Season'
+        tooltip: {
+          mode: 'nearest',
+          intersect: false,
+          callbacks: {
+            label: context => {
+              const val = context.parsed.y;
+              return val === null ? 'No data' : val;
             }
           }
         }
       },
-      plugins: [{
-        // Plugin to set line opacity dynamically
-        id: 'opacityPlugin',
-        beforeDatasetsDraw(chart) {
-          const ctx = chart.ctx;
-          chart.data.datasets.forEach((ds, i) => {
-            ctx.save();
-            ctx.globalAlpha = ds.opacity !== undefined ? ds.opacity : 1;
-            ctx.restore();
-          });
+      scales: {
+        y: {
+          beginAtZero: false,
+          title: {
+            display: true,
+            text: 'Cumulative Points'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Season'
+          }
         }
-      }]
-    });
-  </script>
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
