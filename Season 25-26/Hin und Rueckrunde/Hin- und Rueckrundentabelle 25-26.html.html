@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -112,6 +113,7 @@
         padding-right: 1rem;
         padding-top: 2rem;
         padding-bottom: 2rem;
+        /* Remove align-items: center on mobile to prevent horizontal shifting */
         align-items: stretch;
       }
       h1, h2 {
@@ -125,38 +127,9 @@
       .table-wrapper {
         padding-left: 0;
         padding-right: 0;
-        overflow-x: visible;
+        overflow-x: auto;
         width: 100%;
         box-sizing: border-box;
-      }
-
-      /* Card style table rows */
-      table, thead, tbody, th, td, tr {
-        display: block;
-        width: 100%;
-      }
-      thead {
-        display: none;
-      }
-      tr {
-        margin-bottom: 1.5rem;
-        background: #f9fafc;
-        border-radius: 8px;
-        box-shadow: 0 2px 7px rgba(0,0,0,0.04);
-        padding: 0.25rem 0.75rem;
-      }
-      td {
-        text-align: left;
-        padding: 0.5rem 0.5rem;
-        border: none;
-        position: relative;
-      }
-      td::before {
-        content: attr(data-label) ": ";
-        font-weight: 600;
-        color: #0056b3;
-        display: inline-block;
-        min-width: 115px;
       }
     }
   </style>
@@ -233,9 +206,9 @@
       sorted.forEach((entry, i) => {
         html += `
           <tr>
-            <td data-label="Platz">${i + 1}</td>
-            <td data-label="Name">${entry.name}</td>
-            <td data-label="Punkte">${entry.points}</td>
+            <td>${i + 1}</td>
+            <td>${entry.name}</td>
+            <td>${entry.points}</td>
           </tr>
         `;
       });
@@ -265,10 +238,10 @@
         const diffText = diff > 0 ? `+${diff}` : diff.toString();
         html += `
           <tr>
-            <td data-label="Platz">${i + 1}</td>
-            <td data-label="Name">${entry.name}</td>
-            <td data-label="Rückrunde">${entry.rueckrunde}</td>
-            <td data-label="Veränderung" class="${diffClass}">${diffText}</td>
+            <td>${i + 1}</td>
+            <td>${entry.name}</td>
+            <td>${entry.rueckrunde}</td>
+            <td class="${diffClass}">${diffText}</td>
           </tr>
         `;
       });
