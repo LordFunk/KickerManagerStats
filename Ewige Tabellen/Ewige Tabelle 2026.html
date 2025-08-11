@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Leaderboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -145,7 +146,7 @@
       { platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0 },
       { platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0 },
       { platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0 },
-      { platz: 11, spieler: 'Alex', spiele: 17, punkte: '', meister: 0, letzter: 0, spieltagssiege: '', spieltagsletzter: '', tabellenerster: '', tabellenletzter: '' }
+      { platz: 11, spieler: 'Alex', spiele: 17, punkte: null, meister: 0, letzter: 0, spieltagssiege: null, spieltagsletzter: null, tabellenerster: null, tabellenletzter: null }
     ];
 
     const highlights = [
@@ -214,34 +215,39 @@
       tbody.innerHTML = '';
       data.forEach(player => {
         const row = document.createElement("tr");
-        Object.values(player).forEach(value => {
+        for (const key of ['platz', 'spieler', 'spiele', 'punkte', 'meister', 'letzter', 'spieltagssiege', 'spieltagsletzter', 'tabellenerster', 'tabellenletzter']) {
           const cell = document.createElement("td");
-          cell.textContent = value;
+          let val = player[key];
+          if (val === null || val === undefined || val === '') {
+            val = '-';
+          }
+          cell.textContent = val;
           row.appendChild(cell);
-        });
+        }
         tbody.appendChild(row);
       });
     }
 
-    // Initial render sorted by punkte desc
+    // Sorting variables
     let currentSortKey = 'punkte';
     let currentSortAsc = false;
 
     function sortLeaderboard(data, key, asc) {
       return data.slice().sort((a, b) => {
-        const valA = a[key];
-        const valB = b[key];
+        let valA = a[key];
+        let valB = b[key];
 
-        // Handle empty string as lowest
-        if(valA === '') return 1;
-        if(valB === '') return -1;
+        // Treat null/empty as lowest
+        if (valA === '' || valA === null || valA === undefined) valA = asc ? -Infinity : Infinity;
+        if (valB === '' || valB === null || valB === undefined) valB = asc ? -Infinity : Infinity;
 
-        if(isNumeric(valA) && isNumeric(valB)) {
+        if (isNumeric(valA) && isNumeric(valB)) {
           return asc ? valA - valB : valB - valA;
         } else {
-          // text comparison
-          if(asc) return valA.toString().localeCompare(valB.toString());
-          else return valB.toString().localeCompare(valA.toString());
+          // Text comparison
+          valA = valA.toString();
+          valB = valB.toString();
+          return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
         }
       });
     }
@@ -257,13 +263,12 @@
     }
 
     // Setup sorting event listeners on headers
-    const headers = document.querySelectorAll("#leaderboard thead th");
-    headers.forEach(th => {
+    document.querySelectorAll("#leaderboard thead th").forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.key;
         if (!key) return;
 
-        if(currentSortKey === key) {
+        if (currentSortKey === key) {
           currentSortAsc = !currentSortAsc;
         } else {
           currentSortKey = key;
@@ -280,7 +285,6 @@
 
     // Initial render & indicator
     renderLeaderboard(sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc));
-    // Add initial sort indicator on Punkte header
     document.querySelector("#leaderboard thead th[data-key='punkte']").classList.add('sort-desc');
 
     // Populate highlights list
@@ -291,7 +295,7 @@
       highlightList.appendChild(li);
     });
 
-    // Fieberkurve data and chart setup (unchanged from before)
+    // Fieberkurve data and chart setup
     const fiebertabelleData = {
       'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
       'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
@@ -303,10 +307,9 @@
       'Emil': { s4: 2014, s5: 1873 },
       'Kempka': { s5: 1750 },
       'Espen': { s5: 2042 }
-    };;
+    };
 
     const players = Object.keys(fiebertabelleData);
-
     const colors = [
       '#E41A1C', // Markus (red)
       '#377EB8', // Erwin (blue)
@@ -318,10 +321,10 @@
       '#999999', // Emil (gray)
       '#66C2A5', // Kempka (teal)
       '#FFD92F', // Espen (yellow)
-      '#000000'  // Alex (black)
+      '#000000'  // Alex (black, unused here)
     ];
 
-    const seasons = ['s1','s2','s3','s4','s5'];
+    const seasons = ['s1', 's2', 's3', 's4', 's5'];
 
     function cumulativePoints(seasonPoints) {
       const cumulative = [];
@@ -331,17 +334,17 @@
           sum += seasonPoints[season];
           cumulative.push(sum);
         } else {
-          cumulative.push(null); // Use null so Chart.js skips and starts line at first actual data
+          cumulative.push(null); // null to skip in chart
         }
       });
       return cumulative;
     }
 
-    const datasets = players.map((spieler, index) => ({
+    const datasets = players.map((spieler, i) => ({
       label: spieler,
       data: cumulativePoints(fiebertabelleData[spieler]),
-      borderColor: colors[index],
-      backgroundColor: colors[index],
+      borderColor: colors[i],
+      backgroundColor: colors[i],
       fill: false,
       pointRadius: 3,
       borderWidth: 2,
@@ -351,7 +354,6 @@
     }));
 
     const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-
     const selectedIndices = new Set();
 
     const fieberChart = new Chart(ctx, {
@@ -370,20 +372,17 @@
             labels: {
               usePointStyle: true,
               pointStyle: 'circle',
-              color: '#222',
-              filter: (legendItem) => {
-                // Always show all legend items
-                return true;
-              }
+              color: '#222'
             },
-            onClick: function(e, legendItem) {
+            onClick: (e, legendItem) => {
               const index = legendItem.datasetIndex;
-              if(selectedIndices.has(index)) {
+              if (selectedIndices.has(index)) {
                 selectedIndices.delete(index);
               } else {
                 selectedIndices.add(index);
               }
-              if(selectedIndices.size === 0) {
+
+              if (selectedIndices.size === 0) {
                 // Reset all
                 fieberChart.data.datasets.forEach((ds, i) => {
                   ds.borderColor = colors[i];
@@ -394,7 +393,7 @@
                 });
               } else {
                 fieberChart.data.datasets.forEach((ds, i) => {
-                  if(selectedIndices.has(i)) {
+                  if (selectedIndices.has(i)) {
                     ds.borderColor = colors[i];
                     ds.backgroundColor = colors[i];
                     ds.borderWidth = 4;
@@ -414,7 +413,7 @@
           },
           tooltip: {
             callbacks: {
-              label: ctx => ${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}
+              label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}`
             }
           }
         },
@@ -435,11 +434,10 @@
         }
       },
       plugins: [{
-        // Plugin to set line opacity dynamically
         id: 'opacityPlugin',
         beforeDatasetsDraw(chart) {
           const ctx = chart.ctx;
-          chart.data.datasets.forEach((ds, i) => {
+          chart.data.datasets.forEach(ds => {
             ctx.save();
             ctx.globalAlpha = ds.opacity !== undefined ? ds.opacity : 1;
             ctx.restore();
