@@ -211,32 +211,17 @@
 
     // Fieberkurve data
     const fiebertabelleData = {
-      'Eirik': { s1: 1288, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
-      'Markus': { s1: 1275, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
-      'Phil': { s1: 1181, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
-      'Erwin': { s1: 959, s2: 1571, s3: 1957, s4: 1845, s5: 1903 },
-      'Didi': { s1: 845, s2: 1735, s3: 1267, s4: 1667, s5: 1212 },
+      'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
+      'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
+      'Phil': { s1: 1717, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
+      'Erwin': { s1: 1536, s2: 1571, s3: 1957, s4: 1845, s5: 1903 },
+      'Didi': { s1: 1391, s2: 1735, s3: 1267, s4: 1667, s5: 1212 },
       'Steffo': { s2: 957, s3: 1558, s4: 1620, s5: 1438 },
       'Basti': { s2: 1441, s3: 1303, s4: 1924, s5: 1512 },
       'Emil': { s4: 2014, s5: 1873 },
       'Kempka': { s5: 1750 },
       'Espen': { s5: 2042 }
     };
-
-    function cumulativePoints(seasonPoints) {
-      const seasons = ['s1','s2','s3','s4','s5'];
-      const cumulative = [];
-      let sum = 0;
-      seasons.forEach(season => {
-        if (seasonPoints[season] !== undefined) {
-          sum += seasonPoints[season];
-          cumulative.push(sum);
-        } else {
-          cumulative.push(sum);
-        }
-      });
-      return cumulative;
-    }
 
     const players = Object.keys(fiebertabelleData);
 
@@ -254,11 +239,36 @@
       '#000000'  // Alex (black)
     ];
 
+    const seasons = ['s1','s2','s3','s4','s5'];
+
+    function cumulativePoints(seasonPoints) {
+      const cumulative = [];
+      let sum = 0;
+      seasons.forEach(season => {
+        if (seasonPoints[season] !== undefined) {
+          sum += seasonPoints[season];
+          cumulative.push(sum);
+        } else {
+          cumulative.push(null);  // Use null for missing data, so no line drawn
+        }
+      });
+      return cumulative;
+    }
+
+    // For each player, find index of first non-null season in cumulative points
+    // Then set all earlier entries to null, so line starts there
+    function trimLeadingNulls(arr) {
+      const firstValidIndex = arr.findIndex(v => v !== null);
+      if (firstValidIndex === -1) return arr.map(() => null); // all null
+      return arr.map((v, i) => (i < firstValidIndex ? null : v));
+    }
+
     const datasets = players.map((player, index) => {
       const cumulative = cumulativePoints(fiebertabelleData[player]);
+      const trimmed = trimLeadingNulls(cumulative);
       return {
         label: player,
-        data: cumulative,
+        data: trimmed,
         borderColor: colors[index] || '#000',
         backgroundColor: colors[index] || '#000',
         fill: false,
@@ -363,10 +373,9 @@
       },
       plugins: [{
         id: 'datasetOpacity',
-        beforeDatasetDraw(chart, args, options) {
+        beforeDatasetDraw(chart, args) {
           const {ctx} = chart;
           const datasetIndex = args.index;
-          const meta = chart.getDatasetMeta(datasetIndex);
           const ds = chart.data.datasets[datasetIndex];
           ctx.save();
           ctx.globalAlpha = ds.opacity !== undefined ? ds.opacity : 1;
