@@ -32,14 +32,13 @@
       height: 70vh;
       background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       padding: 20px;
       margin-bottom: 40px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: box-shadow 0.3s ease;
     }
     .chart-container:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -50,119 +49,117 @@
   </div>
 
   <script>
-    // Labels: 34 gamedays
-    const labels = Array.from({ length: 34 }, (_, i) => `Gameday ${i + 1}`);
-
-    // Player data: just enter the numbers you have so far
+    // Player positions (for Y-axis) and points (for tooltip)
     const playerData = {
-      'Markus': [1, 3, 2],      // add numbers as they come
-      'Erwin':  [2, 5],
-      'Phil':   [3],
-      'Didi':   [4],
+      'Markus': [1, 2, 3],
+      'Erwin': [2, 1],
+      'Phil': [3],
+      'Didi': [4],
       'Steffo': [5],
-      'Basti':  [6],
-      'Eirik':  [7],
-      'Emil':   [8],
+      'Basti': [6],
+      'Eirik': [7],
+      'Emil': [8],
       'Kempka':[9],
-      'Espen':  [10],
-      'Alex':   [11]
+      'Espen': [10],
+      'Alex': [11]
     };
 
-    const colorsRGBA = [
-      'rgba(228, 26, 28, 1)',    // Markus
-      'rgba(55, 126, 184, 1)',   // Erwin
-      'rgba(77, 175, 74, 1)',    // Phil
-      'rgba(152, 78, 163, 1)',   // Didi
-      'rgba(255, 127, 0, 1)',    // Steffo
-      'rgba(166, 86, 40, 1)',    // Basti
-      'rgba(247, 129, 191, 1)',  // Eirik
-      'rgba(153, 153, 153, 1)',  // Emil
-      'rgba(102, 194, 165, 1)',  // Kempka
-      'rgba(255, 217, 47, 1)',   // Espen
-      'rgba(0, 0, 0, 1)'         // Alex
+    const playerPoints = {
+      'Markus': [10, 7, 6],
+      'Erwin': [9, 12],
+      'Phil': [8],
+      'Didi': [7],
+      'Steffo': [6],
+      'Basti': [5],
+      'Eirik': [4],
+      'Emil': [3],
+      'Kempka':[2],
+      'Espen': [1],
+      'Alex': [12]
+    };
+
+    const players = Object.keys(playerData);
+    const colors = [
+      '#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#A65628',
+      '#F781BF', '#999999', '#66C2A5', '#FFD92F', '#000000'
     ];
 
-    const fadedColor = 'rgba(200, 200, 200, 0.3)';
+    const selectedPlayers = new Set();
 
-    const datasets = Object.keys(playerData).map((playerName, index) => ({
-      label: playerName,
-      data: playerData[playerName],
-      borderColor: colorsRGBA[index],
-      backgroundColor: colorsRGBA[index],
-      fill: false,
-      pointRadius: 2,
+    const datasets = players.map((name, index) => ({
+      label: name,
+      data: playerData[name],
+      borderColor: colors[index],
+      backgroundColor: colors[index],
+      pointBackgroundColor: colors[index],
+      pointBorderColor: colors[index],
+      pointBorderWidth: 0,
       borderWidth: 2,
-      spanGaps: true,
-      hidden: false,
-      highlighted: false
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: false
     }));
 
     const ctx = document.getElementById('pointsChart').getContext('2d');
 
     const chart = new Chart(ctx, {
       type: 'line',
-      data: { labels, datasets },
+      data: {
+        labels: Array.from({ length: 34 }, (_, i) => `Gameday ${i + 1}`),
+        datasets: datasets
+      },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        scales: {
+          y: {
+            reverse: true,  // Top positions at top
+            ticks: { stepSize: 1 },
+            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false }
+          },
+          x: {
+            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false },
+            ticks: { autoSkip: true, maxTicksLimit: 17 }
+          }
+        },
         plugins: {
           legend: {
             display: true,
             position: 'top',
-            labels: { usePointStyle: true, pointStyle: 'circle' },
-            onClick(e, legendItem, legend) {
-              const index = legendItem.datasetIndex;
-              const ds = chart.data.datasets[index];
-              ds.highlighted = !ds.highlighted;
-              const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'circle',
+              font: { size: 14, weight: '600' }
+            },
+            onClick: (e, legendItem) => {
+              const playerName = legendItem.text;
+              if (selectedPlayers.has(playerName)) selectedPlayers.delete(playerName);
+              else selectedPlayers.add(playerName);
 
-              chart.data.datasets.forEach((dataset, i) => {
-                if (anyHighlighted) {
-                  if (dataset.highlighted) {
-                    dataset.borderColor = colorsRGBA[i];
-                    dataset.backgroundColor = colorsRGBA[i];
-                    dataset.borderWidth = 4;
-                    dataset.hidden = false;
-                  } else {
-                    dataset.borderColor = fadedColor;
-                    dataset.backgroundColor = fadedColor;
-                    dataset.borderWidth = 2;
-                    dataset.hidden = false;
-                  }
-                } else {
-                  dataset.borderColor = colorsRGBA[i];
-                  dataset.backgroundColor = colorsRGBA[i];
-                  dataset.borderWidth = 2;
-                  dataset.hidden = false;
-                }
+              chart.data.datasets.forEach((ds) => {
+                const isSelected = selectedPlayers.size === 0 || selectedPlayers.has(ds.label);
+                const originalColor = colors[players.indexOf(ds.label)];
+                ds.borderColor = isSelected ? originalColor : '#ccc';
+                ds.pointBackgroundColor = isSelected ? originalColor : '#ccc';
+                ds.pointBorderColor = isSelected ? originalColor : '#ccc';
+                ds.borderWidth = isSelected ? 3 : 1.5;
+                ds.pointRadius = isSelected ? 6 : 3;
+                ds.pointHoverRadius = isSelected ? 7 : 4;
               });
-
               chart.update();
             }
           },
           tooltip: {
             callbacks: {
-              label(tooltipItem) {
-                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              title: (tooltipItems) => tooltipItems[0].label,
+              label: (tooltipItem) => {
+                const player = tooltipItem.dataset.label;
+                const matchdayIndex = tooltipItem.dataIndex;
+                const place = tooltipItem.parsed.y;
+                const points = playerPoints[player]?.[matchdayIndex] ?? 'N/A';
+                return `${player}: Place ${place}, Points ${points}`;
               }
             }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false },
-            ticks: {
-              autoSkip: true,
-              maxTicksLimit: 17,
-              callback: (value, index) => `${index + 1}`
-            },
-            title: { display: true, text: 'Spieltag (1–34)' }
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false },
-            ticks: { precision: 0 },
-            title: { display: true, text: 'Punkte' }
           }
         }
       }
