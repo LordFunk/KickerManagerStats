@@ -1,136 +1,95 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kicker Interactive Statistiken</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     /* Base Styles */
     body {
       font-family: 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
+      color: #222;
       margin: 0;
       padding: 0;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: linear-gradient(135deg, #e9eff5, #f9fafc);
-      background-size: 400% 400%;
-      animation: gradientShift 20s ease infinite;
-      color: #222;
+      min-height: 100vh;
     }
 
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
+    /* Heading */
     h1 {
-      margin: 40px 0 30px;
-      font-size: 2.5rem;
+      margin: 30px 0;
+      font-size: 2rem;
       font-weight: 700;
       background: linear-gradient(90deg, #0056b3, #0091ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-align: center;
     }
 
-    /* Container */
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
+    /* Card Container */
+    .static-block, details {
       width: 90%;
-      max-width: 1200px;
-      margin-bottom: 50px;
+      max-width: 550px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      padding: 15px 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Cards / Blocks */
-    .card, details {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(8px);
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-      padding: 20px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 0.5s forwards;
+    .static-block:hover, details:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
-    .card:hover, details:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-    }
-
-    @keyframes fadeInUp {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Details / Accordion */
+    /* Summary Styling */
     summary {
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 600;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       list-style: none;
-      user-select: none;
     }
 
     summary::-webkit-details-marker {
       display: none;
     }
 
-    summary i {
+    summary::after {
+      content: "▸";
+      float: right;
       transition: transform 0.3s ease;
     }
 
-    details[open] summary i {
+    details[open] summary::after {
       transform: rotate(90deg);
     }
 
-    details ul {
+    /* Links */
+    ul {
       list-style: none;
-      padding: 15px 0 0 0;
-      margin: 0;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.4s ease;
-    }
-
-    details[open] ul {
-      opacity: 1;
-      transform: translateY(0);
+      padding: 0;
+      margin-top: 15px;
     }
 
     li a {
       display: block;
-      padding: 12px 16px;
-      margin-bottom: 10px;
-      border-radius: 10px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      border-radius: 8px;
       background: linear-gradient(90deg, #0056b3, #007bff);
-      color: #fff;
+      color: white;
       text-decoration: none;
       font-weight: 500;
-      transition: all 0.3s ease;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
 
     li a:hover {
       background: linear-gradient(90deg, #00428a, #0069d9);
-      transform: translateX(5px) scale(1.02);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    /* Static block */
-    .card ul { margin-top: 10px; padding: 0; }
-
-    @media(max-width: 600px){
-      h1 { font-size: 2rem; }
-      .container { grid-template-columns: 1fr; }
+      transform: translateX(4px);
     }
   </style>
 </head>
@@ -138,54 +97,57 @@
 
   <h1>Kicker Interactive Statistiken</h1>
 
-  <div class="container">
-    <div class="card">
-      <ul>
-        <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
-      </ul>
-    </div>
-
-    <details class="card">
-      <summary>Ewige Tabellen <i class="fa-solid fa-caret-right"></i></summary>
-      <ul>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2026.html">Ewige Tabelle 2026</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2025.html">Ewige Tabelle 2025</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">Ewige Tabelle 2024</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2023.png">Ewige Tabelle 2023</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
-      </ul>
-    </details>
-
-    <details class="card" open>
-      <summary>Season 25-26 <i class="fa-solid fa-caret-right"></i></summary>
-      <ul>
-        <li><a href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html">Fieberkurve Saisonpunkte</a></li>
-        <li><a href="Season 25-26/Punkte pro Spieltag 25-26.html">Punkte pro Spieltag</a></li>
-        <li><a href="Season 25-26/Tabelle Spieltag 25-26.html">Tabelle Spieltag</a></li>
-        <li><a href="Season 25-26/Tagesplatzplatzierung 25-26.html">Tagesplatzierung</a></li>
-        <li><a href="Season 25-26/Hin und Rueckrunde/Hin- und Rueckrundentabelle 25-26.html">Hin- und Rückrundentabelle</a></li>
-      </ul>
-    </details>
-
-    <details class="card">
-      <summary>Season 24-25 <i class="fa-solid fa-caret-right"></i></summary>
-      <ul>
-        <li><a href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html">Fieberkurve Saisonpunkte</a></li>
-        <li><a href="Season 24-25/PunkteProSpieltag 24-25.html">Punkte pro Spieltag</a></li>
-        <li><a href="Season 24-25/Tabelle Spieltag 24-25.html">Tabelle Spieltag</a></li>
-        <li><a href="Season 24-25/Tagesplatzierung 24-25.html">Tagesplatzierung</a></li>
-        <li><a href="Season 24-25/Hin und Rueckrunde/Hin- und Rueckrundentabelle 24-25.html">Hin- und Rückrundentabelle</a></li>
-      </ul>
-    </details>
-
-    <details class="card">
-      <summary>Season 23-24 <i class="fa-solid fa-caret-right"></i></summary>
-      <ul>
-        <li><a href="Season 23-24/Punkteentwicklung 23-24.PNG">Punkteentwicklung</a></li>
-        <li><a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">Tabellenplatz je Spieltag</a></li>
-      </ul>
-    </details>
+  <div class="static-block">
+    <ul>
+      <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
+    </ul>
   </div>
+
+  <details>
+  <summary>Ewige Tabellen</summary>
+  <ul>
+    <li><a href="Ewige Tabellen/Ewige Tabelle 2026.html">Ewige Tabelle 2026</a></li>
+    <li><a href="Ewige Tabellen/Ewige Tabelle 2025.html">Ewige Tabelle 2025</a></li>
+    <li><a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">Ewige Tabelle 2024</a></li>
+    <li><a href="Ewige Tabellen/Ewige Tabelle 2023.png">Ewige Tabelle 2023</a></li>
+    <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
+  </ul>
+</details>
+
+
+  <details open>
+    <summary>Season 25-26</summary>
+    <ul>
+      <li><a href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html">Fieberkurve Saisonpunkte</a></li>
+      <li><a href="Season 25-26/Punkte pro Spieltag 25-26.html">Punkte pro Spieltag</a></li>
+      <li><a href="Season 25-26/Tabelle Spieltag 25-26.html">Tabelle Spieltag</a></li>
+      <li><a href="Season 25-26/Tagesplatzplatzierung 25-26.html">Tagesplatzierung</a></li>
+      <li><a href="Season 25-26/Hin und Rueckrunde/Hin- und Rueckrundentabelle 25-26.html">Hin- und Rückrundentabelle</a></li>
+    </ul>
+  </details>
+      
+  <details>
+    <summary>Season 24-25</summary>
+    <ul>
+      <li><a href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html">Fieberkurve Saisonpunkte</a></li>
+      <li><a href="Season 24-25/PunkteProSpieltag 24-25.html">Punkte pro Spieltag</a></li>
+      <li><a href="Season 24-25/Tabelle Spieltag 24-25.html">Tabelle Spieltag</a></li>
+      <li><a href="Season 24-25/Tagesplatzierung 24-25.html">Tagesplatzierung</a></li>
+      <li><a href="Season 24-25/Hin und Rueckrunde/Hin- und Rueckrundentabelle 24-25.html">Hin- und Rückrundentabelle</a></li>
+    </ul>
+  </details>
+
+  <details>
+    <summary>Season 23-24</summary>
+    <ul>
+      <li><a href="Season 23-24/Punkteentwicklung 23-24.PNG">Punkteentwicklung</a></li>
+      <li><a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">Tabellenplatz je Spieltag</a></li>
+    </ul>
+  </details>
+  
 
 </body>
 </html>
+
+
+
