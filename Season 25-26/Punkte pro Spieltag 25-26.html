@@ -6,7 +6,6 @@
   <title>Punkte je Spieltag 25-26</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Base page styling */
     body {
       font-family: 'Segoe UI', Roboto, sans-serif;
       margin: 0;
@@ -18,8 +17,6 @@
       align-items: center;
       min-height: 100vh;
     }
-
-    /* Page title */
     h1 {
       margin: 30px 0 20px 0;
       font-size: 2rem;
@@ -29,8 +26,6 @@
       -webkit-text-fill-color: transparent;
       text-align: center;
     }
-
-    /* Chart card container */
     .chart-container {
       width: 90%;
       max-width: 1200px;
@@ -42,7 +37,6 @@
       margin-bottom: 40px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
     .chart-container:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -56,33 +50,24 @@
   </div>
 
   <script>
-    // --- Labels: Gameday 1..34 ---
-    const LABEL_COUNT = 34;
-    const labels = Array.from({ length: LABEL_COUNT }, (_, i) => `Gameday ${i + 1}`);
+    // Labels: 34 gamedays
+    const labels = Array.from({ length: 34 }, (_, i) => `Gameday ${i + 1}`);
 
-    // --- Helper: pad arrays to 34 with nulls (so you can fill values later) ---
-    const padTo = (arr, len) => {
-      const out = Array(len).fill(null);
-      for (let i = 0; i < Math.min(arr.length, len); i++) out[i] = arr[i];
-      return out;
-    };
-
-    // --- Your players (put values into the arrays; keep nulls for future gamedays) ---
+    // Player data: just enter the numbers you have so far
     const playerData = {
-      'Markus': padTo([1], LABEL_COUNT),
-      'Erwin': padTo([2], LABEL_COUNT),
-      'Phil': padTo([3], LABEL_COUNT),
-      'Didi': padTo([4], LABEL_COUNT),
-      'Steffo': padTo([5], LABEL_COUNT),
-      'Basti': padTo([6], LABEL_COUNT),
-      'Eirik': padTo([7], LABEL_COUNT),
-      'Emil': padTo([8], LABEL_COUNT),
-      'Kempka': padTo([9], LABEL_COUNT),
-      'Espen': padTo([10], LABEL_COUNT),
-      'Alex': padTo([11], LABEL_COUNT),
+      'Markus': [1, 3, 2],      // add numbers as they come
+      'Erwin':  [2, 5],
+      'Phil':   [3],
+      'Didi':   [4],
+      'Steffo': [5],
+      'Basti':  [6],
+      'Eirik':  [7],
+      'Emil':   [8],
+      'Kempka':[9],
+      'Espen':  [10],
+      'Alex':   [11]
     };
 
-    // --- Colors for each player (opaque RGBA) ---
     const colorsRGBA = [
       'rgba(228, 26, 28, 1)',    // Markus
       'rgba(55, 126, 184, 1)',   // Erwin
@@ -94,37 +79,10 @@
       'rgba(153, 153, 153, 1)',  // Emil
       'rgba(102, 194, 165, 1)',  // Kempka
       'rgba(255, 217, 47, 1)',   // Espen
-      'rgba(0, 0, 0, 1)',        // Alex
+      'rgba(0, 0, 0, 1)'         // Alex
     ];
 
     const fadedColor = 'rgba(200, 200, 200, 0.3)';
-
-    // --- Optional: subtle checkerboard "raster" plugin in the plot area ---
-    const checkerboardBackground = {
-      id: 'checkerboardBackground',
-      beforeDraw(chart, args, pluginOptions) {
-        const { ctx, chartArea } = chart;
-        if (!chartArea) return;
-
-        const {
-          left, top, right, bottom, width, height
-        } = chartArea;
-
-        const cell = pluginOptions?.cellSize ?? 24; // px
-        const a = pluginOptions?.alphaA ?? 0.025;
-        const b = pluginOptions?.alphaB ?? 0.05;
-
-        ctx.save();
-        for (let y = 0; y < height; y += cell) {
-          for (let x = 0; x < width; x += cell) {
-            const even = ((x / cell) + (y / cell)) % 2 === 0;
-            ctx.fillStyle = even ? `rgba(0,0,0,${a})` : `rgba(0,0,0,${b})`;
-            ctx.fillRect(left + x, top + y, cell, cell);
-          }
-        }
-        ctx.restore();
-      }
-    };
 
     const datasets = Object.keys(playerData).map((playerName, index) => ({
       label: playerName,
@@ -134,23 +92,19 @@
       fill: false,
       pointRadius: 2,
       borderWidth: 2,
-      spanGaps: true,  // allows nulls -> gaps
+      spanGaps: true,
       hidden: false,
-      highlighted: false // custom flag
+      highlighted: false
     }));
 
     const ctx = document.getElementById('pointsChart').getContext('2d');
 
     const chart = new Chart(ctx, {
       type: 'line',
-      data: {
-        labels,
-        datasets
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'nearest', intersect: false },
         plugins: {
           legend: {
             display: true,
@@ -159,11 +113,7 @@
             onClick(e, legendItem, legend) {
               const index = legendItem.datasetIndex;
               const ds = chart.data.datasets[index];
-
-              // Toggle highlight state
               ds.highlighted = !ds.highlighted;
-
-              // Any highlighted?
               const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
 
               chart.data.datasets.forEach((dataset, i) => {
@@ -180,7 +130,6 @@
                     dataset.hidden = false;
                   }
                 } else {
-                  // reset
                   dataset.borderColor = colorsRGBA[i];
                   dataset.backgroundColor = colorsRGBA[i];
                   dataset.borderWidth = 2;
@@ -201,44 +150,23 @@
         },
         scales: {
           x: {
-            grid: {
-              color: 'rgba(0,0,0,0.08)',      // "raster" grid lines
-              drawBorder: false,
-              drawTicks: false
-            },
+            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false },
             ticks: {
               autoSkip: true,
-              maxTicksLimit: 17,              // keeps labels readable for 34 gamedays
-              callback: (value, index) => `${index + 1}` // show just the number
+              maxTicksLimit: 17,
+              callback: (value, index) => `${index + 1}`
             },
-            title: {
-              display: true,
-              text: 'Spieltag (1–34)'
-            }
+            title: { display: true, text: 'Spieltag (1–34)' }
           },
           y: {
             beginAtZero: true,
-            grid: {
-              color: 'rgba(0,0,0,0.08)',      // "raster" grid lines
-              drawBorder: false
-            },
-            ticks: {
-              precision: 0
-            },
-            title: {
-              display: true,
-              text: 'Punkte'
-            }
+            grid: { color: 'rgba(0,0,0,0.08)', drawBorder: false },
+            ticks: { precision: 0 },
+            title: { display: true, text: 'Punkte' }
           }
         }
-      },
-      plugins: [checkerboardBackground] // subtle checkerboard behind the chart area
+      }
     });
-
-    // --- How to add values later:
-    // Example: set Markus' points on gameday 2 to 4 points, then update:
-    // chart.data.datasets.find(d => d.label === 'Markus').data[1] = 4;
-    // chart.update();
   </script>
 </body>
 </html>
