@@ -61,7 +61,7 @@
             'Emil': [8],
             'Kempka': [9],
             'Espen': [10],
-            'Alex': [11] // ← New player
+            'Alex': [11] 
         };
 
         const colorsRGBA = [
@@ -98,7 +98,7 @@
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 34}, (_, i) => `Game Day ${i + 1}`),
+                labels: Array.from({length: 34}, (_, i) => i + 1), // 1,2,3…34
                 datasets: datasets
             },
             options: {
@@ -149,9 +149,11 @@
                 },
                 scales: {
                     x: {
+                        title: { display: true, text: 'Spieltag' },
                         grid: { display: true, color: '#e0e0e0' }
                     },
                     y: {
+                        title: { display: true, text: 'Punkte' },
                         beginAtZero: true,
                         grid: { display: true, color: '#e0e0e0' }
                     }
