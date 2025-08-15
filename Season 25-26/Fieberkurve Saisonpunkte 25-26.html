@@ -6,7 +6,6 @@
   <title>Saisonpunkte 25-26</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Base page styling */
     body {
       font-family: 'Segoe UI', Roboto, sans-serif;
       margin: 0;
@@ -18,8 +17,6 @@
       align-items: center;
       min-height: 100vh;
     }
-
-    /* Page title */
     h1 {
       margin: 30px 0 20px 0;
       font-size: 2rem;
@@ -29,8 +26,6 @@
       -webkit-text-fill-color: transparent;
       text-align: center;
     }
-
-    /* Chart card container */
     .chart-container {
       width: 90%;
       max-width: 1200px;
@@ -42,7 +37,6 @@
       margin-bottom: 40px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
     .chart-container:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -71,24 +65,12 @@
     };
 
     const players = Object.keys(playerPoints);
-const colors = [
-  '#E41A1C', // Markus (red)
-  '#377EB8', // Erwin (blue)
-  '#4DAF4A', // Phil (green)
-  '#984EA3', // Didi (purple)
-  '#FF7F00', // Steffo (orange)
-  '#A65628', // Basti (brown)
-  '#F781BF', // Eirik (pink)
-  '#999999', // Emil (gray)
-  '#66C2A5', // Kempka (teal)
-  '#FFD92F', // Espen (yellow)
-  '#000000'  // Alex (black)
-];
+    const colors = [
+      '#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00',
+      '#A65628', '#F781BF', '#999999', '#66C2A5', '#FFD92F', '#000000'
+    ];
 
     const selectedIndices = new Set();
-
-    const maxLength = Math.max(...players.map(p => playerPoints[p].length));
-
     const datasets = players.map((name, index) => ({
       label: name,
       data: playerPoints[name],
@@ -106,7 +88,7 @@ const colors = [
     const chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: Array.from({length: maxLength}, (_, i) => `Game Day ${i + 1}`),
+        labels: Array.from({length: 34}, (_, i) => `Game Day ${i + 1}`),
         datasets: datasets
       },
       options: {
@@ -116,18 +98,12 @@ const colors = [
           legend: {
             display: true,
             position: 'top',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
-            },
+            labels: { usePointStyle: true, pointStyle: 'circle' },
             onClick: function(e, legendItem) {
               const index = legendItem.datasetIndex;
 
-              if (selectedIndices.has(index)) {
-                selectedIndices.delete(index);
-              } else {
-                selectedIndices.add(index);
-              }
+              if (selectedIndices.has(index)) selectedIndices.delete(index);
+              else selectedIndices.add(index);
 
               if (selectedIndices.size === 0) {
                 chart.data.datasets.forEach((ds, i) => {
@@ -163,9 +139,8 @@ const colors = [
           }
         },
         scales: {
-          y: {
-            beginAtZero: true
-          }
+          x: { grid: { display: true, color: '#e0e0e0' } },
+          y: { beginAtZero: true, grid: { display: true, color: '#e0e0e0' } }
         }
       }
     });
