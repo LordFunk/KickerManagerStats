@@ -48,7 +48,6 @@
     <div class="chart-container">
         <canvas id="pointsChart"></canvas>
     </div>
-
     <script>
         const playerData = {
             'Markus': [2],
@@ -104,6 +103,14 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 25,
+                        bottom: 10,
+                        left: 10,
+                        right: 10
+                    }
+                },
                 plugins: {
                     legend: {
                         display: true,
@@ -152,13 +159,17 @@
                         title: { display: true, text: 'Spieltag' },
                         grid: { display: true, color: '#e0e0e0' }
                     },
-                     y: {
-                    title: { display: true, text: 'Tabellenplatz' },
-                    min: 1,                // <-- Only show positions 1 to 11
-                    max: 11,
-                    reverse: true,         // <-- 1 is now at the top
-                    grid: { display: true, color: '#e0e0e0' }
-                }
+                    y: {
+                        title: { display: true, text: 'Tabellenplatz' },
+                        min: 1,
+                        max: 11,
+                        reverse: true, // 1 at the top, 11 at the bottom
+                        grid: { display: true, color: '#e0e0e0' },
+                        ticks: {
+                            stepSize: 1,
+                            padding: 10
+                        }
+                    }
                 }
             }
         });
