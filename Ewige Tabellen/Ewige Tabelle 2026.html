@@ -171,7 +171,7 @@
           <th data-key="spieler">Spieler</th>
           <th data-key="spiele">Spiele</th>
           <th data-key="punkte">Punkte</th>
-          <th data-key="pps">ø P.p.S</th>
+          <th data-key="avg">ø P.p.S</th>
           <th data-key="meister">Meister</th>
           <th data-key="letzter">Letzter</th>
           <th data-key="spieltagssiege">Spieltagssiege</th>
@@ -194,17 +194,17 @@
 
   <script>
     const leaderboardData = [
-      { platz: 1, spieler: 'Markus', spiele: 170, punkte: 9287, pps: 54.63, meister: 1, letzter: 0, spieltagssiege: 43, spieltagsletzter: 10, tabellenerster: 52, tabellenletzter: 3 },
-      { platz: 2, spieler: 'Erwin', spiele: 170, punkte: 8812, pps: 51.83, meister: 1, letzter: 0, spieltagssiege: 24, spieltagsletzter: 11, tabellenerster: 34, tabellenletzter: 19 },
-      { platz: 3, spieler: 'Phil', spiele: 170, punkte: 8432, pps: 49.60, meister: 1, letzter: 0, spieltagssiege: 32, spieltagsletzter: 31, tabellenerster: 38, tabellenletzter: 2 },
-      { platz: 4, spieler: 'Eirik', spiele: 170, punkte: 7585, pps: 44.62, meister: 1, letzter: 1, spieltagssiege: 19, spieltagsletzter: 26, tabellenerster: 6, tabellenletzter: 32 },
-      { platz: 5, spieler: 'Didi', spiele: 170, punkte: 7272, pps: 42.78, meister: 0, letzter: 3, spieltagssiege: 16, spieltagsletzter: 38, tabellenerster: 1, tabellenletzter: 79 },
-      { platz: 6, spieler: 'Basti', spiele: 136, punkte: 6183, pps: 45.47, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 19, tabellenerster: 1, tabellenletzter: 2 },
-      { platz: 7, spieler: 'Steffo', spiele: 136, punkte: 5573, pps: 40.97, meister: 0, letzter: 1, spieltagssiege: 4, spieltagsletzter: 31, tabellenerster: 0, tabellenletzter: 33 },
-      { platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, pps: 57.16, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0 },
-      { platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, pps: 60.06, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0 },
-      { platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, pps: 51.47, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0 },
-      { platz: 11, spieler: 'Alex', spiele: 17, punkte: 0, pps: '-', meister: 0, letzter: 0, spieltagssiege: null, spieltagsletzter: null, tabellenerster: null, tabellenletzter: null }
+      { platz: 1, spieler: 'Markus', spiele: 170, punkte: 9287, avg: 54.63, meister: 1, letzter: 0, spieltagssiege: 43, spieltagsletzter: 10, tabellenerster: 52, tabellenletzter: 3 },
+      { platz: 2, spieler: 'Erwin', spiele: 170, punkte: 8812, avg: 51.83, meister: 1, letzter: 0, spieltagssiege: 24, spieltagsletzter: 11, tabellenerster: 34, tabellenletzter: 19 },
+      { platz: 3, spieler: 'Phil', spiele: 170, punkte: 8432, avg: 49.60, meister: 1, letzter: 0, spieltagssiege: 32, spieltagsletzter: 31, tabellenerster: 38, tabellenletzter: 2 },
+      { platz: 4, spieler: 'Eirik', spiele: 170, punkte: 7585, avg: 44.62, meister: 1, letzter: 1, spieltagssiege: 19, spieltagsletzter: 26, tabellenerster: 6, tabellenletzter: 32 },
+      { platz: 5, spieler: 'Didi', spiele: 170, punkte: 7272, avg: 42.78, meister: 0, letzter: 3, spieltagssiege: 16, spieltagsletzter: 38, tabellenerster: 1, tabellenletzter: 79 },
+      { platz: 6, spieler: 'Basti', spiele: 136, punkte: 6183, avg: 45.47, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 19, tabellenerster: 1, tabellenletzter: 2 },
+      { platz: 7, spieler: 'Steffo', spiele: 136, punkte: 5573, avg: 40.97, meister: 0, letzter: 1, spieltagssiege: 4, spieltagsletzter: 31, tabellenerster: 0, tabellenletzter: 33 },
+      { platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, avg: 57.16, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0 },
+      { platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, avg: 60.06, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0 },
+      { platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, avg: 51.47, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0 },
+      { platz: 11, spieler: 'Alex', spiele: 17, punkte: 0, avg: '-', meister: 0, letzter: 0, spieltagssiege: null, spieltagsletzter: null, tabellenerster: null, tabellenletzter: null }
     ];
 
     const highlights = [
