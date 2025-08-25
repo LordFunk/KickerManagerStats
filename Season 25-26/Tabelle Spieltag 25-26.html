@@ -103,14 +103,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        top: 25,
-                        bottom: 10,
-                        left: 10,
-                        right: 10
-                    }
-                },
                 plugins: {
                     legend: {
                         display: true,
@@ -167,7 +159,10 @@
                         grid: { display: true, color: '#e0e0e0' },
                         ticks: {
                             stepSize: 1,
-                            padding: 10
+                            padding: 0,
+                            callback: function(value) {
+                                return value; // Show all ticks, including 1 and 11
+                            }
                         }
                     }
                 }
