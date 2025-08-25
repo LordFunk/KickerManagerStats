@@ -101,15 +101,13 @@
                         title: { display: true, text: 'Spieltag' },
                         grid: { display: true, color: '#e0e0e0' }
                     },
-                    y: {
-    title: { display: true, text: 'Tabellenplatz' },
-    reverse: true,
-    min: 1,
-    max: 11,
-    offset: true,         // <-- add this line
-    ticks: { stepSize: 1 },
-    grid: { display: true, color: '#e0e0e0' }
-}
+                   y: {
+            title: { display: true, text: 'Tabellenplatz' },
+            reverse: true,
+            beginAtZero: false,
+            ticks: { stepSize: 1 },
+            grid: { display: true, color: '#e0e0e0' }
+          }
                 },
                 plugins: {
                     legend: {
