@@ -152,12 +152,13 @@
                         title: { display: true, text: 'Spieltag' },
                         grid: { display: true, color: '#e0e0e0' }
                     },
-                    y: {
-                        title: { display: true, text: 'Tabellenplatz' },
-                        beginAtZero: true,
-                        grid: { display: true, color: '#e0e0e0' },
-                        reverse: true // <--- This reverses the Y axis!
-                    }
+                     y: {
+                    title: { display: true, text: 'Tabellenplatz' },
+                    min: 1,                // <-- Only show positions 1 to 11
+                    max: 11,
+                    reverse: true,         // <-- 1 is now at the top
+                    grid: { display: true, color: '#e0e0e0' }
+                }
                 }
             }
         });
