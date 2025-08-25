@@ -269,22 +269,34 @@
 
     // Render leaderboard rows
     function renderLeaderboard(data) {
-      const tbody = document.querySelector("#leaderboard tbody");
-      tbody.innerHTML = '';
-      data.forEach(player => {
-        const row = document.createElement("tr");
-        for (const key of ['platz', 'spieler', 'spiele', 'punkte', 'meister', 'letzter', 'spieltagssiege', 'spieltagsletzter', 'tabellenerster', 'tabellenletzter']) {
-          const cell = document.createElement("td");
-          let val = player[key];
-          if (val === null || val === undefined || val === '') {
-            val = '-';
-          }
-          cell.textContent = val;
-          row.appendChild(cell);
-        }
-        tbody.appendChild(row);
-      });
+  const tbody = document.querySelector("#leaderboard tbody");
+  tbody.innerHTML = '';
+  data.forEach(player => {
+    const row = document.createElement("tr");
+    for (const key of [
+      'platz',
+      'spieler',
+      'spiele',
+      'punkte',
+      'avg',
+      'meister',
+      'letzter',
+      'spieltagssiege',
+      'spieltagsletzter',
+      'tabellenerster',
+      'tabellenletzter'
+    ]) {
+      const cell = document.createElement("td");
+      let val = player[key];
+      if (val === null || val === undefined || val === '') {
+        val = '-';
+      }
+      cell.textContent = val;
+      row.appendChild(cell);
     }
+    tbody.appendChild(row);
+  });
+}
 
     // Sorting variables
     let currentSortKey = 'punkte';
