@@ -6,7 +6,7 @@
   <title>Leaderboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* ... your existing styles ... */
+    /* ... styles unchanged ... */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f0f4f8;
@@ -194,40 +194,127 @@
   <ul id="highlight-list"></ul>
 
   <script>
-    const leaderboardData = [
-      { platz: 1, spieler: 'Markus', spiele: 170, punkte: 9287, avg: null, meister: 1, letzter: 0, spieltagssiege: 43, spieltagsletzter: 10, tabellenerster: 52, tabellenletzter: 3 },
-      { platz: 2, spieler: 'Erwin', spiele: 170, punkte: 8812, avg: null, meister: 1, letzter: 0, spieltagssiege: 24, spieltagsletzter: 11, tabellenerster: 34, tabellenletzter: 19 },
-      { platz: 3, spieler: 'Phil', spiele: 170, punkte: 8432, avg: null, meister: 1, letzter: 0, spieltagssiege: 32, spieltagsletzter: 31, tabellenerster: 38, tabellenletzter: 2 },
-      { platz: 4, spieler: 'Eirik', spiele: 170, punkte: 7585, avg: null, meister: 1, letzter: 1, spieltagssiege: 19, spieltagsletzter: 26, tabellenerster: 6, tabellenletzter: 32 },
-      { platz: 5, spieler: 'Didi', spiele: 170, punkte: 7272, avg: null, meister: 0, letzter: 3, spieltagssiege: 16, spieltagsletzter: 38, tabellenerster: 1, tabellenletzter: 79 },
-      { platz: 6, spieler: 'Basti', spiele: 136, punkte: 6183, avg: null, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 19, tabellenerster: 1, tabellenletzter: 2 },
-      { platz: 7, spieler: 'Steffo', spiele: 136, punkte: 5573, avg: null, meister: 0, letzter: 1, spieltagssiege: 4, spieltagsletzter: 31, tabellenerster: 0, tabellenletzter: 33 },
-      { platz: 8, spieler: 'Emil', spiele: 68, punkte: 3887, avg: null, meister: 0, letzter: 0, spieltagssiege: 8, spieltagsletzter: 1, tabellenerster: 3, tabellenletzter: 0 },
-      { platz: 9, spieler: 'Espen', spiele: 34, punkte: 2042, avg: null, meister: 1, letzter: 0, spieltagssiege: 12, spieltagsletzter: 1, tabellenerster: 34, tabellenletzter: 0 },
-      { platz: 10, spieler: 'Kempka', spiele: 34, punkte: 1750, avg: null, meister: 0, letzter: 0, spieltagssiege: 4, spieltagsletzter: 3, tabellenerster: 0, tabellenletzter: 0 },
-      { platz: 11, spieler: 'Alex', spiele: 17, punkte: 0, avg: null, meister: 0, letzter: 0, spieltagssiege: null, spieltagsletzter: null, tabellenerster: null, tabellenletzter: null }
-    ];
+    // --------- CENTRALIZED DATA FROM EASY STATS DASHBOARD ----------
+    // For demo, just 5 gamedays. You can expand as needed.
+    const rawStats = `
+Markus 63, 24, 55, 96, 25
+Erwin 48, 55, 69, 88, 20
+Phil 76, 49, 72, 54, 85
+Didi 50, 52, 61, 74, 41
+Steffo 53, 58, 44, 62, 39
+Basti 47, 51, 68, 70, 26
+Eirik 46, 32, 79, 63, 37
+Emil 61, 39, 59, 60, 32
+Kempka 36, 41, 57, 52, 40
+Espen 57, 62, 65, 66, 28
+Alex 55, 37, 64, 59, 38
+`;
+
+    // Parse rawStats
+    function parseRawStats(raw) {
+      const lines = raw.trim().split('\n');
+      const players = [];
+      const pointsByPlayer = {};
+      let maxGames = 0;
+      lines.forEach((line, idx) => {
+        const [name, ...rest] = line.split(/[\s,]+/);
+        const points = line.replace(name, '').split(/[, ]+/).filter(s => s).map(Number);
+        players.push(name);
+        pointsByPlayer[name] = points;
+        if (points.length > maxGames) maxGames = points.length;
+      });
+      return { players, pointsByPlayer, maxGames };
+    }
+
+    const { players, pointsByPlayer, maxGames } = parseRawStats(rawStats);
+
+    // Build matchday data
+    const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
+    const matches = matchdays.map(md => {
+      const stats = {};
+      players.forEach(p => {
+        stats[p] = { points: pointsByPlayer[p][md-1] ?? 0 };
+      });
+      return { matchday: md, stats };
+    });
+
+    // Calculate rankings per matchday
+    matches.forEach(m => {
+      const ranking = players
+        .map(p => ({ name: p, points: m.stats[p].points }))
+        .sort((a,b) => b.points - a.points);
+      ranking.forEach((r, idx) => {
+        m.stats[r.name].place = idx + 1;
+      });
+    });
+
+    // Helper: get cumulative points for Fiebertabelle
+    function getCumulativePoints(p) {
+      let sum = 0;
+      return matches.map(m => {
+        sum += m.stats[p].points;
+        return sum;
+      });
+    }
+
+    // Tabellenplatzentwicklung (total points after each matchday)
+    function getTabellenplatzentwicklung(p) {
+      let runningTotal = 0;
+      const platz = [];
+      for (let i = 0; i < matches.length; i++) {
+        runningTotal += matches[i].stats[p].points;
+        // For this matchday, sort all players
+        const totals = players.map(pl => ({
+          name: pl,
+          pts: matches.slice(0, i+1).reduce((sum, m) => sum + m.stats[pl].points, 0)
+        })).sort((a,b) => b.pts - a.pts);
+        const place = totals.findIndex(t => t.name === p) + 1;
+        platz.push(place);
+      }
+      return platz;
+    }
+
+    // Build leaderboardData from raw stats
+    function buildLeaderboardData() {
+      // Compute all stats for leaderboard
+      const data = players.map((p, idx) => {
+        const spiele = pointsByPlayer[p].length;
+        const punkte = pointsByPlayer[p].reduce((a,b) => a+b, 0);
+        const avg = spiele ? Math.round((punkte/spiele)*100)/100 : '-';
+        const spieltagssiege = matches.filter(m => m.stats[p].place === 1).length;
+        const spieltagsletzter = matches.filter(m => m.stats[p].place === players.length).length;
+        const tabellenentwicklung = getTabellenplatzentwicklung(p);
+        const tabellenerster = tabellenentwicklung.filter(pl => pl === 1).length;
+        const tabellenletzter = tabellenentwicklung.filter(pl => pl === players.length).length;
+        return {
+          platz: idx + 1,
+          spieler: p,
+          spiele,
+          punkte,
+          avg,
+          meister: 0, // Set manually if needed
+          letzter: 0, // Set manually if needed
+          spieltagssiege,
+          spieltagsletzter,
+          tabellenerster,
+          tabellenletzter
+        };
+      });
+      // Sort by punkte descending and update platz
+      data.sort((a,b)=>b.punkte-a.punkte);
+      data.forEach((d,i)=>d.platz = i+1);
+      return data;
+    }
+
+    const leaderboardData = buildLeaderboardData();
 
     // Helper to check if value is numeric
     function isNumeric(value) {
       return !isNaN(parseFloat(value)) && isFinite(value);
     }
 
-    // Calculate avg for all players automatically before rendering
-    function calculateAverages(data) {
-      data.forEach(player => {
-        if (isNumeric(player.spiele) && isNumeric(player.punkte) && player.spiele > 0) {
-          // round to 2 decimals
-          player.avg = Math.round((player.punkte / player.spiele) * 100) / 100;
-        } else {
-          player.avg = '-';
-        }
-      });
-    }
-
     // Render leaderboard rows
     function renderLeaderboard(data) {
-      calculateAverages(data); // <--- calculate avgs always before rendering
       const tbody = document.querySelector("#leaderboard tbody");
       tbody.innerHTML = '';
       data.forEach(player => {
@@ -316,7 +403,7 @@
     renderLeaderboard(sortLeaderboard(leaderboardData, currentSortKey, currentSortAsc));
     document.querySelector("#leaderboard thead th[data-key='punkte']").classList.add('sort-desc');
 
-    // Populate highlights list
+    // Populate highlights list (unchanged)
     const highlights = [
       "=== Highlights der Saison 25-26 ===",
       "- Keine Spieltagssiege in der Saison ",
@@ -378,54 +465,15 @@
       highlightList.appendChild(li);
     });
 
-    // Fieberkurve data and chart setup
-    const fiebertabelleData = {
-      'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
-      'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
-      'Phil': { s1: 1717, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
-      'Erwin': { s1: 1536, s2: 1571, s3: 1957, s4: 1845, s5: 1903 },
-      'Didi': { s1: 1391, s2: 1735, s3: 1267, s4: 1667, s5: 1212 },
-      'Steffo': { s2: 957, s3: 1558, s4: 1620, s5: 1438 },
-      'Basti': { s2: 1441, s3: 1303, s4: 1924, s5: 1512 },
-      'Emil': { s4: 2014, s5: 1873 },
-      'Kempka': { s5: 1750 },
-      'Espen': { s5: 2042 }
-    };
-
-    const players = Object.keys(fiebertabelleData);
+    // -------- Fiebertabelle from rawStats --------
+    // Chart colors for each player
     const colors = [
-      '#E41A1C', // Markus (red)
-      '#377EB8', // Erwin (blue)
-      '#4DAF4A', // Phil (green)
-      '#984EA3', // Didi (purple)
-      '#FF7F00', // Steffo (orange)
-      '#A65628', // Basti (brown)
-      '#F781BF', // Eirik (pink)
-      '#999999', // Emil (gray)
-      '#66C2A5', // Kempka (teal)
-      '#FFD92F', // Espen (yellow)
-      '#000000'  // Alex (black, unused here)
+      '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+      '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
     ];
-
-    const seasons = ['s1', 's2', 's3', 's4', 's5'];
-
-    function cumulativePoints(seasonPoints) {
-      const cumulative = [];
-      let sum = 0;
-      seasons.forEach(season => {
-        if (seasonPoints[season] !== undefined) {
-          sum += seasonPoints[season];
-          cumulative.push(sum);
-        } else {
-          cumulative.push(null); // null to skip in chart
-        }
-      });
-      return cumulative;
-    }
-
-    const datasets = players.map((spieler, i) => ({
-      label: spieler,
-      data: cumulativePoints(fiebertabelleData[spieler]),
+    const datasets = players.map((name, i) => ({
+      label: name,
+      data: getCumulativePoints(name),
       borderColor: colors[i],
       backgroundColor: colors[i],
       fill: false,
@@ -442,7 +490,7 @@
     const fieberChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: seasons.map(s => s.toUpperCase()),
+        labels: matchdays.map(s => `ST${s}`),
         datasets: datasets
       },
       options: {
@@ -511,7 +559,7 @@
           x: {
             title: {
               display: true,
-              text: 'Season'
+              text: 'Spieltag'
             }
           }
         }
