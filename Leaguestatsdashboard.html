@@ -1,160 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>League Stats Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body { font-family: sans-serif; background: #f9fafc; color: #222; }
-    .chart-container { max-width: 900px; margin: 2rem auto; background: #fff; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 20px; }
-    table { margin: 2rem auto; border-collapse: collapse; width: 100%; max-width: 900px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 10px; }
-    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
-    th { background: #e9eff5; }
-    h2 { margin-top: 3rem; }
-    textarea { width: 100%; max-width: 900px; height: 260px; margin: 2rem auto; display: block; font-size: 1rem; }
-    button { margin: 1rem auto; display: block; font-size: 1rem; padding: 0.5rem 1.5rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League Stats Dashboard & Fieberkurve</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+  h1, h2 { text-align: center; }
+  textarea { width: 90%; max-width: 600px; height: 200px; display: block; margin: 0 auto 20px auto; font-size: 1rem; }
+  button { display: block; margin: 0 auto 20px auto; padding: 10px 20px; font-size: 1rem; }
+  table { width: 90%; max-width: 800px; margin: 0 auto 40px auto; border-collapse: collapse; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  th, td { padding: 8px 12px; text-align: center; border-bottom: 1px solid #eee; }
+  th { background: #e9eff5; }
+  .chart-container { width: 95%; max-width: 1200px; margin: auto; height: 500px; }
+</style>
 </head>
 <body>
-  <h1>League Stats Dashboard</h1>
-  <label for="rawData"><b>Edit points per player (comma-separated):</b></label>
-  <textarea id="rawData">
-Markus   63, 54, 105
-Erwin    48, 66, 25
-Phil     76, 85, 65
-Didi     50, 12, 87
-Eirik    46, 54, 54
-Steffo   53, 66, 23
-Basti    47, 82, 50
-Emil     61, 2,  63
-Kempka   36, 63, 28
-Espen    57, 23, 36
-Alex     55, 47, 98
-  </textarea>
-  <button onclick="processStats()">Show Stats</button>
 
-  <div id="visuals"></div>
-  <script>
-    const allPlayers = ["Markus","Erwin","Phil","Didi","Eirik","Steffo","Basti","Emil","Kempka","Espen","Alex"];
+<h1>League Stats Dashboard</h1>
 
-    const colors = [
-      '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
-      '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
-    ];
+<textarea id="rawData">
+Markus   63, 25, 69
+Erwin    48, 58, 63
+Phil     76, 63, 20
+Didi     48, 12, 32
+Steffo   42, 85, 96
+Basti    25, 52, 78
+Eirik    99, 3,  45
+Emil     61, 72, 91
+Kempka   36, 25, 32
+Espen    57, 29, 53
+Alex     45, 50, 87
+</textarea>
 
-    function processStats() {
-      const input = document.getElementById('rawData').value.trim();
-      const lines = input.split('\n').filter(l => l.trim());
-      const pointsByPlayer = {};
-      let maxGames = 0;
+<button onclick="updateDashboard()">Update Dashboard & Chart</button>
 
-      allPlayers.forEach(p => pointsByPlayer[p] = []);
+<h2>Score Table</h2>
+<table id="leagueTable">
+  <thead>
+    <tr id="tableHeader"><th>Spieler</th></tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
 
-      lines.forEach(line => {
-        const [name, ...rest] = line.split(/[\s,]+/);
-        const points = line.replace(name, '').split(/[, ]+/).filter(s => s).map(Number);
-        if (allPlayers.includes(name)) {
-          pointsByPlayer[name] = points;
-          if (points.length > maxGames) maxGames = points.length;
-        }
-      });
+<h2>Cumulative Points (Fieberkurve)</h2>
+<div class="chart-container">
+  <canvas id="fieberChart"></canvas>
+</div>
 
-      maxGames = Math.max(maxGames, ...Object.values(pointsByPlayer).map(arr => arr.length));
-      const matchdays = Array.from({length:maxGames}, (_,i)=>i+1);
+<script>
+let chart;
 
-      const matches = matchdays.map(md => {
-        const stats = {};
-        allPlayers.forEach(p => {
-          stats[p] = { points: pointsByPlayer[p][md-1] ?? 0 };
-        });
-        return { matchday: md, stats };
-      });
+function updateDashboard() {
+  const raw = document.getElementById('rawData').value.trim().split('\n');
+  const players = [];
+  const playerPoints = {};
+  let maxMatchdays = 0;
 
-      matches.forEach(m => {
-        const ranking = allPlayers.map(p => ({name:p, points:m.stats[p].points}))
-          .sort((a,b)=>b.points-a.points);
-        ranking.forEach((r,i)=>m.stats[r.name].place=i+1);
-      });
+  // Parse textarea into playerPoints
+  raw.forEach(line => {
+    const [name, ...scores] = line.split(/[\s,]+/);
+    const points = scores.map(Number);
+    players.push(name);
+    playerPoints[name] = points;
+    if (points.length > maxMatchdays) maxMatchdays = points.length;
+  });
 
-      const cumulativePoints = {};
-      allPlayers.forEach(p=>{
-        let sum=0;
-        cumulativePoints[p] = matches.map(m => (sum+=m.stats[p].points));
-      });
+  // Build table header
+  const tableHeader = document.getElementById('tableHeader');
+  tableHeader.innerHTML = '<th>Spieler</th>';
+  for (let i = 1; i <= maxMatchdays; i++) {
+    tableHeader.innerHTML += `<th>Spieltag ${i}</th>`;
+  }
 
-      const tabellenplatzentwicklung = {};
-      const totals = {};
-      allPlayers.forEach(p=>totals[p]=0);
-      matchdays.forEach((md,idx)=>{
-        allPlayers.forEach(p=>totals[p]+=matches[idx].stats[p].points);
-        const sorted = allPlayers.map(p=>({name:p,pts:totals[p]})).sort((a,b)=>b.pts-a.pts);
-        sorted.forEach((r,i)=>{
-          if(!tabellenplatzentwicklung[r.name]) tabellenplatzentwicklung[r.name]=[];
-          tabellenplatzentwicklung[r.name].push(i+1);
-        });
-      });
+  // Build table body
+  const tableBody = document.getElementById('tableBody');
+  tableBody.innerHTML = '';
+  players.forEach(p => {
+    let row = `<tr><td>${p}</td>`;
+    playerPoints[p].forEach(pt => row += `<td>${pt}</td>`);
+    row += '</tr>';
+    tableBody.innerHTML += row;
+  });
 
-      const ewige = allPlayers.map(p=>{
-        const spiele = pointsByPlayer[p].length;
-        const punkte = pointsByPlayer[p].reduce((a,b)=>a+b,0);
-        const avg = spiele ? (punkte/spiele).toFixed(2) : '-';
-        const spieltagssiege = matches.filter(m=>m.stats[p].place===1).length;
-        const spieltagsletzter = matches.filter(m=>m.stats[p].place===allPlayers.length).length;
-        const tabellenerster = (tabellenplatzentwicklung[p]||[]).filter(pl=>pl===1).length;
-        const tabellenletzter = (tabellenplatzentwicklung[p]||[]).filter(pl=>pl===allPlayers.length).length;
-        return {name:p, spiele, punkte, avg, spieltagssiege, spieltagsletzter, tabellenerster, tabellenletzter};
-      });
+  // Calculate cumulative points
+  const cumulativePoints = {};
+  players.forEach(p => {
+    let sum = 0;
+    cumulativePoints[p] = playerPoints[p].map(pt => sum += pt);
+  });
 
-      const hinrunde={}, rueckrunde={};
-      const half=Math.floor(maxGames/2);
-      allPlayers.forEach(p=>{
-        hinrunde[p]=pointsByPlayer[p].slice(0,half).reduce((a,b)=>a+b,0);
-        rueckrunde[p]=pointsByPlayer[p].slice(half).reduce((a,b)=>a+b,0);
-      });
+  // Prepare datasets
+  const colors = [
+    '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+    '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
+  ];
 
-      let visuals='';
-      visuals+=`<h2>Cumulative Points (Fiebertabelle)</h2><div class="chart-container"><canvas id="fieberChart"></canvas></div>`;
-      visuals+=`<h2>Points per Matchday</h2><div class="chart-container"><canvas id="punkteChart"></canvas></div>`;
-      visuals+=`<h2>Tabellenplatzentwicklung</h2><div class="chart-container"><canvas id="tabellenChart"></canvas></div>`;
+  const datasets = players.map((name, i) => ({
+    label: name,
+    data: cumulativePoints[name],
+    borderColor: colors[i % colors.length],
+    backgroundColor: colors[i % colors.length],
+    fill: false,
+    tension: 0.2
+  }));
 
-      visuals+=`<h2>Ewige Tabelle</h2><table><thead><tr>
-        <th>Spieler</th><th>Spiele</th><th>Punkte</th><th>ø P.p.S</th>
-        <th>Spieltagssiege</th><th>Spieltagsletzter</th><th>Tabellenerster</th><th>Tabellenletzter</th>
-      </tr></thead><tbody>`;
-      ewige.forEach(r=>{
-        visuals+=`<tr><td>${r.name}</td><td>${r.spiele}</td><td>${r.punkte}</td><td>${r.avg}</td>
-        <td>${r.spieltagssiege}</td><td>${r.spieltagsletzter}</td><td>${r.tabellenerster}</td><td>${r.tabellenletzter}</td></tr>`;
-      });
-      visuals+=`</tbody></table>`;
+  // Destroy previous chart if exists
+  if(chart) chart.destroy();
 
-      visuals+=`<h2>Hin-/Rückrundentabelle</h2><table><thead><tr><th>Spieler</th><th>Hinrunde</th><th>Rückrunde</th><th>Diff</th></tr></thead><tbody>`;
-      allPlayers.forEach(p=>{
-        const diff=rueckrunde[p]-hinrunde[p];
-        const diffClass=diff>0?'style="color:green"':diff<0?'style="color:red"':'';
-        visuals+=`<tr><td>${p}</td><td>${hinrunde[p]}</td><td>${rueckrunde[p]}</td><td ${diffClass}>${diff>0? '+'+diff: diff}</td></tr>`;
-      });
-      visuals+=`</tbody></table>`;
-
-      document.getElementById('visuals').innerHTML=visuals;
-
-      setTimeout(()=>{
-        new Chart(document.getElementById('fieberChart'),{
-          type:'line',
-          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:cumulativePoints[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
-          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Punkte'},beginAtZero:true}}}
-        });
-        new Chart(document.getElementById('punkteChart'),{
-          type:'line',
-          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:pointsByPlayer[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
-          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Punkte'},beginAtZero:true}}}
-        });
-        new Chart(document.getElementById('tabellenChart'),{
-          type:'line',
-          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:tabellenplatzentwicklung[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
-          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Tabellenplatz'},reverse:true,ticks:{stepSize:1}}}}
-        });
-      },100);
+  // Draw chart
+  const ctx = document.getElementById('fieberChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: maxMatchdays}, (_, i) => i + 1),
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'Fieberkurve (Kumulative Punkte)' }
+      },
+      scales: { y: { beginAtZero: true }, x: { title: { display: true, text: 'Spieltag' } } }
     }
-  </script>
+  });
+}
+
+// Initialize dashboard on page load
+updateDashboard();
+</script>
+
 </body>
 </html>
