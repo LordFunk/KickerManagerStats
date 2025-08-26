@@ -1,151 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fiebertabelle</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fieberkurve - Saison</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f8f8f8;
+      margin: 20px;
+      background: #f9f9f9;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-      background: white;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
+    h2 {
       text-align: center;
     }
-    th {
-      background: #eee;
-    }
-    button {
-      padding: 10px 15px;
-      background: #007acc;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    #formContainer {
-      display: none;
-      margin-top: 20px;
-      background: white;
-      padding: 20px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    input[type="number"] {
-      width: 60px;
-      padding: 5px;
-      margin: 3px;
+    #chartContainer {
+      width: 95%;
+      max-width: 1200px;
+      margin: auto;
     }
   </style>
 </head>
 <body>
-
-  <h1>League Score Overview</h1>
-
-  <!-- Table Overview -->
-  <table id="scoreTable">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <th>Score 1</th>
-        <th>Score 2</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <button onclick="toggleForm()">Enter / Update Scores</button>
-
-  <!-- Score Entry Form -->
-  <div id="formContainer">
-    <h2>Update Scores</h2>
-    <form id="scoreForm"></form>
-    <button type="button" onclick="saveScores()">Save Scores</button>
+  <h2>Fieberkurve - Saison</h2>
+  <div id="chartContainer">
+    <canvas id="fieberChart"></canvas>
   </div>
 
   <script>
-    // Use League Stats Dashboard as the database
-    const players = ["Markus","Erwin","Phil","Eirik","Didi","Basti","Steffo","Emil","Espen"];
-    let scores = {};
+    // Example: simulate fetch from your League Stats Dashboard
+    // Replace this with fetch('dashboard.json') if you have it in a file
+    const leagueStatsDashboard = {
+      "Spieltag 1": { "Markus": 22, "Erwin": 33, "Emil": 15, "Espen": 28 },
+      "Spieltag 2": { "Markus": 17, "Erwin": 12, "Emil": 20, "Espen": 10 },
+      "Spieltag 3": { "Markus": 30, "Erwin": 18, "Emil": 25, "Espen": 14 }
+    };
 
-    // Load initial scores (prefilled with 22 and 33 if not saved yet)
-    function loadScores() {
-      const saved = localStorage.getItem("leagueScores");
-      if (saved) {
-        scores = JSON.parse(saved);
-      } else {
-        players.forEach(p => scores[p] = [22, 33]);
+    // Extract players
+    const players = [...new Set(Object.values(leagueStatsDashboard)
+      .flatMap(spieltag => Object.keys(spieltag)))];
+
+    // Spieltage
+    const matchdays = Object.keys(leagueStatsDashboard);
+
+    // Calculate cumulative points
+    const playerData = {};
+    players.forEach(player => {
+      let cumulative = 0;
+      playerData[player] = matchdays.map(md => {
+        cumulative += leagueStatsDashboard[md][player] || 0;
+        return cumulative;
+      });
+    });
+
+    // Random colors for players
+    function randomColor() {
+      return `hsl(${Math.floor(Math.random()*360)},70%,50%)`;
+    }
+
+    // Chart.js datasets
+    const datasets = players.map(player => ({
+      label: player,
+      data: playerData[player],
+      borderColor: randomColor(),
+      fill: false,
+      tension: 0.2
+    }));
+
+    // Render chart
+    new Chart(document.getElementById('fieberChart'), {
+      type: 'line',
+      data: {
+        labels: matchdays,
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Fieberkurve (Kumulative Punkte pro Spieltag)'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision:0
+            }
+          }
+        }
       }
-    }
-
-    // Render overview table
-    function renderTable() {
-      const tbody = document.querySelector("#scoreTable tbody");
-      tbody.innerHTML = "";
-      players.forEach(player => {
-        const [s1, s2] = scores[player] || [22, 33];
-        const row = `<tr>
-          <td>${player}</td>
-          <td>${s1}</td>
-          <td>${s2}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-    }
-
-    // Render form for editing
-    function renderForm() {
-      const form = document.querySelector("#scoreForm");
-      form.innerHTML = "";
-      players.forEach(player => {
-        const [s1, s2] = scores[player] || [22, 33];
-        form.innerHTML += `
-          <div>
-            <label>${player}:</label>
-            <input type="number" id="${player}_1" value="${s1}">
-            <input type="number" id="${player}_2" value="${s2}">
-          </div>
-        `;
-      });
-    }
-
-    function toggleForm() {
-      const form = document.getElementById("formContainer");
-      if (form.style.display === "none") {
-        renderForm();
-        form.style.display = "block";
-      } else {
-        form.style.display = "none";
-      }
-    }
-
-    function saveScores() {
-      players.forEach(player => {
-        const s1 = parseInt(document.getElementById(player + "_1").value) || 0;
-        const s2 = parseInt(document.getElementById(player + "_2").value) || 0;
-        scores[player] = [s1, s2];
-      });
-      localStorage.setItem("leagueScores", JSON.stringify(scores));
-      renderTable();
-      alert("Scores saved!");
-    }
-
-    // Init
-    loadScores();
-    renderTable();
+    });
   </script>
-
 </body>
 </html>
