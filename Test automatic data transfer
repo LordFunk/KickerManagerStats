@@ -11,19 +11,32 @@
     th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
     th { background: #e9eff5; }
     h2 { margin-top: 3rem; }
-    textarea { width: 100%; max-width: 900px; height: 80px; margin: 2rem auto; display: block; font-size: 1rem; }
+    textarea { width: 100%; max-width: 900px; height: 260px; margin: 2rem auto; display: block; font-size: 1rem; }
     button { margin: 1rem auto; display: block; font-size: 1rem; padding: 0.5rem 1.5rem; }
   </style>
 </head>
 <body>
   <h1>League Stats Dashboard</h1>
-  <label for="rawData"><b>Paste points per player (comma-separated):</b></label>
-  <textarea id="rawData" placeholder="Markus 63, 24, 55, 96, 25&#10;Erwin 48, 55, 69, 88, 20"></textarea>
+  <label for="rawData"><b>Edit points per player (comma-separated):</b></label>
+  <textarea id="rawData">
+Markus   63,
+Erwin    48,
+Phil     76,
+Didi     50,
+Eirik    46,
+Steffo   53,
+Basti    47,
+Emil     61,
+Kempka   36,
+Espen    57,
+Alex     55,
+  </textarea>
   <button onclick="processStats()">Show Stats</button>
 
   <div id="visuals"></div>
   <script>
-    // Player colors for charts
+    const allPlayers = ["Markus","Erwin","Phil","Didi","Eirik","Steffo","Basti","Emil","Kempka","Espen","Alex"];
+
     const colors = [
       '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
       '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
@@ -31,146 +44,116 @@
 
     function processStats() {
       const input = document.getElementById('rawData').value.trim();
-      if (!input) return;
-
-      // Parse input: "Markus 63, 24, 55, 96, 25"
       const lines = input.split('\n').filter(l => l.trim());
-      const players = [];
       const pointsByPlayer = {};
       let maxGames = 0;
-      lines.forEach((line, idx) => {
+
+      allPlayers.forEach(p => pointsByPlayer[p] = []);
+
+      lines.forEach(line => {
         const [name, ...rest] = line.split(/[\s,]+/);
         const points = line.replace(name, '').split(/[, ]+/).filter(s => s).map(Number);
-        players.push(name);
-        pointsByPlayer[name] = points;
-        if (points.length > maxGames) maxGames = points.length;
+        if (allPlayers.includes(name)) {
+          pointsByPlayer[name] = points;
+          if (points.length > maxGames) maxGames = points.length;
+        }
       });
 
-      // Prepare matchday data
-      const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
-      // Points per matchday for each player
-      // [ {matchday: 1, stats: {Markus: 63, Erwin: 48, ...}}, ... ]
+      maxGames = Math.max(maxGames, ...Object.values(pointsByPlayer).map(arr => arr.length));
+      const matchdays = Array.from({length:maxGames}, (_,i)=>i+1);
+
       const matches = matchdays.map(md => {
         const stats = {};
-        players.forEach(p => {
+        allPlayers.forEach(p => {
           stats[p] = { points: pointsByPlayer[p][md-1] ?? 0 };
         });
         return { matchday: md, stats };
       });
 
-      // Calculate rankings per matchday
       matches.forEach(m => {
-        // Sort players by points this matchday, highest first
-        const ranking = players
-          .map(p => ({ name: p, points: m.stats[p].points }))
-          .sort((a,b) => b.points - a.points);
-        ranking.forEach((r, idx) => {
-          m.stats[r.name].place = idx + 1;
-        });
+        const ranking = allPlayers.map(p => ({name:p, points:m.stats[p].points}))
+          .sort((a,b)=>b.points-a.points);
+        ranking.forEach((r,i)=>m.stats[r.name].place=i+1);
       });
 
-      // Cumulate points for Fiebertabelle
       const cumulativePoints = {};
-      players.forEach(p => {
-        let sum = 0;
-        cumulativePoints[p] = matches.map(m => {
-          sum += m.stats[p].points;
-          return sum;
-        });
+      allPlayers.forEach(p=>{
+        let sum=0;
+        cumulativePoints[p] = matches.map(m => (sum+=m.stats[p].points));
       });
 
-      // Tabellenplatzentwicklung (total points after each matchday)
       const tabellenplatzentwicklung = {};
-      let runningTotals = {};
-      players.forEach(p => runningTotals[p] = 0);
-      matchdays.forEach((md, idx) => {
-        players.forEach(p => runningTotals[p] += matches[idx].stats[p].points);
-        // Sort by runningTotals
-        const sorted = players.map(p => ({name:p, pts:runningTotals[p]})).sort((a,b) => b.pts - a.pts);
-        sorted.forEach((r, i) => {
-          if (!tabellenplatzentwicklung[r.name]) tabellenplatzentwicklung[r.name] = [];
+      const totals = {};
+      allPlayers.forEach(p=>totals[p]=0);
+      matchdays.forEach((md,idx)=>{
+        allPlayers.forEach(p=>totals[p]+=matches[idx].stats[p].points);
+        const sorted = allPlayers.map(p=>({name:p,pts:totals[p]})).sort((a,b)=>b.pts-a.pts);
+        sorted.forEach((r,i)=>{
+          if(!tabellenplatzentwicklung[r.name]) tabellenplatzentwicklung[r.name]=[];
           tabellenplatzentwicklung[r.name].push(i+1);
         });
       });
 
-      // Ewige Tabelle
-      const ewige = players.map((p, idx) => {
+      const ewige = allPlayers.map(p=>{
         const spiele = pointsByPlayer[p].length;
-        const punkte = pointsByPlayer[p].reduce((a,b) => a+b, 0);
+        const punkte = pointsByPlayer[p].reduce((a,b)=>a+b,0);
         const avg = spiele ? (punkte/spiele).toFixed(2) : '-';
-        const spieltagssiege = matches.filter(m => m.stats[p].place === 1).length;
-        const spieltagsletzter = matches.filter(m => m.stats[p].place === players.length).length;
-        const tabellenerster = tabellenplatzentwicklung[p].filter(pl => pl === 1).length;
-        const tabellenletzter = tabellenplatzentwicklung[p].filter(pl => pl === players.length).length;
-        return { name: p, spiele, punkte, avg, spieltagssiege, spieltagsletzter, tabellenerster, tabellenletzter };
+        const spieltagssiege = matches.filter(m=>m.stats[p].place===1).length;
+        const spieltagsletzter = matches.filter(m=>m.stats[p].place===allPlayers.length).length;
+        const tabellenerster = (tabellenplatzentwicklung[p]||[]).filter(pl=>pl===1).length;
+        const tabellenletzter = (tabellenplatzentwicklung[p]||[]).filter(pl=>pl===allPlayers.length).length;
+        return {name:p, spiele, punkte, avg, spieltagssiege, spieltagsletzter, tabellenerster, tabellenletzter};
       });
 
-      // Hinrunde/Rückrunde
-      const hinrunde = {}, rueckrunde = {};
-      const half = Math.floor(maxGames/2);
-      players.forEach(p => {
-        hinrunde[p] = pointsByPlayer[p].slice(0,half).reduce((a,b)=>a+b,0);
-        rueckrunde[p] = pointsByPlayer[p].slice(half).reduce((a,b)=>a+b,0);
+      const hinrunde={}, rueckrunde={};
+      const half=Math.floor(maxGames/2);
+      allPlayers.forEach(p=>{
+        hinrunde[p]=pointsByPlayer[p].slice(0,half).reduce((a,b)=>a+b,0);
+        rueckrunde[p]=pointsByPlayer[p].slice(half).reduce((a,b)=>a+b,0);
       });
 
-      // Visuals HTML
-      let visuals = '';
+      let visuals='';
+      visuals+=`<h2>Cumulative Points (Fiebertabelle)</h2><div class="chart-container"><canvas id="fieberChart"></canvas></div>`;
+      visuals+=`<h2>Points per Matchday</h2><div class="chart-container"><canvas id="punkteChart"></canvas></div>`;
+      visuals+=`<h2>Tabellenplatzentwicklung</h2><div class="chart-container"><canvas id="tabellenChart"></canvas></div>`;
 
-      // Fiebertabelle chart
-      visuals += `<h2>Cumulative Points (Fiebertabelle)</h2><div class="chart-container"><canvas id="fieberChart"></canvas></div>`;
-      // Punkte je Spieltag chart
-      visuals += `<h2>Points per Matchday</h2><div class="chart-container"><canvas id="punkteChart"></canvas></div>`;
-      // Tabellenplatzentwicklung chart
-      visuals += `<h2>Tabellenplatzentwicklung</h2><div class="chart-container"><canvas id="tabellenChart"></canvas></div>`;
-      // Ewige Tabelle
-      visuals += `<h2>Ewige Tabelle</h2><table><thead><tr>
+      visuals+=`<h2>Ewige Tabelle</h2><table><thead><tr>
         <th>Spieler</th><th>Spiele</th><th>Punkte</th><th>ø P.p.S</th>
         <th>Spieltagssiege</th><th>Spieltagsletzter</th><th>Tabellenerster</th><th>Tabellenletzter</th>
       </tr></thead><tbody>`;
-      ewige.forEach(row => {
-        visuals += `<tr><td>${row.name}</td><td>${row.spiele}</td><td>${row.punkte}</td><td>${row.avg}</td>
-        <td>${row.spieltagssiege}</td><td>${row.spieltagsletzter}</td><td>${row.tabellenerster}</td><td>${row.tabellenletzter}</td></tr>`;
+      ewige.forEach(r=>{
+        visuals+=`<tr><td>${r.name}</td><td>${r.spiele}</td><td>${r.punkte}</td><td>${r.avg}</td>
+        <td>${r.spieltagssiege}</td><td>${r.spieltagsletzter}</td><td>${r.tabellenerster}</td><td>${r.tabellenletzter}</td></tr>`;
       });
-      visuals += `</tbody></table>`;
+      visuals+=`</tbody></table>`;
 
-      // Hin-Rückrundentabelle
-      visuals += `<h2>Hin-/Rückrundentabelle</h2><table><thead><tr><th>Spieler</th><th>Hinrunde</th><th>Rückrunde</th><th>Diff</th></tr></thead><tbody>`;
-      players.forEach(p => {
-        const diff = rueckrunde[p] - hinrunde[p];
-        const diffClass = diff > 0 ? 'style="color:green"' : diff < 0 ? 'style="color:red"' : '';
-        visuals += `<tr><td>${p}</td><td>${hinrunde[p]}</td><td>${rueckrunde[p]}</td><td ${diffClass}>${diff > 0 ? '+'+diff : diff}</td></tr>`;
+      visuals+=`<h2>Hin-/Rückrundentabelle</h2><table><thead><tr><th>Spieler</th><th>Hinrunde</th><th>Rückrunde</th><th>Diff</th></tr></thead><tbody>`;
+      allPlayers.forEach(p=>{
+        const diff=rueckrunde[p]-hinrunde[p];
+        const diffClass=diff>0?'style="color:green"':diff<0?'style="color:red"':'';
+        visuals+=`<tr><td>${p}</td><td>${hinrunde[p]}</td><td>${rueckrunde[p]}</td><td ${diffClass}>${diff>0? '+'+diff: diff}</td></tr>`;
       });
-      visuals += `</tbody></table>`;
+      visuals+=`</tbody></table>`;
 
-      document.getElementById('visuals').innerHTML = visuals;
+      document.getElementById('visuals').innerHTML=visuals;
 
-      // Charts
       setTimeout(()=>{
-        // Fiebertabelle
-        new Chart(document.getElementById('fieberChart').getContext('2d'), {
-          type: 'line',
-          data: { labels: matchdays, datasets: players.map((p,i)=>({
-            label:p, data:cumulativePoints[p], borderColor: colors[i], backgroundColor: colors[i], fill:false
-          })) },
-          options: { responsive:true, plugins:{ legend:{display:true} }, scales: { x: { title: {display:true,text:'Spieltag'} }, y: { title: {display:true,text:'Punkte'}, beginAtZero:true } } }
+        new Chart(document.getElementById('fieberChart'),{
+          type:'line',
+          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:cumulativePoints[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
+          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Punkte'},beginAtZero:true}}}
         });
-        // Punkte je Spieltag
-        new Chart(document.getElementById('punkteChart').getContext('2d'), {
-          type: 'line',
-          data: { labels: matchdays, datasets: players.map((p,i)=>({
-            label:p, data:pointsByPlayer[p], borderColor: colors[i], backgroundColor: colors[i], fill:false
-          })) },
-          options: { responsive:true, plugins:{ legend:{display:true} }, scales: { x: { title: {display:true,text:'Spieltag'} }, y: { title: {display:true,text:'Punkte'}, beginAtZero:true } } }
+        new Chart(document.getElementById('punkteChart'),{
+          type:'line',
+          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:pointsByPlayer[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
+          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Punkte'},beginAtZero:true}}}
         });
-        // Tabellenplatzentwicklung
-        new Chart(document.getElementById('tabellenChart').getContext('2d'), {
-          type: 'line',
-          data: { labels: matchdays, datasets: players.map((p,i)=>({
-            label:p, data:tabellenplatzentwicklung[p], borderColor: colors[i], backgroundColor: colors[i], fill:false
-          })) },
-          options: { responsive:true, plugins:{ legend:{display:true} }, scales: { x: { title: {display:true,text:'Spieltag'} }, y: { title: {display:true,text:'Tabellenplatz'}, reverse:true, ticks:{stepSize:1} } } }
+        new Chart(document.getElementById('tabellenChart'),{
+          type:'line',
+          data:{labels:matchdays,datasets:allPlayers.map((p,i)=>({label:p,data:tabellenplatzentwicklung[p],borderColor:colors[i],backgroundColor:colors[i],fill:false}))},
+          options:{responsive:true,scales:{x:{title:{display:true,text:'Spieltag'}},y:{title:{display:true,text:'Tabellenplatz'},reverse:true,ticks:{stepSize:1}}}}
         });
-      }, 100);
+      },100);
     }
   </script>
 </body>
