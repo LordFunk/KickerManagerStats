@@ -11,11 +11,34 @@ body {
   margin: 0; padding: 0;
   display: flex; flex-direction: column; align-items: center;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: linear-gradient(135deg, #e9eff5, #f9fafc);
+  color: #222;
 }
-h1 { margin: 30px 0; font-size: 2rem; text-align: center; }
-.chart-container { width: 90%; max-width: 1200px; height: 70vh; background: white; border-radius: 12px; padding: 20px; margin-bottom: 40px; }
-iframe { display: none; } /* hidden iframe for data access */
+h1 {
+  margin: 30px 0 20px 0;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #0056b3, #0091ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+.chart-container {
+  width: 90%;
+  max-width: 1200px;
+  height: 70vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 20px;
+  margin-bottom: 40px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chart-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+iframe { display: none; }
 </style>
 </head>
 <body>
@@ -24,7 +47,6 @@ iframe { display: none; } /* hidden iframe for data access */
   <canvas id="fieberChart"></canvas>
 </div>
 
-<!-- Hidden iframe loading the dashboard -->
 <iframe id="dashboardFrame" src="league-stats-dashboard.html"></iframe>
 
 <script>
@@ -37,8 +59,6 @@ iframe.onload = () => {
     if (!textarea) throw new Error("Textarea #rawData not found in dashboard");
 
     const dashboardText = textarea.value.trim();
-
-    // Parse data
     const lines = dashboardText.split("\n");
     const players = [];
     const pointsByPlayer = {};
@@ -48,7 +68,6 @@ iframe.onload = () => {
       pointsByPlayer[name] = rest.map(Number);
     });
 
-    // Build cumulative points
     const maxGames = Math.max(...Object.values(pointsByPlayer).map(arr => arr.length));
     const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
     const cumulativePoints = {};
@@ -57,32 +76,59 @@ iframe.onload = () => {
       cumulativePoints[p] = pointsByPlayer[p].map(x => sum += x);
     });
 
-    // Colors
     const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'];
+    const selectedIndices = new Set();
 
-    // Prepare datasets
-    const datasets = players.map((p, i) => ({
+    const datasets = players.map((p,i) => ({
       label: p,
       data: cumulativePoints[p],
       borderColor: colors[i % colors.length],
       backgroundColor: colors[i % colors.length],
+      originalColor: colors[i % colors.length],
+      originalBgColor: colors[i % colors.length],
       fill: false,
       pointRadius: 2,
       borderWidth: 2,
       spanGaps: true
     }));
 
-    // Draw chart
     const ctx = document.getElementById('fieberChart').getContext('2d');
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
       type: 'line',
       data: { labels: matchdays, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } },
-          tooltip: { callbacks: { label: t => `${t.dataset.label}: ${t.raw}` } }
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { usePointStyle: true, pointStyle: 'circle' },
+            onClick: (e, legendItem) => {
+              const index = legendItem.datasetIndex;
+              if(selectedIndices.has(index)) selectedIndices.delete(index);
+              else selectedIndices.add(index);
+
+              const noneSelected = selectedIndices.size === 0;
+              chart.data.datasets.forEach((ds,i) => {
+                if(noneSelected || selectedIndices.has(i)) {
+                  ds.borderColor = ds.originalColor;
+                  ds.backgroundColor = ds.originalBgColor;
+                  ds.borderWidth = 3;
+                } else {
+                  ds.borderColor = '#ccc';
+                  ds.backgroundColor = '#ccc';
+                  ds.borderWidth = 1;
+                }
+              });
+              chart.update();
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.dataset.label}: ${ctx.raw}`
+            }
+          }
         },
         scales: {
           x: { title: { display: true, text: 'Spieltag' }, grid: { color: '#e0e0e0' } },
