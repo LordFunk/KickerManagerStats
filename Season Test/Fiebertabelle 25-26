@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fiebertabelle Saisonpunkte</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh;
+  background: #f0f2f5;
+}
+h1 { margin: 30px 0; font-size: 2rem; text-align: center; }
+.chart-container { width: 90%; max-width: 1200px; height: 70vh; background: white; border-radius: 12px; padding: 20px; margin-bottom: 40px; }
+iframe { display: none; } /* hidden iframe for data access */
+</style>
+</head>
+<body>
+<h1>Fiebertabelle (Kumulative Punkte)</h1>
+<div class="chart-container">
+  <canvas id="fieberChart"></canvas>
+</div>
+
+<!-- Hidden iframe loading the dashboard -->
+<iframe id="dashboardFrame" src="league-stats-dashboard.html"></iframe>
+
+<script>
+const iframe = document.getElementById("dashboardFrame");
+
+iframe.onload = () => {
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    const textarea = doc.getElementById("rawData");
+    if (!textarea) throw new Error("Textarea #rawData not found in dashboard");
+
+    const dashboardText = textarea.value.trim();
+
+    // Parse data
+    const lines = dashboardText.split("\n");
+    const players = [];
+    const pointsByPlayer = {};
+    lines.forEach(line => {
+      const [name, ...rest] = line.split(/[\s,]+/);
+      players.push(name);
+      pointsByPlayer[name] = rest.map(Number);
+    });
+
+    // Build cumulative points
+    const maxGames = Math.max(...Object.values(pointsByPlayer).map(arr => arr.length));
+    const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
+    const cumulativePoints = {};
+    players.forEach(p => {
+      let sum = 0;
+      cumulativePoints[p] = pointsByPlayer[p].map(x => sum += x);
+    });
+
+    // Colors
+    const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'];
+
+    // Prepare datasets
+    const datasets = players.map((p, i) => ({
+      label: p,
+      data: cumulativePoints[p],
+      borderColor: colors[i % colors.length],
+      backgroundColor: colors[i % colors.length],
+      fill: false,
+      pointRadius: 2,
+      borderWidth: 2,
+      spanGaps: true
+    }));
+
+    // Draw chart
+    const ctx = document.getElementById('fieberChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: { labels: matchdays, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } },
+          tooltip: { callbacks: { label: t => `${t.dataset.label}: ${t.raw}` } }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Spieltag' }, grid: { color: '#e0e0e0' } },
+          y: { title: { display: true, text: 'Kumulative Punkte' }, beginAtZero: true, grid: { color: '#e0e0e0' } }
+        }
+      }
+    });
+
+  } catch(err) {
+    console.error("Error loading dashboard data:", err);
+  }
+};
+</script>
+</body>
+</html>
