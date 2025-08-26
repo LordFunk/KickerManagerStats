@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Score Input</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .form-container {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin: 10px 0 4px;
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Enter Scores</h1>
+  <div class="form-container">
+    <form id="scoreForm"></form>
+    <button type="button" onclick="saveScores()">Save Scores</button>
+  </div>
+
+  <script>
+    // Load player names from the League Stats Dashboard
+    function loadPlayers() {
+      // Adjust the path if dashboard is in a different folder
+      fetch("league-stats-dashboard.html")
+        .then(response => response.text())
+        .then(html => {
+          let parser = new DOMParser();
+          let doc = parser.parseFromString(html, "text/html");
+
+          // Grab player names from #leaderboard table
+          let players = [...doc.querySelectorAll("#leaderboard tbody tr td[data-key='spieler']")]
+            .map(td => td.textContent.trim())
+            .filter(name => name.length > 0);
+
+          buildForm(players);
+        });
+    }
+
+    // Build form inputs dynamically
+    function buildForm(players) {
+      let form = document.getElementById("scoreForm");
+      form.innerHTML = "";
+
+      players.forEach(player => {
+        let label = document.createElement("label");
+        label.textContent = player;
+
+        let input = document.createElement("input");
+        input.type = "number";
+        input.name = player;
+        input.value = 22; // prefill first value
+
+        let input2 = document.createElement("input");
+        input2.type = "number";
+        input2.name = player + "_2";
+        input2.value = 33; // prefill second value
+
+        form.appendChild(label);
+        form.appendChild(input);
+        form.appendChild(input2);
+      });
+    }
+
+    // Save scores (for now just logs them)
+    function saveScores() {
+      let formData = new FormData(document.getElementById("scoreForm"));
+      let scores = {};
+      formData.forEach((value, key) => {
+        scores[key] = value;
+      });
+      console.log("Scores saved:", scores);
+      alert("Scores saved (check console for details).");
+    }
+
+    // Init
+    loadPlayers();
+  </script>
+</body>
+</html>
