@@ -19,17 +19,17 @@
   <h1>League Stats Dashboard</h1>
   <label for="rawData"><b>Edit points per player (comma-separated):</b></label>
   <textarea id="rawData">
-Markus   63,
-Erwin    48,
-Phil     76,
-Didi     50,
-Eirik    46,
-Steffo   53,
-Basti    47,
-Emil     61,
-Kempka   36,
-Espen    57,
-Alex     55,
+Markus   63, 54
+Erwin    48, 66
+Phil     76, 85
+Didi     50, 12
+Eirik    46, 54
+Steffo   53, 66
+Basti    47, 82
+Emil     61, 2
+Kempka   36, 63
+Espen    57, 23
+Alex     55, 47
   </textarea>
   <button onclick="processStats()">Show Stats</button>
 
