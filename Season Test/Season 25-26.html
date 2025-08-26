@@ -8,120 +8,96 @@
 <style>
 body {
   font-family: 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  padding: 0;
+  margin: 0; padding: 0;
   background: linear-gradient(135deg, #e9eff5, #f9fafc);
   color: #222;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: flex; flex-direction: column; align-items: center;
   min-height: 100vh;
 }
-h1 {
+h1 { 
   margin: 30px 0 20px 0;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 2rem; font-weight: 700;
   background: linear-gradient(90deg, #0056b3, #0091ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   text-align: center;
 }
-.chart-container {
-  width: 90%;
-  max-width: 1200px;
-  height: 70vh;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  padding: 20px;
-  margin-bottom: 40px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.chart-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
+.chart-container { width: 90%; max-width: 1200px; height: 70vh; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 40px; }
 </style>
 </head>
 <body>
+
 <h1>Saisonpunkte 25-26</h1>
+
+<iframe id="dashboardFrame" src="league-dashboard.html" style="display:none;"></iframe>
+
 <div class="chart-container">
-  <canvas id="fieberkurveChart"></canvas>
+  <canvas id="fieberChart"></canvas>
 </div>
 
 <script>
-// 1. Get the textarea from League Stats Dashboard
-// Assuming you have both pages open or embed the dashboard via iframe
-// Here, we simulate fetching the dashboard's textarea content
-const dashboardText = `
-Markus 22, 33, 22
-Erwin 22, 33, 22
-Phil 22, 33, 22
-Didi 22, 33, 22
-Steffo 22, 33, 22
-Basti 22, 33, 22
-Eirik 22, 33, 22
-Emil 22, 33, 22
-Kempka 22, 33, 22
-Espen 22, 33, 22
-Alex 22, 33, 22
-`;
+let chart;
 
-// 2. Parse the data
-const lines = dashboardText.trim().split("\n");
-const players = [];
-const pointsByPlayer = {};
+function updateChartFromDashboard() {
+  const iframe = document.getElementById('dashboardFrame');
+  const dashboardDoc = iframe.contentDocument || iframe.contentWindow.document;
+  const raw = dashboardDoc.getElementById('rawData').value.trim().split('\n');
 
-lines.forEach(line => {
-  const [name, ...rest] = line.split(/[\s,]+/);
-  const points = rest.map(Number);
-  players.push(name);
-  pointsByPlayer[name] = points;
-});
+  const players = [];
+  const pointsByPlayer = {};
+  let maxGames = 0;
 
-// 3. Build cumulative points
-const maxGames = Math.max(...Object.values(pointsByPlayer).map(arr => arr.length));
-const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
-const cumulativePoints = {};
+  raw.forEach(line => {
+    const [name, ...rest] = line.split(/[\s,]+/);
+    const points = rest.map(Number);
+    players.push(name);
+    pointsByPlayer[name] = points;
+    if (points.length > maxGames) maxGames = points.length;
+  });
 
-players.forEach(player => {
-  let sum = 0;
-  cumulativePoints[player] = pointsByPlayer[player].map(p => sum += p);
-});
+  const matchdays = Array.from({length: maxGames}, (_, i) => i + 1);
+  const cumulativePoints = {};
+  players.forEach(p => {
+    let sum = 0;
+    cumulativePoints[p] = pointsByPlayer[p].map(pt => sum += pt);
+  });
 
-// 4. Colors
-const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'];
+  const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'];
 
-// 5. Build datasets
-const datasets = players.map((p, i) => ({
-  label: p,
-  data: cumulativePoints[p],
-  borderColor: colors[i % colors.length],
-  backgroundColor: colors[i % colors.length],
-  fill: false,
-  pointRadius: 2,
-  borderWidth: 2,
-  spanGaps: true
-}));
+  const datasets = players.map((p, i) => ({
+    label: p,
+    data: cumulativePoints[p],
+    borderColor: colors[i % colors.length],
+    backgroundColor: colors[i % colors.length],
+    fill: false,
+    pointRadius: 2,
+    borderWidth: 2,
+    spanGaps: true
+  }));
 
-// 6. Render chart
-const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-new Chart(ctx, {
-  type: 'line',
-  data: { labels: matchdays, datasets },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } },
-      tooltip: { callbacks: { label: t => `${t.dataset.label}: ${t.raw}` } }
-    },
-    scales: {
-      x: { title: { display: true, text: 'Spieltag' }, grid: { color: '#e0e0e0' } },
-      y: { title: { display: true, text: 'Kumulative Punkte' }, beginAtZero: true, grid: { color: '#e0e0e0' } }
+  if(chart) chart.destroy();
+
+  const ctx = document.getElementById('fieberChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: matchdays, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle' } },
+        tooltip: { callbacks: { label: t => `${t.dataset.label}: ${t.raw}` } }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Spieltag' }, grid: { color: '#e0e0e0' } },
+        y: { title: { display: true, text: 'Kumulative Punkte' }, beginAtZero: true, grid: { color: '#e0e0e0' } }
+      }
     }
-  }
-});
+  });
+}
+
+// Wait for iframe to load
+document.getElementById('dashboardFrame').onload = updateChartFromDashboard;
 </script>
+
 </body>
 </html>
