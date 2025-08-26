@@ -28,13 +28,17 @@
   </div>
 
   <script>
-    // Example: simulate fetch from your League Stats Dashboard
-    // Replace this with fetch('dashboard.json') if you have it in a file
-    const leagueStatsDashboard = {
-      "Spieltag 1": { "Markus": 22, "Erwin": 33, "Emil": 15, "Espen": 28 },
-      "Spieltag 2": { "Markus": 17, "Erwin": 12, "Emil": 20, "Espen": 10 },
-      "Spieltag 3": { "Markus": 30, "Erwin": 18, "Emil": 25, "Espen": 14 }
-    };
+  // Instead of hardcoded data, fetch from the other file
+  fetch("league-stats-dashboard.json")   // or .html if it's a table
+    .then(response => response.json())
+    .then(leagueStatsDashboard => {
+        // here you can process the dashboard data just like before
+        console.log("Fetched data:", leagueStatsDashboard);
+
+        // your fiebertabelle chart logic goes here
+    })
+    .catch(error => console.error("Error loading dashboard:", error));
+</script>
 
     // Extract players
     const players = [...new Set(Object.values(leagueStatsDashboard)
