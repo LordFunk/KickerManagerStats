@@ -2,103 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Fieberkurve - Saison</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saisonpunkte 25-26</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background: #f9f9f9;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    h2 {
+    h1 {
+      margin: 30px 0 20px 0;
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #0056b3, #0091ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-align: center;
     }
-    #chartContainer {
-      width: 95%;
+    .chart-container {
+      width: 90%;
       max-width: 1200px;
-      margin: auto;
+      height: 70vh;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 40px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chart-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
   </style>
 </head>
 <body>
-  <h2>Fieberkurve - Saison</h2>
-  <div id="chartContainer">
-    <canvas id="fieberChart"></canvas>
+  <h1>Saisonpunkte 25-26</h1>
+  <div class="chart-container">
+    <canvas id="fieberkurveChart"></canvas>
   </div>
 
   <script>
-  // Instead of hardcoded data, fetch from the other file
-  fetch("league-stats-dashboard.json")   // or .html if it's a table
-    .then(response => response.json())
-    .then(leagueStatsDashboard => {
-        // here you can process the dashboard data just like before
-        console.log("Fetched data:", leagueStatsDashboard);
+    // 1. Fetch the League Stats Dashboard JSON file
+    fetch("league-stats-dashboard.json") // <-- adjust filename/path
+      .then(response => response.json())
+      .then(leagueStatsDashboard => {
+        // leagueStatsDashboard must look like:
+        // { "Spieltag 1": {"Markus":22,"Erwin":33}, "Spieltag 2": {...}, ... }
 
-        // your fiebertabelle chart logic goes here
-    })
-    .catch(error => console.error("Error loading dashboard:", error));
-</script>
+        const players = [...new Set(Object.values(leagueStatsDashboard)
+          .flatMap(spieltag => Object.keys(spieltag)))];
 
-    // Extract players
-    const players = [...new Set(Object.values(leagueStatsDashboard)
-      .flatMap(spieltag => Object.keys(spieltag)))];
+        // Build cumulative points for each player
+        const matchdays = Object.keys(leagueStatsDashboard);
+        const playerPoints = {};
+        players.forEach(player => {
+          let cumulative = 0;
+          playerPoints[player] = matchdays.map(md => {
+            cumulative += leagueStatsDashboard[md][player] || 0;
+            return cumulative;
+          });
+        });
 
-    // Spieltage
-    const matchdays = Object.keys(leagueStatsDashboard);
+        // Colors
+        const colors = [
+          '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+          '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
+        ];
 
-    // Calculate cumulative points
-    const playerData = {};
-    players.forEach(player => {
-      let cumulative = 0;
-      playerData[player] = matchdays.map(md => {
-        cumulative += leagueStatsDashboard[md][player] || 0;
-        return cumulative;
-      });
-    });
+        // Datasets
+        const datasets = players.map((name, index) => ({
+          label: name,
+          data: playerPoints[name],
+          borderColor: colors[index % colors.length],
+          backgroundColor: colors[index % colors.length],
+          fill: false,
+          pointRadius: 2,
+          borderWidth: 2,
+          spanGaps: true,
+          hidden: false
+        }));
 
-    // Random colors for players
-    function randomColor() {
-      return `hsl(${Math.floor(Math.random()*360)},70%,50%)`;
-    }
+        const ctx = document.getElementById('fieberkurveChart').getContext('2d');
 
-    // Chart.js datasets
-    const datasets = players.map(player => ({
-      label: player,
-      data: playerData[player],
-      borderColor: randomColor(),
-      fill: false,
-      tension: 0.2
-    }));
-
-    // Render chart
-    new Chart(document.getElementById('fieberChart'), {
-      type: 'line',
-      data: {
-        labels: matchdays,
-        datasets: datasets
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top',
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: matchdays, // Spieltag 1, 2, 3...
+            datasets: datasets
           },
-          title: {
-            display: true,
-            text: 'Fieberkurve (Kumulative Punkte pro Spieltag)'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision:0
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { usePointStyle: true, pointStyle: 'circle' },
+                onClick: function(e, legendItem, legend) {
+                  const chart = legend.chart;
+                  const index = legendItem.datasetIndex;
+                  const ci = chart.data.datasets[index];
+                  ci.hidden = !ci.hidden;
+                  chart.update();
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(tooltipItem) {
+                    return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Spieltag' },
+                grid: { display: true, color: '#e0e0e0' }
+              },
+              y: {
+                title: { display: true, text: 'Kumulative Punkte' },
+                beginAtZero: true,
+                grid: { display: true, color: '#e0e0e0' }
+              }
             }
           }
-        }
-      }
-    });
+        });
+      })
+      .catch(err => console.error("Fehler beim Laden der Daten:", err));
   </script>
 </body>
 </html>
