@@ -60,39 +60,29 @@
             'Alex': [55, 66, 48, 25, 51, 77] 
         };
 
-        const colorsRGBA = [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)',
-            'rgba(201, 203, 207, 1)',
-            'rgba(255, 99, 255, 1)',
-            'rgba(99, 255, 132, 1)',
-            'rgba(99, 132, 255, 1)',
-            'rgba(132, 99, 255, 1)'
+        const colors = [
+            '#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00',
+            '#A65628', '#F781BF', '#999999', '#66C2A5', '#FFD92F', '#000000'
         ];
 
-        const fadedColor = 'rgba(200, 200, 200, 0.3)';
+        const fadedColor = 'lightgrey';
+        const selectedPlayers = new Set();
 
         const datasets = Object.keys(playerData).map((playerName, index) => ({
             label: playerName,
             data: playerData[playerName],
-            borderColor: colorsRGBA[index],
-            backgroundColor: colorsRGBA[index],
+            borderColor: colors[index],
+            backgroundColor: colors[index],
             fill: false,
-            pointRadius: 2,
+            pointRadius: 4,
             borderWidth: 2,
             spanGaps: true,
-            hidden: false,
-            highlighted: false
+            hidden: false
         }));
 
         const totalMatchdays = 34;
         const avgPoints = Array.from({ length: totalMatchdays }, (_, i) => {
-            let total = 0;
-            let count = 0;
+            let total = 0, count = 0;
             for (let player of Object.values(playerData)) {
                 if (player[i] !== undefined) {
                     total += player[i];
@@ -105,7 +95,7 @@
         datasets.push({
             label: 'Durchschnitt',
             data: avgPoints,
-            borderColor: 'rgba(0,0,0,0.6)',
+            borderColor: '#555',
             backgroundColor: 'rgba(0,0,0,0.1)',
             borderWidth: 2,
             fill: true,
@@ -115,7 +105,6 @@
         });
 
         const ctx = document.getElementById('pointsChart').getContext('2d');
-
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -129,32 +118,28 @@
                     legend: {
                         display: true,
                         position: 'top',
-                        labels: { usePointStyle: true, pointStyle: 'circle' },
+                        labels: { usePointStyle: true, pointStyle: 'circle', font: { size: 14, weight: '600' } },
                         onClick: function(e, legendItem) {
-                            const index = legendItem.datasetIndex;
-                            const ds = chart.data.datasets[index];
-                            ds.highlighted = !ds.highlighted;
-
-                            const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+                            const clickedPlayer = legendItem.text;
+                            if (selectedPlayers.has(clickedPlayer)) {
+                                selectedPlayers.delete(clickedPlayer);
+                            } else {
+                                selectedPlayers.add(clickedPlayer);
+                            }
 
                             chart.data.datasets.forEach((dataset, i) => {
-                                if (anyHighlighted) {
-                                    if (dataset.highlighted) {
-                                        dataset.borderColor = colorsRGBA[i] || 'rgba(0,0,0,0.6)';
-                                        dataset.backgroundColor = colorsRGBA[i] || 'rgba(0,0,0,0.1)';
-                                        dataset.borderWidth = 4;
-                                        dataset.hidden = false;
-                                    } else {
-                                        dataset.borderColor = fadedColor;
-                                        dataset.backgroundColor = fadedColor;
-                                        dataset.borderWidth = 2;
-                                        dataset.hidden = false;
-                                    }
+                                const color = colors[i] || '#555';
+                                if (dataset.label === 'Durchschnitt') return;
+                                if (selectedPlayers.size === 0 || selectedPlayers.has(dataset.label)) {
+                                    dataset.borderColor = color;
+                                    dataset.backgroundColor = color;
+                                    dataset.borderWidth = selectedPlayers.has(dataset.label) ? 3 : 2;
+                                    dataset.pointRadius = selectedPlayers.has(dataset.label) ? 6 : 4;
                                 } else {
-                                    dataset.borderColor = colorsRGBA[i] || 'rgba(0,0,0,0.6)';
-                                    dataset.backgroundColor = colorsRGBA[i] || 'rgba(0,0,0,0.1)';
-                                    dataset.borderWidth = 2;
-                                    dataset.hidden = false;
+                                    dataset.borderColor = fadedColor;
+                                    dataset.backgroundColor = fadedColor;
+                                    dataset.borderWidth = 1;
+                                    dataset.pointRadius = 3;
                                 }
                             });
                             chart.update();
