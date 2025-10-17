@@ -80,107 +80,116 @@
 
         const fadedColor = 'rgba(200, 200, 200, 0.3)';
 
-        const datasets = Object.keys(playerData).map((playerName, index) => ({
-            label: playerName,
-            data: playerData[playerName],
-            borderColor: colorsRGBA[index],
-            backgroundColor: colorsRGBA[index],
-            fill: false,
-            pointRadius: 2,
-            borderWidth: 2,
-            spanGaps: true,
-            hidden: false,
-            highlighted: false
-        }));
+    const datasets = Object.keys(playerData).map((playerName, index) => ({
+        label: playerName,
+        data: playerData[playerName],
+        borderColor: colorsRGBA[index],
+        backgroundColor: colorsRGBA[index],
+        fill: false,
+        pointRadius: 2,
+        borderWidth: 2,
+        spanGaps: true,
+        hidden: false,
+        highlighted: false
+    }));
 
-        // Calculate the average points for each matchday
-        const avgPoints = Array.from({ length: 6 }, (_, i) => {
-            const totalPoints = Object.values(playerData).reduce((sum, points) => sum + points[i], 0);
-            return totalPoints / Object.values(playerData).length;
-        });
+    // Calculate average per matchday (up to matchday 34)
+    const totalMatchdays = 34;
+    const avgPoints = Array.from({ length: totalMatchdays }, (_, i) => {
+        let total = 0;
+        let count = 0;
+        for (let player of Object.values(playerData)) {
+            if (player[i] !== undefined) {
+                total += player[i];
+                count++;
+            }
+        }
+        return count > 0 ? total / count : null;
+    });
 
-        // Add the average dataset to the chart
-        datasets.push({
-            label: 'Durchschnitt (All Players)',
-            data: avgPoints,
-            borderColor: 'rgba(0, 0, 0, 0.5)',  // Grey line for average
-            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Light grey fill
-            fill: true,
-            pointRadius: 0,
-            borderWidth: 2,
-            spanGaps: true,
-        });
+    // Add average line dataset
+    datasets.push({
+        label: 'Durchschnitt',
+        data: avgPoints,
+        borderColor: 'rgba(0,0,0,0.6)',
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 3,
+        borderDash: [5, 5], // dashed line to distinguish
+        spanGaps: true
+    });
 
-        const ctx = document.getElementById('pointsChart').getContext('2d');
+    const ctx = document.getElementById('pointsChart').getContext('2d');
 
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: Array.from({ length: 6 }, (_, i) => i + 1), // 1,2,3…6 matchdays
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: { usePointStyle: true, pointStyle: 'circle' },
-                        onClick: function(e, legendItem) {
-                            const index = legendItem.datasetIndex;
-                            const ds = chart.data.datasets[index];
-                            ds.highlighted = !ds.highlighted;
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 34}, (_, i) => i + 1),
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { usePointStyle: true, pointStyle: 'circle' },
+                    onClick: function(e, legendItem) {
+                        const index = legendItem.datasetIndex;
+                        const ds = chart.data.datasets[index];
+                        ds.highlighted = !ds.highlighted;
 
-                            const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
+                        const anyHighlighted = chart.data.datasets.some(d => d.highlighted);
 
-                            chart.data.datasets.forEach((dataset, i) => {
-                                if (anyHighlighted) {
-                                    if (dataset.highlighted) {
-                                        dataset.borderColor = colorsRGBA[i];
-                                        dataset.backgroundColor = colorsRGBA[i];
-                                        dataset.borderWidth = 4;
-                                        dataset.hidden = false;
-                                    } else {
-                                        dataset.borderColor = fadedColor;
-                                        dataset.backgroundColor = fadedColor;
-                                        dataset.borderWidth = 2;
-                                        dataset.hidden = false;
-                                    }
+                        chart.data.datasets.forEach((dataset, i) => {
+                            if (anyHighlighted) {
+                                if (dataset.highlighted) {
+                                    dataset.borderColor = colorsRGBA[i] || 'rgba(0,0,0,0.6)';
+                                    dataset.backgroundColor = colorsRGBA[i] || 'rgba(0,0,0,0.1)';
+                                    dataset.borderWidth = 4;
+                                    dataset.hidden = false;
                                 } else {
-                                    dataset.borderColor = colorsRGBA[i];
-                                    dataset.backgroundColor = colorsRGBA[i];
+                                    dataset.borderColor = fadedColor;
+                                    dataset.backgroundColor = fadedColor;
                                     dataset.borderWidth = 2;
                                     dataset.hidden = false;
                                 }
-                            });
-                            chart.update();
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                if (tooltipItem.dataset.label === 'Durchschnitt (All Players)') {
-                                    return `Durchschnitt: ${tooltipItem.raw.toFixed(2)} Punkte`;
-                                }
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw} Punkte`;
+                            } else {
+                                dataset.borderColor = colorsRGBA[i] || 'rgba(0,0,0,0.6)';
+                                dataset.backgroundColor = colorsRGBA[i] || 'rgba(0,0,0,0.1)';
+                                dataset.borderWidth = 2;
+                                dataset.hidden = false;
                             }
-                        }
+                        });
+                        chart.update();
                     }
                 },
-                scales: {
-                    x: {
-                        title: { display: true, text: 'Spieltag' },
-                        grid: { display: true, color: '#e0e0e0' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Punkte' },
-                        beginAtZero: true,
-                        grid: { display: true, color: '#e0e0e0' }
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            if (tooltipItem.dataset.label === 'Durchschnitt') {
+                                return `Durchschnitt: ${tooltipItem.raw.toFixed(2)} Punkte`;
+                            }
+                            return `${tooltipItem.dataset.label}: ${tooltipItem.raw} Punkte`;
+                        }
                     }
                 }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Spieltag' },
+                    grid: { display: true, color: '#e0e0e0' }
+                },
+                y: {
+                    title: { display: true, text: 'Punkte' },
+                    beginAtZero: true,
+                    grid: { display: true, color: '#e0e0e0' }
+                }
             }
-        });
-    </script>
+        }
+    });
+</script>
 </body>
 </html>
