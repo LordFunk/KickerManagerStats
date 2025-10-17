@@ -93,12 +93,30 @@
             highlighted: false
         }));
 
+        // Calculate the average points for each matchday
+        const avgPoints = Array.from({ length: 6 }, (_, i) => {
+            const totalPoints = Object.values(playerData).reduce((sum, points) => sum + points[i], 0);
+            return totalPoints / Object.values(playerData).length;
+        });
+
+        // Add the average dataset to the chart
+        datasets.push({
+            label: 'Durchschnitt (All Players)',
+            data: avgPoints,
+            borderColor: 'rgba(0, 0, 0, 0.5)',  // Grey line for average
+            backgroundColor: 'rgba(0, 0, 0, 0.1)', // Light grey fill
+            fill: true,
+            pointRadius: 0,
+            borderWidth: 2,
+            spanGaps: true,
+        });
+
         const ctx = document.getElementById('pointsChart').getContext('2d');
 
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 34}, (_, i) => i + 1), // 1,2,3…34
+                labels: Array.from({ length: 6 }, (_, i) => i + 1), // 1,2,3…6 matchdays
                 datasets: datasets
             },
             options: {
@@ -142,7 +160,10 @@
                     tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                                if (tooltipItem.dataset.label === 'Durchschnitt (All Players)') {
+                                    return `Durchschnitt: ${tooltipItem.raw.toFixed(2)} Punkte`;
+                                }
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw} Punkte`;
                             }
                         }
                     }
