@@ -61,20 +61,6 @@
             'Alex': [55, 66, 48, 25, 51, 77] 
         };
 
-        const colorsRGBA = [
-            'rgba(228, 26, 28, 1)',
-            'rgba(55, 126, 184, 1)',
-            'rgba(77, 175, 74, 1)',
-            'rgba(152, 78, 163, 1)',
-            'rgba(255, 127, 0, 1)',
-            'rgba(166, 86, 40, 1)',
-            'rgba(247, 129, 191, 1)',
-            'rgba(153, 153, 153, 1)',
-            'rgba(102, 194, 165, 1)',
-            'rgba(255, 217, 47, 1)',
-            'rgba(0, 0, 0, 1)'
-        ];
-
         const fadedColor = 'rgba(200, 200, 200, 0.3)';
 
     const datasets = Object.keys(playerData).map((playerName, index) => ({
@@ -104,16 +90,16 @@
         return count > 0 ? total / count : null;
     });
 
-    // Add average line dataset
+    // Add average line dataset with grey fill
     datasets.push({
         label: 'Durchschnitt',
         data: avgPoints,
-        borderColor: 'rgba(0,0,0,0.6)',
-        backgroundColor: 'rgba(0,0,0,0.1)',
+        borderColor: 'rgba(0,0,0,0.6)', // Average line color
+        backgroundColor: 'rgba(0,0,0,0.1)', // Light grey fill under average
         borderWidth: 2,
-        fill: false,
-        pointRadius: 3,
-        borderDash: [5, 5], // dashed line to distinguish
+        fill: true, // This creates the greyed-out area underneath the average line
+        pointRadius: 0,
+        borderDash: [5, 5], // Dashed line style for the average
         spanGaps: true
     });
 
@@ -122,7 +108,7 @@
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array.from({length: 34}, (_, i) => i + 1),
+            labels: Array.from({ length: 34 }, (_, i) => i + 1),
             datasets: datasets
         },
         options: {
