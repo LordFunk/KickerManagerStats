@@ -5,74 +5,94 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saisonpunkte 25-26</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body {
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  margin:0;
-  padding:0;
-  background:linear-gradient(135deg,#e9eff5,#f9fafc);
-  color:#222;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  min-height:100vh;
+body{
+font-family:'Segoe UI',Roboto,sans-serif;
+margin:0;
+padding:0;
+background:linear-gradient(135deg,#e9eff5,#f9fafc);
+color:#222;
+display:flex;
+flex-direction:column;
+align-items:center;
+min-height:100vh;
 }
-h1 {
-  margin:30px 0 20px 0;
-  font-size:2rem;
-  font-weight:700;
-  background:linear-gradient(90deg,#0056b3,#0091ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  text-align:center;
+
+h1{
+margin:30px 0 20px 0;
+font-size:2rem;
+font-weight:700;
+background:linear-gradient(90deg,#0056b3,#0091ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-align:center;
 }
-.chart-container {
-  width:90%;
-  max-width:1200px;
-  height:60vh;
-  background:white;
-  border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.05);
-  padding:20px;
-  margin-bottom:40px;
+
+.chart-container{
+width:90%;
+max-width:1200px;
+height:60vh;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+padding:20px;
+margin-bottom:40px;
 }
-.tables-wrapper {
-  display:flex;
-  width:90%;
-  max-width:1200px;
-  justify-content:space-between;
-  margin-bottom:40px;
+
+.tables-wrapper{
+display:flex;
+width:90%;
+max-width:1200px;
+justify-content:space-between;
+margin-bottom:40px;
 }
-table {
-  width:48%;
-  border-collapse:collapse;
-  background:white;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 15px rgba(0,0,0,0.05);
+
+.table-block{
+width:48%;
 }
-th,td {
-  padding:10px;
-  text-align:center;
-  border-bottom:1px solid #ddd;
+
+.table-title{
+text-align:center;
+font-weight:700;
+margin-bottom:8px;
+font-size:1.2rem;
 }
-th {
-  background:#f0f0f0;
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+th,td{
+padding:10px;
+text-align:center;
+border-bottom:1px solid #ddd;
+}
+
+th{
+background:#f0f0f0;
 }
 </style>
 </head>
+
 <body>
 
 <h1>Saisonpunkte 25-26</h1>
 
 <div class="chart-container">
-  <canvas id="fieberkurveChart"></canvas>
+<canvas id="fieberkurveChart"></canvas>
 </div>
 
 <div class="tables-wrapper" id="tablesContainer"></div>
 
 <script>
-const playerPoints = {
+
+const playerPoints={
 'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455],
 'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221],
 'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413],
@@ -86,20 +106,115 @@ const playerPoints = {
 'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230]
 }
 
-const players = Object.keys(playerPoints)
-const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000']
+const players=Object.keys(playerPoints)
 
-// cumulative line chart
-const datasets = players.map((name,index)=>({
-  label:name,
-  data:playerPoints[name],
-  borderColor:colors[index],
-  backgroundColor:colors[index],
-  fill:false,
-  pointRadius:2,
-  borderWidth:2,
-  spanGaps:true
+const colors=[
+'#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+'#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
+]
+
+const datasets=players.map((name,index)=>({
+label:name,
+data:playerPoints[name],
+borderColor:colors[index],
+backgroundColor:colors[index],
+fill:false,
+pointRadius:2,
+borderWidth:2,
+spanGaps:true
 }))
+
 const ctx=document.getElementById('fieberkurveChart').getContext('2d')
+
 new Chart(ctx,{
-  type:'line',
+type:'line',
+data:{
+labels:Array.from({length:34},(_,i)=>i+1),
+datasets:datasets
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{position:'top',labels:{usePointStyle:true}}
+},
+scales:{
+x:{title:{display:true,text:'Spieltag'}},
+y:{title:{display:true,text:'Punkte'},beginAtZero:true}
+}
+}
+})
+
+function segmentPoints(arr,start,end){
+return arr[end-1]-(start>1?arr[start-2]:0)
+}
+
+const played=playerPoints[players[0]].length
+const n=played-17
+
+const firstHalfStandings=players.map(p=>({
+name:p,
+points:segmentPoints(playerPoints[p],1,n)
+}))
+
+firstHalfStandings.sort((a,b)=>b.points-a.points)
+
+const secondHalfStandings=players.map(p=>{
+const points=segmentPoints(playerPoints[p],18,17+n)
+const firstPoints=firstHalfStandings.find(f=>f.name===p).points
+return{
+name:p,
+points:points,
+diff:points-firstPoints
+}
+})
+
+secondHalfStandings.sort((a,b)=>b.points-a.points)
+
+function createTable(title,dataArray,showDiff=false){
+
+const wrapper=document.createElement('div')
+wrapper.className='table-block'
+
+const titleDiv=document.createElement('div')
+titleDiv.className='table-title'
+titleDiv.textContent=title
+
+const table=document.createElement('table')
+
+let html='<tr><th>Rang</th><th>Spieler</th><th>Punkte</th>'
+
+if(showDiff) html+='<th>Diff</th>'
+
+html+='</tr>'
+
+dataArray.forEach((d,i)=>{
+html+='<tr>'
+html+='<td>'+(i+1)+'</td>'
+html+='<td>'+d.name+'</td>'
+html+='<td>'+d.points+'</td>'
+
+if(showDiff){
+html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
+}
+
+html+='</tr>'
+})
+
+table.innerHTML=html
+
+wrapper.appendChild(titleDiv)
+wrapper.appendChild(table)
+
+return wrapper
+}
+
+const container=document.getElementById('tablesContainer')
+
+container.appendChild(createTable('Hinrunde',firstHalfStandings))
+container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
+
+</script>
+
+</body>
+</html>
