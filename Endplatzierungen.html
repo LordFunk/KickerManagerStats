@@ -1,178 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fieberkurve & Season Placements</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 2rem 1rem 3rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: linear-gradient(135deg, #e9eff5, #f9fafc);
-      min-height: 100vh;
-      color: #222;
-    }
-    h1 {
-      margin: 0 0 1rem;
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #004e92, #000428);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-      width: 100%;
-      max-width: 1200px;
-    }
-    .chart-container {
-      width: 90%;
-      max-width: 1200px;
-      height: 70vh;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      padding: 1rem 1.5rem;
-      position: relative;
-      margin-bottom: 40px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fieberkurve & Season Placements</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+margin:0;
+padding:2rem 1rem 3rem;
+display:flex;
+flex-direction:column;
+align-items:center;
+background:linear-gradient(135deg,#e9eff5,#f9fafc);
+min-height:100vh;
+color:#222;
+}
+
+h1{
+margin:0 0 1rem;
+font-size:2rem;
+font-weight:700;
+background:linear-gradient(90deg,#004e92,#000428);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-align:center;
+width:100%;
+max-width:1200px;
+}
+
+.chart-container{
+width:90%;
+max-width:1200px;
+height:70vh;
+background:white;
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.1);
+padding:1rem 1.5rem;
+position:relative;
+margin-bottom:40px;
+}
+</style>
 </head>
+
 <body>
 
-  <h1>Endplatzierungen der letzten 5 Saisons</h1>
-  <div class="chart-container">
-    <canvas id="endplatzierungChart"></canvas>
-  </div>
+<h1>Endplatzierungen der letzten 5 Saisons</h1>
 
-  <script>
-    // Added Alex without any stats (empty array)
-    const finalPlacements = {
-      'Markus': [2, 3, 2, 1, 5],
-      'Erwin': [4, 4, 1, 4, 2],
-      'Phil': [3, 1, 5, 5, 4],
-      'Didi': [5, 2, 7, 6, 10],
-      'Steffo': [0, 7, 4, 7, 9],
-      'Basti': [0, 5, 6, 3, 8],
-      'Eirik': [1, 6, 3, 8, 7],
-      'Emil': [0, 0, 0, 2, 3],
-      'Kempka': [0, 0, 0, 0, 6],
-      'Espen': [0, 0, 0, 0, 1],
-      'Alex': []  // Alex added with no data
-    };
+<div class="chart-container">
+<canvas id="endplatzierungChart"></canvas>
+</div>
 
-    const seasonLabels = ['S1', 'S2', 'S3', 'S4', 'S5'];
-const colors = [
-  '#E41A1C', // red
-  '#377EB8', // blue
-  '#4DAF4A', // green
-  '#984EA3', // purple
-  '#FF7F00', // orange
-  '#A65628', // brown
-  '#F781BF', // pink
-  '#999999', // gray
-  '#66C2A5', // teal
-  '#FFD92F', // yellow
-  '#000000'  // Alex color (black)
+<script>
+
+const seasonLabels=['S1','S2','S3','S4','S5'];
+
+/* PLACEMENTS */
+
+const finalPlacements={
+'Markus':[2,3,2,1,5],
+'Erwin':[4,4,1,4,2],
+'Phil':[3,1,5,5,4],
+'Didi':[5,2,7,6,10],
+'Steffo':[null,7,4,7,9],
+'Basti':[null,5,6,3,8],
+'Eirik':[1,6,3,8,7],
+'Emil':[null,null,null,2,3],
+'Kempka':[null,null,null,null,6],
+'Espen':[null,null,null,null,1],
+'Alex':[null,null,null,null,null]
+};
+
+/* POINTS */
+
+const seasonPoints={
+'Markus':[null,1.733,1.646,2.224,1.761],
+'Erwin':[null,1.571,1.957,1.845,1.903],
+'Phil':[null,1.826,1.430,1.671,1.788],
+'Didi':[null,1.735,1.267,1.667,1.212],
+'Steffo':[null,0.957,1.558,1.620,1.438],
+'Basti':[null,1.441,1.303,1.927,1.512],
+'Eirik':[null,1.107,1.630,1.421,1.581],
+'Emil':[null,null,null,2.014,1.873],
+'Kempka':[null,null,null,1.247,1.750],
+'Espen':[null,null,null,null,2.042],
+'Alex':[null,null,null,null,null]
+};
+
+const colors=[
+'#E41A1C',
+'#377EB8',
+'#4DAF4A',
+'#984EA3',
+'#FF7F00',
+'#A65628',
+'#F781BF',
+'#999999',
+'#66C2A5',
+'#FFD92F',
+'#000000'
 ];
 
-    const selectedPlayers = new Set();
+const selectedPlayers=new Set();
 
-    const datasets = Object.entries(finalPlacements).map(([name, data], index) => {
-      const cleanData = data.length
-        ? data.map(val => val === 0 ? null : val)
-        : Array(seasonLabels.length).fill(null); // fill with null if no data
+const datasets=Object.entries(finalPlacements).map(([name,data],index)=>{
 
-      const color = colors[index];
-      return {
-        label: name,
-        data: cleanData,
-        borderColor: color,
-        backgroundColor: color,
-        originalColor: color,
-        originalBgColor: color,
-        fill: false,
-        tension: 0,
-        spanGaps: true,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2
-      };
-    });
+const cleanData=data.map(v=>v===0?null:v);
+const color=colors[index];
 
-    const ctx = document.getElementById('endplatzierungChart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: seasonLabels,
-        datasets: datasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            reverse: true,
-            beginAtZero: false,
-            ticks: {
-              stepSize: 1
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle'
-            },
-            onClick: (e, legendItem) => {
-              const index = legendItem.datasetIndex;
-              const dataset = chart.data.datasets[index];
-              const name = dataset.label;
+return{
+label:name,
+data:cleanData,
+points:seasonPoints[name],
+borderColor:color,
+backgroundColor:color,
+originalColor:color,
+originalBgColor:color,
+fill:false,
+tension:0,
+spanGaps:true,
+pointRadius:4,
+pointHoverRadius:6,
+borderWidth:2
+};
 
-              if (selectedPlayers.has(name)) {
-                selectedPlayers.delete(name);
-              } else {
-                selectedPlayers.add(name);
-              }
+});
 
-              const noneSelected = selectedPlayers.size === 0;
+const ctx=document.getElementById('endplatzierungChart').getContext('2d');
 
-              chart.data.datasets.forEach(ds => {
-                const isSelected = selectedPlayers.has(ds.label);
-                if (noneSelected || isSelected) {
-                  ds.borderColor = ds.originalColor;
-                  ds.backgroundColor = ds.originalBgColor;
-                  ds.borderWidth = 3;
-                } else {
-                  ds.borderColor = '#ccc';
-                  ds.backgroundColor = '#ccc';
-                  ds.borderWidth = 1;
-                }
-              });
+const chart=new Chart(ctx,{
+type:'line',
+data:{
+labels:seasonLabels,
+datasets:datasets
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+scales:{
+y:{
+reverse:true,
+beginAtZero:false,
+ticks:{stepSize:1}
+}
+},
+plugins:{
+legend:{
+display:true,
+position:'top',
+labels:{
+usePointStyle:true,
+pointStyle:'circle'
+},
+onClick:(e,legendItem)=>{
 
-              chart.update();
-            }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                const val = ctx.raw;
-                return `${ctx.dataset.label}: ${val === null ? 'N/A' : val}`;
-              }
-            }
-          }
-        }
-      }
-    });
-  </script>
+const index=legendItem.datasetIndex;
+const dataset=chart.data.datasets[index];
+const name=dataset.label;
+
+if(selectedPlayers.has(name)){
+selectedPlayers.delete(name);
+}else{
+selectedPlayers.add(name);
+}
+
+const noneSelected=selectedPlayers.size===0;
+
+chart.data.datasets.forEach(ds=>{
+const isSelected=selectedPlayers.has(ds.label);
+
+if(noneSelected||isSelected){
+ds.borderColor=ds.originalColor;
+ds.backgroundColor=ds.originalBgColor;
+ds.borderWidth=3;
+}else{
+ds.borderColor='#ccc';
+ds.backgroundColor='#ccc';
+ds.borderWidth=1;
+}
+});
+
+chart.update();
+}
+},
+
+tooltip:{
+callbacks:{
+label:(ctx)=>{
+
+const placement=ctx.raw;
+const player=ctx.dataset.label;
+const seasonIndex=ctx.dataIndex;
+const points=ctx.dataset.points[seasonIndex];
+
+if(placement===null){
+return player+': N/A';
+}
+
+if(points===null||points===undefined){
+return player+': Place '+placement;
+}
+
+return player+': Place '+placement+' ('+points+' pts)';
+}
+}
+}
+
+}
+}
+});
+
+</script>
 
 </body>
 </html>
-
-
