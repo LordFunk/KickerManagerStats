@@ -9,35 +9,35 @@
 <style>
 body {
 font-family: 'Segoe UI', Roboto, sans-serif;
-margin: 0;
-padding: 0;
-background: linear-gradient(135deg, #e9eff5, #f9fafc);
-color: #222;
-display: flex;
-flex-direction: column;
-align-items: center;
-min-height: 100vh;
+margin:0;
+padding:0;
+background:linear-gradient(135deg,#e9eff5,#f9fafc);
+color:#222;
+display:flex;
+flex-direction:column;
+align-items:center;
+min-height:100vh;
 }
 
 h1 {
-margin: 30px 0 20px 0;
-font-size: 2rem;
-font-weight: 700;
-background: linear-gradient(90deg, #0056b3, #0091ff);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-text-align: center;
+margin:30px 0 20px 0;
+font-size:2rem;
+font-weight:700;
+background:linear-gradient(90deg,#0056b3,#0091ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-align:center;
 }
 
 .chart-container {
-width: 90%;
-max-width: 1200px;
-height: 60vh;
-background: white;
-border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-padding: 20px;
-margin-bottom: 40px;
+width:90%;
+max-width:1200px;
+height:60vh;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+padding:20px;
+margin-bottom:40px;
 }
 </style>
 </head>
@@ -57,27 +57,27 @@ margin-bottom: 40px;
 <script>
 
 const playerPoints = {
-'Markus': [63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455],
-'Erwin': [48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221],
-'Phil': [76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413],
-'Didi': [50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456],
-'Steffo': [53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075],
-'Basti': [47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073],
-'Eirik': [46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217],
-'Emil': [61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059],
-'Kempka': [36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208],
-'Espen': [57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870],
-'Alex': [55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230]
-};
+'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455],
+'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221],
+'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413],
+'Didi':[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456],
+'Steffo':[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075],
+'Basti':[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073],
+'Eirik':[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217],
+'Emil':[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059],
+'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208],
+'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870],
+'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230]
+}
 
-const players = Object.keys(playerPoints);
+const players = Object.keys(playerPoints)
 
 const colors = [
 '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
 '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
-];
+]
 
-const selectedIndices = new Set();
+const selectedIndices = new Set()
 
 const datasets = players.map((name,index)=>({
 label:name,
@@ -88,9 +88,9 @@ fill:false,
 pointRadius:2,
 borderWidth:2,
 spanGaps:true
-}));
+}))
 
-const ctx=document.getElementById('fieberkurveChart').getContext('2d');
+const ctx=document.getElementById('fieberkurveChart').getContext('2d')
 
 const chart=new Chart(ctx,{
 type:'line',
@@ -103,12 +103,11 @@ responsive:true,
 maintainAspectRatio:false,
 plugins:{
 legend:{
-display:true,
 position:'top',
-labels:{usePointStyle:true,pointStyle:'circle'},
+labels:{usePointStyle:true},
 onClick:function(e,legendItem){
 
-const index=legendItem.datasetIndex;
+const index=legendItem.datasetIndex
 
 if(selectedIndices.has(index)) selectedIndices.delete(index)
 else selectedIndices.add(index)
@@ -117,7 +116,6 @@ if(selectedIndices.size===0){
 
 chart.data.datasets.forEach((ds,i)=>{
 ds.borderColor=colors[i]
-ds.backgroundColor=colors[i]
 ds.borderWidth=2
 })
 
@@ -127,11 +125,9 @@ chart.data.datasets.forEach((ds,i)=>{
 
 if(selectedIndices.has(i)){
 ds.borderColor=colors[i]
-ds.backgroundColor=colors[i]
 ds.borderWidth=4
 }else{
 ds.borderColor='#ccc'
-ds.backgroundColor='#ccc'
 ds.borderWidth=1
 }
 
@@ -142,25 +138,11 @@ ds.borderWidth=1
 chart.update()
 
 }
-},
-tooltip:{
-callbacks:{
-label:function(t){
-return t.dataset.label+": "+t.raw
-}
-}
 }
 },
 scales:{
-x:{
-title:{display:true,text:'Spieltag'},
-grid:{color:'#e0e0e0'}
-},
-y:{
-title:{display:true,text:'Punkte'},
-beginAtZero:true,
-grid:{color:'#e0e0e0'}
-}
+x:{title:{display:true,text:'Spieltag'}},
+y:{title:{display:true,text:'Punkte'},beginAtZero:true}
 }
 }
 })
@@ -169,38 +151,52 @@ function segmentPoints(arr,start,end){
 return arr[end-1]-(start>1?arr[start-2]:0)
 }
 
-const comparisonDatasets=players.map((name,index)=>{
+const played = playerPoints[players[0]].length
 
-const arr=playerPoints[name]
-const played=arr.length
+const n = played-17
 
-if(played<18) return null
+const firstHalf=[]
+const secondHalf=[]
 
-const n=played-17
+players.forEach(p=>{
 
-const first=segmentPoints(arr,1,n)
-const second=segmentPoints(arr,18,17+n)
+const arr=playerPoints[p]
 
-return{
-label:name,
-backgroundColor:colors[index],
-data:[first,second]
-}
+firstHalf.push(segmentPoints(arr,1,n))
+secondHalf.push(segmentPoints(arr,18,17+n))
 
-}).filter(x=>x)
+})
 
 const ctx2=document.getElementById('comparisonChart').getContext('2d')
 
 new Chart(ctx2,{
 type:'bar',
 data:{
-labels:['1-'+(playerPoints[players[0]].length-17),'18-'+playerPoints[players[0]].length],
-datasets:comparisonDatasets
+labels:players,
+datasets:[
+{
+label:'Matchdays 1-'+n,
+data:firstHalf,
+backgroundColor:'#4DAF4A'
+},
+{
+label:'Matchdays 18-'+(17+n),
+data:secondHalf,
+backgroundColor:'#377EB8'
+}
+]
 },
 options:{
 responsive:true,
 maintainAspectRatio:false,
 plugins:{
+tooltip:{
+callbacks:{
+label:function(t){
+return t.dataset.label+": "+t.raw+" points"
+}
+}
+},
 legend:{position:'top'}
 },
 scales:{
