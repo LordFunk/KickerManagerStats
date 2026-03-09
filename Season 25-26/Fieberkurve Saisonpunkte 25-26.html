@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -128,7 +128,7 @@ function createTable(title, dataArray, showDiff=false){
   if(showDiff) html+='<th>Diff</th>'
   html+='</tr>'
   dataArray.forEach((d,i)=>{
-    html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.points+'</td>'
+    html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.spieltag+'</td>'
     if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
     html+='</tr>'
   })
@@ -136,14 +136,23 @@ function createTable(title, dataArray, showDiff=false){
   return table
 }
 
-// calculate standings
-const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],1,n)}))
+// calculate standings with actual Spieltag ranges
+const firstHalfStandings = players.map(p=>({
+  name: p,
+  points: segmentPoints(playerPoints[p], 1, n),
+  spieltag: `1-${n}`
+}))
 firstHalfStandings.sort((a,b)=>b.points-a.points)
 
 const secondHalfStandings = players.map(p=>{
-  const points = segmentPoints(playerPoints[p],18,17+n)
+  const points = segmentPoints(playerPoints[p], 18, 17+n)
   const firstPoints = firstHalfStandings.find(f=>f.name===p).points
-  return {name:p, points:points, diff: points-firstPoints}
+  return {
+    name: p,
+    points: points,
+    diff: points - firstPoints,
+    spieltag: `18-${17+n}`
+  }
 })
 secondHalfStandings.sort((a,b)=>b.points-a.points)
 
