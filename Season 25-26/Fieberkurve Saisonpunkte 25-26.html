@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saisonpunkte 25-26</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 body {
 font-family: 'Segoe UI', Roboto, sans-serif;
@@ -79,6 +78,7 @@ const colors = [
 
 const selectedIndices = new Set()
 
+// cumulative line chart
 const datasets = players.map((name,index)=>({
 label:name,
 data:playerPoints[name],
@@ -106,37 +106,18 @@ legend:{
 position:'top',
 labels:{usePointStyle:true},
 onClick:function(e,legendItem){
-
 const index=legendItem.datasetIndex
-
 if(selectedIndices.has(index)) selectedIndices.delete(index)
 else selectedIndices.add(index)
-
 if(selectedIndices.size===0){
-
-chart.data.datasets.forEach((ds,i)=>{
-ds.borderColor=colors[i]
-ds.borderWidth=2
-})
-
+chart.data.datasets.forEach((ds,i)=>{ds.borderColor=colors[i]; ds.borderWidth=2})
 }else{
-
 chart.data.datasets.forEach((ds,i)=>{
-
-if(selectedIndices.has(i)){
-ds.borderColor=colors[i]
-ds.borderWidth=4
-}else{
-ds.borderColor='#ccc'
-ds.borderWidth=1
-}
-
+if(selectedIndices.has(i)){ds.borderColor=colors[i]; ds.borderWidth=4}
+else{ds.borderColor='#ccc'; ds.borderWidth=1}
 })
-
 }
-
 chart.update()
-
 }
 }
 },
@@ -147,24 +128,23 @@ y:{title:{display:true,text:'Punkte'},beginAtZero:true}
 }
 })
 
-function segmentPoints(arr,start,end){
-return arr[end-1]-(start>1?arr[start-2]:0)
-}
+// rolling comparison chart
+function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
 
 const played = playerPoints[players[0]].length
-
 const n = played-17
 
 const firstHalf=[]
 const secondHalf=[]
+const firstColors=[]
+const secondColors=[]
 
-players.forEach(p=>{
-
+players.forEach((p,i)=>{
 const arr=playerPoints[p]
-
 firstHalf.push(segmentPoints(arr,1,n))
 secondHalf.push(segmentPoints(arr,18,17+n))
-
+firstColors.push(colors[i]+'80') // 50% opacity
+secondColors.push(colors[i])     // full color
 })
 
 const ctx2=document.getElementById('comparisonChart').getContext('2d')
@@ -177,12 +157,12 @@ datasets:[
 {
 label:'Matchdays 1-'+n,
 data:firstHalf,
-backgroundColor:'#4DAF4A'
+backgroundColor:firstColors
 },
 {
 label:'Matchdays 18-'+(17+n),
 data:secondHalf,
-backgroundColor:'#377EB8'
+backgroundColor:secondColors
 }
 ]
 },
@@ -192,18 +172,13 @@ maintainAspectRatio:false,
 plugins:{
 tooltip:{
 callbacks:{
-label:function(t){
-return t.dataset.label+": "+t.raw+" points"
-}
+label:function(t){return t.dataset.label+": "+t.raw+" points"}
 }
 },
 legend:{position:'top'}
 },
 scales:{
-y:{
-beginAtZero:true,
-title:{display:true,text:'Points'}
-}
+y:{beginAtZero:true,title:{display:true,text:'Points'}}
 }
 }
 })
