@@ -17,7 +17,6 @@ flex-direction:column;
 align-items:center;
 min-height:100vh;
 }
-
 h1 {
 margin:30px 0 20px 0;
 font-size:2rem;
@@ -27,7 +26,6 @@ background:linear-gradient(90deg,#0056b3,#0091ff);
 -webkit-text-fill-color:transparent;
 text-align:center;
 }
-
 .chart-container {
 width:90%;
 max-width:1200px;
@@ -38,9 +36,29 @@ box-shadow:0 4px 15px rgba(0,0,0,0.05);
 padding:20px;
 margin-bottom:40px;
 }
+table {
+width:90%;
+max-width:1200px;
+border-collapse:collapse;
+margin-bottom:40px;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+th,td {
+padding:10px;
+text-align:center;
+border-bottom:1px solid #ddd;
+}
+th {
+background:#f0f0f0;
+}
+tr:first-child td {
+font-weight:700;
+}
 </style>
 </head>
-
 <body>
 
 <h1>Saisonpunkte 25-26</h1>
@@ -53,8 +71,9 @@ margin-bottom:40px;
 <canvas id="comparisonChart"></canvas>
 </div>
 
-<script>
+<div id="tablesContainer"></div>
 
+<script>
 const playerPoints = {
 'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455],
 'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221],
@@ -70,13 +89,7 @@ const playerPoints = {
 }
 
 const players = Object.keys(playerPoints)
-
-const colors = [
-'#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
-'#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
-]
-
-const selectedIndices = new Set()
+const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000']
 
 // cumulative line chart
 const datasets = players.map((name,index)=>({
@@ -89,36 +102,17 @@ pointRadius:2,
 borderWidth:2,
 spanGaps:true
 }))
-
 const ctx=document.getElementById('fieberkurveChart').getContext('2d')
-
-const chart=new Chart(ctx,{
+new Chart(ctx,{
 type:'line',
-data:{
-labels:Array.from({length:34},(_,i)=>i+1),
-datasets:datasets
-},
+data:{labels:Array.from({length:34},(_,i)=>i+1),datasets:datasets},
 options:{
 responsive:true,
 maintainAspectRatio:false,
 plugins:{
 legend:{
 position:'top',
-labels:{usePointStyle:true},
-onClick:function(e,legendItem){
-const index=legendItem.datasetIndex
-if(selectedIndices.has(index)) selectedIndices.delete(index)
-else selectedIndices.add(index)
-if(selectedIndices.size===0){
-chart.data.datasets.forEach((ds,i)=>{ds.borderColor=colors[i]; ds.borderWidth=2})
-}else{
-chart.data.datasets.forEach((ds,i)=>{
-if(selectedIndices.has(i)){ds.borderColor=colors[i]; ds.borderWidth=4}
-else{ds.borderColor='#ccc'; ds.borderWidth=1}
-})
-}
-chart.update()
-}
+labels:{usePointStyle:true}
 }
 },
 scales:{
@@ -130,60 +124,60 @@ y:{title:{display:true,text:'Punkte'},beginAtZero:true}
 
 // rolling comparison chart
 function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
-
 const played = playerPoints[players[0]].length
 const n = played-17
-
-const firstHalf=[]
-const secondHalf=[]
-const firstColors=[]
-const secondColors=[]
-
+const firstHalf=[], secondHalf=[], firstColors=[], secondColors=[]
 players.forEach((p,i)=>{
 const arr=playerPoints[p]
 firstHalf.push(segmentPoints(arr,1,n))
 secondHalf.push(segmentPoints(arr,18,17+n))
 firstColors.push(colors[i]+'80') // 50% opacity
-secondColors.push(colors[i])     // full color
+secondColors.push(colors[i])
 })
-
 const ctx2=document.getElementById('comparisonChart').getContext('2d')
-
 new Chart(ctx2,{
 type:'bar',
 data:{
 labels:players,
 datasets:[
-{
-label:'Spieltag 1-'+n,
-data:firstHalf,
-backgroundColor:firstColors
-},
-{
-label:'Spieltag 18-'+(17+n),
-data:secondHalf,
-backgroundColor:secondColors
-}
+{label:'Matchdays 1-'+n,data:firstHalf,backgroundColor:firstColors},
+{label:'Matchdays 18-'+(17+n),data:secondHalf,backgroundColor:secondColors}
 ]
 },
 options:{
 responsive:true,
 maintainAspectRatio:false,
 plugins:{
-tooltip:{
-callbacks:{
-label:function(t){return t.dataset.label+": "+t.raw+" Punkte"}
-}
-},
+tooltip:{callbacks:{label:t=>t.dataset.label+": "+t.raw+" Punkte"}},
 legend:{position:'top'}
 },
-scales:{
-y:{beginAtZero:true,title:{display:true,text:'Punkte'}}
-}
+scales:{y:{beginAtZero:true,title:{display:true,text:'Punkte'}}}
 }
 })
 
-</script>
+// tables for first and second half
+function createTable(title, dataArray){
+const table = document.createElement('table')
+let html='<tr><th>Rang</th><th>Spieler</th><th>'+title+'</th></tr>'
+dataArray.forEach((d,i)=>{
+html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.points+'</td></tr>'
+})
+table.innerHTML=html
+return table
+}
 
+// calculate standings
+const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],1,n)}))
+firstHalfStandings.sort((a,b)=>b.points-a.points)
+
+const secondHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],18,17+n)}))
+secondHalfStandings.sort((a,b)=>b.points-a.points)
+
+// render tables
+const container=document.getElementById('tablesContainer')
+container.appendChild(createTable('Punkte 1-'+n,firstHalfStandings))
+container.appendChild(createTable('Punkte 18-'+(17+n),secondHalfStandings))
+
+</script>
 </body>
 </html>
