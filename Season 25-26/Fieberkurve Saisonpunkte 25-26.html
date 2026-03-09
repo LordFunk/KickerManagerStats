@@ -1,10 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saisonpunkte 25-26</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {
   font-family: 'Segoe UI', Roboto, sans-serif;
@@ -26,16 +25,6 @@ h1 {
   -webkit-text-fill-color:transparent;
   text-align:center;
 }
-.chart-container {
-  width:90%;
-  max-width:1200px;
-  height:60vh;
-  background:white;
-  border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.05);
-  padding:20px;
-  margin-bottom:40px;
-}
 .tables-wrapper {
   display:flex;
   width:90%;
@@ -52,9 +41,9 @@ table {
   box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
 th,td {
-  padding:10px;
+  padding:8px;
   text-align:center;
-  border-bottom:1px solid #ddd;
+  border:1px solid #ddd;
 }
 th {
   background:#f0f0f0;
@@ -64,10 +53,6 @@ th {
 <body>
 
 <h1>Saisonpunkte 25-26</h1>
-
-<div class="chart-container">
-  <canvas id="fieberkurveChart"></canvas>
-</div>
 
 <div class="tables-wrapper" id="tablesContainer"></div>
 
@@ -87,80 +72,46 @@ const playerPoints = {
 }
 
 const players = Object.keys(playerPoints)
-const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000']
+const totalSpieltag = playerPoints[players[0]].length
 
-// cumulative line chart
-const datasets = players.map((name,index)=>({
-  label:name,
-  data:playerPoints[name],
-  borderColor:colors[index],
-  backgroundColor:colors[index],
-  fill:false,
-  pointRadius:2,
-  borderWidth:2,
-  spanGaps:true
-}))
-const ctx=document.getElementById('fieberkurveChart').getContext('2d')
-new Chart(ctx,{
-  type:'line',
-  data:{labels:Array.from({length:34},(_,i)=>i+1),datasets:datasets},
-  options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    plugins:{legend:{position:'top',labels:{usePointStyle:true}}},
-    scales:{
-      x:{title:{display:true,text:'Spieltag'}},
-      y:{title:{display:true,text:'Punkte'},beginAtZero:true}
-    }
-  }
-})
-
-// function to sum points between matchdays
-function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
-const played = playerPoints[players[0]].length
-const n = played-17
-
-// tables side by side
-function createTable(title, dataArray, showDiff=false){
-  const table=document.createElement('table')
-  let html='<tr><th colspan="4">'+title+'</th></tr>'
-  html+='<tr><th>Rang</th><th>Spieler</th><th>Spieltag</th>'
-  if(showDiff) html+='<th>Diff</th>'
-  html+='</tr>'
-  dataArray.forEach((d,i)=>{
-    html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.spieltag+'</td>'
-    if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
-    html+='</tr>'
+function createTable(title, startSpieltag, endSpieltag){
+  const table = document.createElement('table')
+  let html = `<tr><th colspan="${3 + endSpieltag - startSpieltag + 1}">${title}</th></tr>`
+  
+  // Header row: Player | Spieltag numbers
+  html += '<tr><th>Rang</th><th>Spieler</th>'
+  for(let i=startSpieltag;i<=endSpieltag;i++) html += `<th>${i}</th>`
+  html += '</tr>'
+  
+  // Calculate points per player
+  const rows = players.map(name=>{
+    const points = playerPoints[name].slice(startSpieltag-1, endSpieltag)
+    const diffs = points.map((p,i)=>i>0?p-points[i-1]:p)
+    return {name, points, diffs, total: points.reduce((a,b)=>a+b,0)}
   })
-  table.innerHTML=html
+  
+  // Sort by total points in this segment
+  rows.sort((a,b)=>b.total-a.total)
+  
+  rows.forEach((row,i)=>{
+    html += `<tr><td>${i+1}</td><td>${row.name}</td>`
+    row.diffs.forEach(d=>html += `<td>${d}</td>`)
+    html += '</tr>'
+    // optional cumulative row underneath
+    html += `<tr><td></td><td>Cum.</td>`
+    let cum=0
+    row.points.forEach(p=>{cum+=p; html += `<td>${cum}</td>`})
+    html += '</tr>'
+  })
+  
+  table.innerHTML = html
   return table
 }
 
-// calculate standings with actual Spieltag ranges
-const firstHalfStandings = players.map(p=>({
-  name: p,
-  points: segmentPoints(playerPoints[p], 1, n),
-  spieltag: `1-${n}`
-}))
-firstHalfStandings.sort((a,b)=>b.points-a.points)
-
-const secondHalfStandings = players.map(p=>{
-  const points = segmentPoints(playerPoints[p], 18, 17+n)
-  const firstPoints = firstHalfStandings.find(f=>f.name===p).points
-  return {
-    name: p,
-    points: points,
-    diff: points - firstPoints,
-    spieltag: `18-${17+n}`
-  }
-})
-secondHalfStandings.sort((a,b)=>b.points-a.points)
-
-// render tables
-const container=document.getElementById('tablesContainer')
-container.appendChild(createTable('Hinrunde',firstHalfStandings))
-container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
-
+const container = document.getElementById('tablesContainer')
+container.appendChild(createTable('Hinrunde', 1, 8))
+container.appendChild(createTable('Rückrunde', 18, 25))
 </script>
+
 </body>
 </html>
