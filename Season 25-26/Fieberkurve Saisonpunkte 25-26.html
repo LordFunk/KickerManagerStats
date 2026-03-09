@@ -7,57 +7,57 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body {
-font-family: 'Segoe UI', Roboto, sans-serif;
-margin:0;
-padding:0;
-background:linear-gradient(135deg,#e9eff5,#f9fafc);
-color:#222;
-display:flex;
-flex-direction:column;
-align-items:center;
-min-height:100vh;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  margin:0;
+  padding:0;
+  background:linear-gradient(135deg,#e9eff5,#f9fafc);
+  color:#222;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
 }
 h1 {
-margin:30px 0 20px 0;
-font-size:2rem;
-font-weight:700;
-background:linear-gradient(90deg,#0056b3,#0091ff);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-text-align:center;
+  margin:30px 0 20px 0;
+  font-size:2rem;
+  font-weight:700;
+  background:linear-gradient(90deg,#0056b3,#0091ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-align:center;
 }
 .chart-container {
-width:90%;
-max-width:1200px;
-height:60vh;
-background:white;
-border-radius:12px;
-box-shadow:0 4px 15px rgba(0,0,0,0.05);
-padding:20px;
-margin-bottom:40px;
+  width:90%;
+  max-width:1200px;
+  height:60vh;
+  background:white;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.05);
+  padding:20px;
+  margin-bottom:40px;
 }
 .tables-wrapper {
-display:flex;
-width:90%;
-max-width:1200px;
-justify-content:space-between;
-margin-bottom:40px;
+  display:flex;
+  width:90%;
+  max-width:1200px;
+  justify-content:space-between;
+  margin-bottom:40px;
 }
 table {
-width:48%;
-border-collapse:collapse;
-background:white;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 4px 15px rgba(0,0,0,0.05);
+  width:48%;
+  border-collapse:collapse;
+  background:white;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
 th,td {
-padding:10px;
-text-align:center;
-border-bottom:1px solid #ddd;
+  padding:10px;
+  text-align:center;
+  border-bottom:1px solid #ddd;
 }
 th {
-background:#f0f0f0;
+  background:#f0f0f0;
 }
 </style>
 </head>
@@ -66,11 +66,7 @@ background:#f0f0f0;
 <h1>Saisonpunkte 25-26</h1>
 
 <div class="chart-container">
-<canvas id="fieberkurveChart"></canvas>
-</div>
-
-<div class="chart-container">
-<canvas id="comparisonChart"></canvas>
+  <canvas id="fieberkurveChart"></canvas>
 </div>
 
 <div class="tables-wrapper" id="tablesContainer"></div>
@@ -95,76 +91,49 @@ const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F7
 
 // cumulative line chart
 const datasets = players.map((name,index)=>({
-label:name,
-data:playerPoints[name],
-borderColor:colors[index],
-backgroundColor:colors[index],
-fill:false,
-pointRadius:2,
-borderWidth:2,
-spanGaps:true
+  label:name,
+  data:playerPoints[name],
+  borderColor:colors[index],
+  backgroundColor:colors[index],
+  fill:false,
+  pointRadius:2,
+  borderWidth:2,
+  spanGaps:true
 }))
 const ctx=document.getElementById('fieberkurveChart').getContext('2d')
 new Chart(ctx,{
-type:'line',
-data:{labels:Array.from({length:34},(_,i)=>i+1),datasets:datasets},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{legend:{position:'top',labels:{usePointStyle:true}}},
-scales:{
-x:{title:{display:true,text:'Spieltag'}},
-y:{title:{display:true,text:'Punkte'},beginAtZero:true}
-}
-}
+  type:'line',
+  data:{labels:Array.from({length:34},(_,i)=>i+1),datasets:datasets},
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{usePointStyle:true}}},
+    scales:{
+      x:{title:{display:true,text:'Spieltag'}},
+      y:{title:{display:true,text:'Punkte'},beginAtZero:true}
+    }
+  }
 })
 
-// rolling comparison chart
+// function to sum points between matchdays
 function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
 const played = playerPoints[players[0]].length
 const n = played-17
-const firstHalf=[], secondHalf=[], firstColors=[], secondColors=[]
-players.forEach((p,i)=>{
-const arr=playerPoints[p]
-firstHalf.push(segmentPoints(arr,1,n))
-secondHalf.push(segmentPoints(arr,18,17+n))
-firstColors.push(colors[i]+'80') // 50% opacity
-secondColors.push(colors[i])
-})
-const ctx2=document.getElementById('comparisonChart').getContext('2d')
-new Chart(ctx2,{
-type:'bar',
-data:{
-labels:players,
-datasets:[
-{label:'Spieltag 1-'+n,data:firstHalf,backgroundColor:firstColors},
-{label:'Spieltag 18-'+(17+n),data:secondHalf,backgroundColor:secondColors}
-]
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-tooltip:{callbacks:{label:t=>t.dataset.label+": "+t.raw+" Punkte"}},
-legend:{position:'top'}
-},
-scales:{y:{beginAtZero:true,title:{display:true,text:'Punkte'}}}
-}
-})
 
 // tables side by side
 function createTable(title, dataArray, showDiff=false){
-const table=document.createElement('table')
-let html='<tr><th>Rang</th><th>Spieler</th><th>'+title+'</th>'
-if(showDiff) html+='<th>Diff</th>'
-html+='</tr>'
-dataArray.forEach((d,i)=>{
-html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.points+'</td>'
-if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
-html+='</tr>'
-})
-table.innerHTML=html
-return table
+  const table=document.createElement('table')
+  let html='<tr><th colspan="4">'+title+'</th></tr>'
+  html+='<tr><th>Rang</th><th>Spieler</th><th>Spieltag</th>'
+  if(showDiff) html+='<th>Diff</th>'
+  html+='</tr>'
+  dataArray.forEach((d,i)=>{
+    html+='<tr><td>'+(i+1)+'</td><td>'+d.name+'</td><td>'+d.points+'</td>'
+    if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
+    html+='</tr>'
+  })
+  table.innerHTML=html
+  return table
 }
 
 // calculate standings
@@ -172,16 +141,16 @@ const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPo
 firstHalfStandings.sort((a,b)=>b.points-a.points)
 
 const secondHalfStandings = players.map(p=>{
-const points = segmentPoints(playerPoints[p],18,17+n)
-const firstPoints = firstHalfStandings.find(f=>f.name===p).points
-return {name:p, points:points, diff: points-firstPoints}
+  const points = segmentPoints(playerPoints[p],18,17+n)
+  const firstPoints = firstHalfStandings.find(f=>f.name===p).points
+  return {name:p, points:points, diff: points-firstPoints}
 })
 secondHalfStandings.sort((a,b)=>b.points-a.points)
 
 // render tables
 const container=document.getElementById('tablesContainer')
-container.appendChild(createTable('Punkte 1-'+n,firstHalfStandings))
-container.appendChild(createTable('Punkte 18-'+(17+n),secondHalfStandings,true))
+container.appendChild(createTable('Hinrunde',firstHalfStandings))
+container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
 
 </script>
 </body>
