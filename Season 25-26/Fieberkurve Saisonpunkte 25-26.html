@@ -119,9 +119,9 @@ new Chart(ctx,{
 function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
 
 const totalSpieltag = playerPoints[players[0]].length
-const half = Math.ceil(totalSpieltag/2)
-const firstHalfEnd = Math.min(half, totalSpieltag-17)
-const secondHalfStart = totalSpieltag - firstHalfEnd + 1
+const hinrundeEnd = 17
+const rueckrundeStart = 18
+const rueckrundeEnd = totalSpieltag
 
 // tables side by side
 function createTable(title, dataArray, spieltagStart, spieltagEnd, showDiff=false){
@@ -140,11 +140,11 @@ function createTable(title, dataArray, spieltagStart, spieltagEnd, showDiff=fals
 }
 
 // calculate standings
-const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],1,totalSpieltag-17)}))
+const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],1,hinrundeEnd)}))
 firstHalfStandings.sort((a,b)=>b.points-a.points)
 
 const secondHalfStandings = players.map(p=>{
-  const points = segmentPoints(playerPoints[p],totalSpieltag-17+1,totalSpieltag)
+  const points = segmentPoints(playerPoints[p],rueckrundeStart,rueckrundeEnd)
   const firstPoints = firstHalfStandings.find(f=>f.name===p).points
   return {name:p, points:points, diff: points-firstPoints}
 })
@@ -152,8 +152,8 @@ secondHalfStandings.sort((a,b)=>b.points-a.points)
 
 // render tables
 const container=document.getElementById('tablesContainer')
-container.appendChild(createTable('Hinrunde',firstHalfStandings,1,totalSpieltag-17))
-container.appendChild(createTable('Rückrunde',secondHalfStandings,totalSpieltag-17+1,totalSpieltag,true))
+container.appendChild(createTable('Hinrunde',firstHalfStandings,1,hinrundeEnd))
+container.appendChild(createTable('Rückrunde',secondHalfStandings,rueckrundeStart,rueckrundeEnd,true))
 </script>
 </body>
 </html>
