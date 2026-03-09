@@ -116,9 +116,11 @@ new Chart(ctx,{
 })
 
 // function to sum points between matchdays
-function segmentPoints(arr,start,end){return arr[end-1]-(start>1?arr[start-2]:0)}
-const played = playerPoints[players[0]].length
-const n = played-17
+function segmentPoints(arr,start,end){
+  let sum = 0
+  for(let i=start-1;i<end;i++) sum += arr[i]
+  return sum
+}
 
 // tables side by side
 function createTable(title, dataArray, showDiff=false){
@@ -137,11 +139,15 @@ function createTable(title, dataArray, showDiff=false){
 }
 
 // calculate standings
+const played = playerPoints[players[0]].length
+const n = Math.min(17, played) // first half length
 const firstHalfStandings = players.map(p=>({name:p,points:segmentPoints(playerPoints[p],1,n)}))
 firstHalfStandings.sort((a,b)=>b.points-a.points)
 
 const secondHalfStandings = players.map(p=>{
-  const points = segmentPoints(playerPoints[p],18,17+n)
+  const start = n+1
+  const end = played
+  const points = segmentPoints(playerPoints[p],start,end)
   const firstPoints = firstHalfStandings.find(f=>f.name===p).points
   return {name:p, points:points, diff: points-firstPoints}
 })
@@ -151,7 +157,6 @@ secondHalfStandings.sort((a,b)=>b.points-a.points)
 const container=document.getElementById('tablesContainer')
 container.appendChild(createTable('Hinrunde',firstHalfStandings))
 container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
-
 </script>
 </body>
 </html>
