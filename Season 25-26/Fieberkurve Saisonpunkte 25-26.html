@@ -149,8 +149,8 @@ secondHalfStandings.sort((a,b)=>b.points-a.points)
 
 // render tables
 const container=document.getElementById('tablesContainer')
-container.appendChild(createTable('Punkte 1-'+n,firstHalfStandings))
-container.appendChild(createTable('Punkte 18-'+(17+n),secondHalfStandings,true))
+container.appendChild(createTable('Hinrunde',firstHalfStandings))
+container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
   
 </script>
 </body>
