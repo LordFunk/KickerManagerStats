@@ -80,12 +80,10 @@ th{
 background:#f0f0f0;
 }
 
-/* phone portrait layout */
 @media (max-width:768px) and (orientation:portrait){
 .tables-wrapper{
 flex-direction:column;
 }
-
 .table-block{
 width:100%;
 }
@@ -184,7 +182,7 @@ diff:points-firstPoints
 
 secondHalfStandings.sort((a,b)=>b.points-a.points)
 
-function createTable(title,dataArray,showDiff=false){
+function createTable(title,matchLabel,dataArray,showDiff=false){
 
 const wrapper=document.createElement('div')
 wrapper.className='table-block'
@@ -195,10 +193,8 @@ titleDiv.textContent=title
 
 const table=document.createElement('table')
 
-let html='<tr><th>Rang</th><th>Spieler</th><th>Punkte</th>'
-
+let html='<tr><th>Rang</th><th>Spieler</th><th>'+matchLabel+'</th>'
 if(showDiff) html+='<th>Diff</th>'
-
 html+='</tr>'
 
 dataArray.forEach((d,i)=>{
@@ -206,11 +202,7 @@ html+='<tr>'
 html+='<td>'+(i+1)+'</td>'
 html+='<td>'+d.name+'</td>'
 html+='<td>'+d.points+'</td>'
-
-if(showDiff){
-html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
-}
-
+if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
 html+='</tr>'
 })
 
@@ -224,8 +216,13 @@ return wrapper
 
 const container=document.getElementById('tablesContainer')
 
-container.appendChild(createTable('Hinrunde',firstHalfStandings))
-container.appendChild(createTable('Rückrunde',secondHalfStandings,true))
+container.appendChild(
+createTable('Hinrunde','Punkte 1-'+n,firstHalfStandings)
+)
+
+container.appendChild(
+createTable('Rückrunde','Punkte 18-'+(17+n),secondHalfStandings,true)
+)
 
 </script>
 
