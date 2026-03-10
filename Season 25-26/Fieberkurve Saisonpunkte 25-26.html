@@ -5,9 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saisonpunkte 25-26</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body {
-font-family: 'Segoe UI', Roboto, sans-serif;
+body{
+font-family:'Segoe UI',Roboto,sans-serif;
 margin:0;
 padding:0;
 background:linear-gradient(135deg,#e9eff5,#f9fafc);
@@ -17,7 +18,8 @@ flex-direction:column;
 align-items:center;
 min-height:100vh;
 }
-h1 {
+
+h1{
 margin:30px 0 20px 0;
 font-size:2rem;
 font-weight:700;
@@ -26,7 +28,8 @@ background:linear-gradient(90deg,#0056b3,#0091ff);
 -webkit-text-fill-color:transparent;
 text-align:center;
 }
-.chart-container {
+
+.chart-container{
 width:90%;
 max-width:1200px;
 height:60vh;
@@ -36,31 +39,60 @@ box-shadow:0 4px 15px rgba(0,0,0,0.05);
 padding:20px;
 margin-bottom:40px;
 }
-.tables-wrapper {
+
+.tables-wrapper{
 display:flex;
 width:90%;
 max-width:1200px;
 justify-content:space-between;
 margin-bottom:40px;
+gap:20px;
+flex-wrap:wrap;
 }
-table {
+
+.table-block{
 width:48%;
+}
+
+.table-title{
+text-align:center;
+font-weight:700;
+margin-bottom:8px;
+font-size:1.2rem;
+}
+
+table{
+width:100%;
 border-collapse:collapse;
 background:white;
 border-radius:12px;
 overflow:hidden;
 box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
-th,td {
+
+th,td{
 padding:10px;
 text-align:center;
 border-bottom:1px solid #ddd;
 }
-th {
+
+th{
 background:#f0f0f0;
+}
+
+/* phone portrait layout */
+@media (max-width:768px) and (orientation:portrait){
+.tables-wrapper{
+flex-direction:column;
+}
+
+.table-block{
+width:100%;
+}
 }
 </style>
 </head>
+
 <body>
 
 <h1>Saisonpunkte 25-26</h1>
@@ -69,14 +101,11 @@ background:#f0f0f0;
 <canvas id="fieberkurveChart"></canvas>
 </div>
 
-<div class="chart-container">
-<canvas id="comparisonChart"></canvas>
-</div>
-
 <div class="tables-wrapper" id="tablesContainer"></div>
 
 <script>
-const playerPoints = {
+
+const playerPoints={
 'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455],
 'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221],
 'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413],
@@ -90,8 +119,12 @@ const playerPoints = {
 'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230]
 }
 
-const players = Object.keys(playerPoints)
-const colors = ['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000']
+const players=Object.keys(playerPoints)
+
+const colors=[
+'#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+'#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
+]
 
 // cumulative line chart
 const datasets = players.map((name,index)=>({
