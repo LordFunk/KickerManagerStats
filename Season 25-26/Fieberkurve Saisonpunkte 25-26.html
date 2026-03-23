@@ -1,3 +1,6 @@
+Complete working version with **multi-select highlight from table clicks**, matching your second example behavior.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,14 +78,15 @@ padding:8px;
 text-align:center;
 border-bottom:1px solid #ddd;
 font-size:0.9rem;
+cursor:pointer;
 }
 
 th{
 background:#f0f0f0;
-white-space:nowrap;
+cursor:default;
 }
 
-@media (max-width:768px) and (orientation:portrait){
+@media (max-width:768px){
 .tables-wrapper{
 flex-direction:column;
 }
@@ -131,6 +135,7 @@ label:name,
 data:playerPoints[name],
 borderColor:colors[index],
 backgroundColor:colors[index],
+originalColor:colors[index],
 fill:false,
 pointRadius:2,
 borderWidth:2,
@@ -139,7 +144,7 @@ spanGaps:true
 
 const ctx=document.getElementById('fieberkurveChart').getContext('2d')
 
-new Chart(ctx,{
+const chart=new Chart(ctx,{
 type:'line',
 data:{
 labels:Array.from({length:34},(_,i)=>i+1),
@@ -158,6 +163,26 @@ y:{title:{display:true,text:'Punkte'},beginAtZero:true}
 }
 })
 
+const selectedPlayers=new Set()
+const fadedColor='lightgrey'
+
+function updateHighlight(){
+chart.data.datasets.forEach(ds=>{
+if(selectedPlayers.size===0||selectedPlayers.has(ds.label)){
+ds.borderColor=ds.originalColor
+ds.backgroundColor=ds.originalColor
+ds.borderWidth=selectedPlayers.has(ds.label)?4:2
+ds.pointRadius=selectedPlayers.has(ds.label)?5:2
+}else{
+ds.borderColor=fadedColor
+ds.backgroundColor=fadedColor
+ds.borderWidth=1
+ds.pointRadius=2
+}
+})
+chart.update()
+}
+
 function segmentPoints(arr,start,end){
 return arr[end-1]-(start>1?arr[start-2]:0)
 }
@@ -168,21 +193,13 @@ const n=played-17
 const firstHalfStandings=players.map(p=>({
 name:p,
 points:segmentPoints(playerPoints[p],1,n)
-}))
-
-firstHalfStandings.sort((a,b)=>b.points-a.points)
+})).sort((a,b)=>b.points-a.points)
 
 const secondHalfStandings=players.map(p=>{
 const points=segmentPoints(playerPoints[p],18,17+n)
 const firstPoints=firstHalfStandings.find(f=>f.name===p).points
-return{
-name:p,
-points:points,
-diff:points-firstPoints
-}
-})
-
-secondHalfStandings.sort((a,b)=>b.points-a.points)
+return{name:p,points:points,diff:points-firstPoints}
+}).sort((a,b)=>b.points-a.points)
 
 function createTable(title,matchLabel,dataArray,showDiff=false){
 
@@ -200,15 +217,27 @@ if(showDiff) html+='<th>Diff</th>'
 html+='</tr>'
 
 dataArray.forEach((d,i)=>{
-html+='<tr>'
-html+='<td>'+(i+1)+'</td>'
-html+='<td>'+d.name+'</td>'
-html+='<td>'+d.points+'</td>'
-if(showDiff) html+='<td>'+((d.diff>0?'+':'')+d.diff)+'</td>'
-html+='</tr>'
+html+=`<tr data-player="${d.name}">
+<td>${i+1}</td>
+<td>${d.name}</td>
+<td>${d.points}</td>
+${showDiff?`<td>${(d.diff>0?'+':'')+d.diff}</td>`:''}
+</tr>`
 })
 
 table.innerHTML=html
+
+table.querySelectorAll('tr[data-player]').forEach(row=>{
+row.addEventListener('click',()=>{
+const player=row.dataset.player
+if(selectedPlayers.has(player)){
+selectedPlayers.delete(player)
+}else{
+selectedPlayers.add(player)
+}
+updateHighlight()
+})
+})
 
 wrapper.appendChild(titleDiv)
 wrapper.appendChild(table)
@@ -218,15 +247,11 @@ return wrapper
 
 const container=document.getElementById('tablesContainer')
 
-container.appendChild(
-createTable('Hinrunde','Spieltag 1 bis '+n,firstHalfStandings)
-)
-
-container.appendChild(
-createTable('Rückrunde','Spieltag 18 bis '+(17+n),secondHalfStandings,true)
-)
+container.appendChild(createTable('Hinrunde','Spieltag 1 bis '+n,firstHalfStandings))
+container.appendChild(createTable('Rückrunde','Spieltag 18 bis '+(17+n),secondHalfStandings,true))
 
 </script>
 
 </body>
 </html>
+```
