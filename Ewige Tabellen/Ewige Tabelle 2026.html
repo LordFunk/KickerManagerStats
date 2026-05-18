@@ -320,16 +320,15 @@
     // Populate highlights list
     const highlights = [
       "=== Highlights der Saison 25-26 ===",
-      "- Keine Spieltagssiege in der Hinrunde von Steffen, Basti, Emil und Espen ",
-      "- Keine Spieltagsniederlagen von Erwin, Didi und Basti ",
-      "- Höchste Spieltagpunkte von Phil mit 93 Punkten am 5. Spieltag ",
-      "- Niedrigste Spieltagspunkte von Emil und Espen mit 2 am 6. Spieltag ",
-      "- 3 Spieltagssiege in Folge von Phil ",
-      "- 2 Spieltagsniederlagen in Folge von Emil ",
-      "- Schlechtester Erster Didi mit 63 Punkten am 12. Spieltag:",
+      "- Meiste Spieltagssiege von Didi mit 7",
+      "- Keine Spieltagssiege in der Saison von Basti, Emil und Espen ",
+      "- Keine Spieltagsniederlagen in der Saison von Didi",
+      "- Höchste Spieltagpunkte von Markus mit 112 Punkten am 26. Spieltag ",
+      "- Niedrigste Spieltagspunkte von Espen mit -4 Punkten am 23. Spieltag ",
+      "- 3 Spieltagssiege in Folge von Phil und Eirik ",
+      "- 4 Spieltagsniederlagen in Folge von Espen ",
+      "- Schlechtester Erster Alex mit 52 Punkten am 18. Spieltag:",
       "- Bester Letzter Espen mit 41 Punkten am 16. Spieltag:",
-      "- 6 Spieltagssiege von Phil ",
-      "- 4 Spieltagsniederlagen von Emil ",
       "",
       "",
       "",
@@ -368,6 +367,7 @@
       "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga, 45,32 ø Punkte pro Spiel)",
       "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga, 52,91 ø Punkte pro Spiel)",
       "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga, 49,59 ø Punkte pro Spiel)",
+      "- Meister 2026: Markus mit 2009 Punkten (1681 Ø Punkte in der Liga 49,45 Ø Punkte pro Spiel)",
       "",
       "",
       "",
@@ -384,16 +384,17 @@
 
     // Fieberkurve data and chart setup
     const fiebertabelleData = {
-      'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581 },
-      'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761 },
-      'Phil': { s1: 1717, s2: 1826, s3: 1430, s4: 1671, s5: 1788 },
-      'Erwin': { s1: 1536, s2: 1571, s3: 1957, s4: 1845, s5: 1903 },
-      'Didi': { s1: 1391, s2: 1735, s3: 1267, s4: 1667, s5: 1212 },
-      'Steffo': { s2: 957, s3: 1558, s4: 1620, s5: 1438 },
-      'Basti': { s2: 1441, s3: 1303, s4: 1924, s5: 1512 },
-      'Emil': { s4: 2014, s5: 1873 },
-      'Kempka': { s5: 1750 },
-      'Espen': { s5: 2042 }
+      'Eirik': { s1: 1846, s2: 1107, s3: 1630, s4: 1421, s5: 1581, s6: 1853 },
+      'Markus': { s1: 1923, s2: 1733, s3: 1646, s4: 2224, s5: 1761, s6: 2009},
+      'Phil': { s1: 1717, s2: 1826, s3: 1430, s4: 1671, s5: 1788, s6: 1967},
+      'Erwin': { s1: 1536, s2: 1571, s3: 1957, s4: 1845, s5: 1903, s6: 1722 },
+      'Didi': { s1: 1391, s2: 1735, s3: 1267, s4: 1667, s5: 1212, s6: 1997 },
+      'Steffo': { s2: 957, s3: 1558, s4: 1620, s5: 1438, s6: 1489 },
+      'Basti': { s2: 1441, s3: 1303, s4: 1924, s5: 1512, s6: 1490 },
+      'Emil': { s4: 2014, s5: 1873, s6: 1358 },
+      'Kempka': { s5: 1750, s6: 1823 },
+      'Espen': { s5: 2042, s6: 1125 },
+      'Alex': { s6: 1660 }
     };
 
     const players = Object.keys(fiebertabelleData);
@@ -408,10 +409,10 @@
       '#999999', // Emil (gray)
       '#66C2A5', // Kempka (teal)
       '#FFD92F', // Espen (yellow)
-      '#000000'  // Alex (black, unused here)
+      '#000000'  // Alex (black)
     ];
 
-    const seasons = ['s1', 's2', 's3', 's4', 's5'];
+    const seasons = ['s1', 's2', 's3', 's4', 's5', 's6'];
 
     function cumulativePoints(seasonPoints) {
       const cumulative = [];
