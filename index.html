@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kicker Interactive Statistiken</title>
+
   <style>
-    /* Base Styles */
     body {
       font-family: 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #e9eff5, #f9fafc);
@@ -19,7 +18,6 @@
       min-height: 100vh;
     }
 
-    /* Heading */
     h1 {
       margin: 30px 0;
       font-size: 2rem;
@@ -29,7 +27,11 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Card Container */
+    h2 {
+      color: #0056b3;
+      margin-top: 30px;
+    }
+
     .static-block, details {
       width: 90%;
       max-width: 550px;
@@ -46,12 +48,10 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     }
 
-    /* Summary Styling */
     summary {
       font-size: 1.15rem;
       font-weight: 600;
       cursor: pointer;
-      list-style: none;
     }
 
     summary::-webkit-details-marker {
@@ -68,7 +68,6 @@
       transform: rotate(90deg);
     }
 
-    /* Links */
     ul {
       list-style: none;
       padding: 0;
@@ -84,15 +83,58 @@
       color: white;
       text-decoration: none;
       font-weight: 500;
-      transition: background 0.3s ease, transform 0.2s ease;
     }
 
     li a:hover {
       background: linear-gradient(90deg, #00428a, #0069d9);
       transform: translateX(4px);
     }
+
+    .winning-teams {
+      width: 90%;
+      max-width: 550px;
+      margin-bottom: 30px;
+    }
+
+    .winner-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .winner-card h3 {
+      margin: 0 0 10px 0;
+      font-size: 1.1rem;
+    }
+
+    .winner-images {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .winner-images img {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .winner-images {
+        flex-direction: column;
+      }
+
+      .winner-images img {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
+
 <body>
 
   <h1>Kicker Interactive Statistiken</h1>
@@ -100,20 +142,73 @@
   <div class="static-block">
     <ul>
       <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
-      <li><a href="Winning Teams/index.html">Winning Teams</a></li>
     </ul>
   </div>
 
+  <h2>Winning Teams</h2>
+
+  <div class="winning-teams">
+
+    <div class="winner-card">
+      <h3>Saison 20/21 • Eirik</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/20-21-hinrunde.png" alt="20/21 Hinrunde">
+        <img src="Winning Teams/20-21-rueckrunde.png" alt="20/21 Rückrunde">
+      </div>
+    </div>
+
+    <div class="winner-card">
+      <h3>Saison 21/22 • Phil</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/21-22-hinrunde.png" alt="21/22 Hinrunde">
+        <img src="Winning Teams/21-22-rueckrunde.png" alt="21/22 Rückrunde">
+      </div>
+    </div>
+
+    <div class="winner-card">
+      <h3>Saison 22/23 • Erwin</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/22-23-hinrunde.png" alt="22/23 Hinrunde">
+        <img src="Winning Teams/22-23-rueckrunde.png" alt="22/23 Rückrunde">
+      </div>
+    </div>
+
+    <div class="winner-card">
+      <h3>Saison 23/24 • Markus</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/23-24-hinrunde.png" alt="23/24 Hinrunde">
+        <img src="Winning Teams/23-24-rueckrunde.png" alt="23/24 Rückrunde">
+      </div>
+    </div>
+
+    <div class="winner-card">
+      <h3>Saison 24/25 • Espen</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/24-25-hinrunde.png" alt="24/25 Hinrunde">
+        <img src="Winning Teams/24-25-rueckrunde.png" alt="24/25 Rückrunde">
+      </div>
+    </div>
+
+    <div class="winner-card">
+      <h3>Saison 25/26 • Markus</h3>
+      <div class="winner-images">
+        <img src="Winning Teams/25-26-hinrunde.png" alt="25/26 Hinrunde">
+        <img src="Winning Teams/25-26-rueckrunde.png" alt="25/26 Rückrunde">
+      </div>
+    </div>
+
+  </div>
+
   <details>
-  <summary>Ewige Tabellen</summary>
-  <ul>
-    <li><a href="Ewige Tabellen/Ewige Tabelle 2026.html">Ewige Tabelle 2026</a></li>
-    <li><a href="Ewige Tabellen/Ewige Tabelle 2025.html">Ewige Tabelle 2025</a></li>
-    <li><a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">Ewige Tabelle 2024</a></li>
-    <li><a href="Ewige Tabellen/Ewige Tabelle 2023.png">Ewige Tabelle 2023</a></li>
-    <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
-  </ul>
-</details>
+    <summary>Ewige Tabellen</summary>
+    <ul>
+      <li><a href="Ewige Tabellen/Ewige Tabelle 2026.html">Ewige Tabelle 2026</a></li>
+      <li><a href="Ewige Tabellen/Ewige Tabelle 2025.html">Ewige Tabelle 2025</a></li>
+      <li><a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">Ewige Tabelle 2024</a></li>
+      <li><a href="Ewige Tabellen/Ewige Tabelle 2023.png">Ewige Tabelle 2023</a></li>
+      <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
+    </ul>
+  </details>
 
   <details open>
     <summary>Season 25-26</summary>
@@ -124,7 +219,7 @@
       <li><a href="Season 25-26/Tagesplatzplatzierung 25-26.html">Tagesplatzierung</a></li>
     </ul>
   </details>
-      
+
   <details>
     <summary>Season 24-25</summary>
     <ul>
@@ -143,19 +238,6 @@
       <li><a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">Tabellenplatz je Spieltag</a></li>
     </ul>
   </details>
-  
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
