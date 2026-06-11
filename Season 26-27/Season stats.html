@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kicker Manager Stats 25-26</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+font-family:'Segoe UI',Roboto,sans-serif;
+margin:0;
+padding:0;
+background:linear-gradient(135deg,#e9eff5,#f9fafc);
+color:#222;
+display:flex;
+flex-direction:column;
+align-items:center;
+min-height:100vh;
+}
+
+h1{
+margin:25px 0;
+font-size:1.8rem;
+font-weight:700;
+background:linear-gradient(90deg,#0056b3,#0091ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-align:center;
+}
+
+section{
+width:95%;
+max-width:1200px;
+margin-bottom:50px;
+}
+
+.chart{
+height:60vh;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+padding:15px;
+}
+
+.tables{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+th,td{
+padding:8px;
+text-align:center;
+border-bottom:1px solid #ddd;
+font-size:0.9rem;
+}
+
+th{background:#f0f0f0}
+</style>
+</head>
+
+<body>
+
+<h1>Kicker Manager Stats 25-26</h1>
+
+<section class="chart">
+<canvas id="chartSeason"></canvas>
+</section>
+
+<section class="chart">
+<canvas id="chartMatchdayPoints"></canvas>
+</section>
+
+<section class="chart">
+<canvas id="chartLeague"></canvas>
+</section>
+
+<section class="chart">
+<canvas id="chartMatchdayRank"></canvas>
+</section>
+
+<section class="tables" id="tables"></section>
+
+<script>
+
+/* =========================
+   ONLY EDIT THIS AFTER GAMEWEEK
+   ========================= */
+const playerPoints = {
+'Markus':[63,131,214],
+'Erwin':[48,118,169],
+'Phil':[76,148,212],
+'Didi':[50,110,195],
+'Steffo':[53,108,158],
+'Basti':[47,100,144],
+'Eirik':[46,82,116],
+'Emil':[61,118,136],
+'Kempka':[36,99,131],
+'Espen':[57,102,149],
+'Alex':[55,121,169]
+};
+
+/* ========================= */
+
+const players = Object.keys(playerPoints);
+const colors = [
+'#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+'#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
+];
+
+const selected = new Set();
+
+/* =========================
+   HELPERS
+   ========================= */
+
+function matchdayPoints(cum){
+return cum.map((v,i)=> i===0 ? v : v-cum[i-1]);
+}
+
+function leaguePositions(data){
+const days=data[players[0]].length;
+const pos={};
+players.forEach(p=>pos[p]=[]);
+
+for(let d=0;d<days;d++){
+const r=players.map(p=>({p,pts:data[p][d]}))
+.sort((a,b)=>b.pts-a.pts);
+r.forEach((x,i)=>pos[x.p].push(i+1));
+}
+return pos;
+}
+
+function matchdayRanks(data){
+const days=data[players[0]].length;
+const pos={};
+players.forEach(p=>pos[p]=[]);
+
+for(let d=0;d<days;d++){
+const r=players.map(p=>{
+const pts=d===0?data[p][0]:data[p][d]-data[p][d-1];
+return {p,pts};
+}).sort((a,b)=>b.pts-a.pts);
+
+r.forEach((x,i)=>pos[x.p].push(i+1));
+}
+return pos;
+}
+
+/* =========================
+   DATA DERIVATION
+   ========================= */
+
+const mdPoints={};
+players.forEach(p=>mdPoints[p]=matchdayPoints(playerPoints[p]));
+
+const leaguePos=leaguePositions(playerPoints);
+const mdRank=matchdayRanks(playerPoints);
+
+const days = playerPoints[players[0]].length;
+const labels = Array.from({length:days},(_,i)=>i+1);
+
+/* =========================
+   CHART BUILDER
+   ========================= */
+
+function buildChart(ctx,type,data,labelFunc){
+return new Chart(ctx,{
+type:'line',
+data:{
+labels,
+datasets:players.map((p,i)=>({
+label:p,
+data:data[p],
+borderColor:colors[i],
+backgroundColor:colors[i],
+borderWidth:2,
+pointRadius:4
+}))
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{
+onClick:(e,leg)=>{
+const name=leg.text;
+selected.has(name)?selected.delete(name):selected.add(name);
+
+this.chart.data.datasets.forEach(d=>{
+const i=players.indexOf(d.label);
+if(selected.size===0||selected.has(d.label)){
+d.borderColor=colors[i];
+d.pointRadius=5;
+d.borderWidth=3;
+}else{
+d.borderColor='lightgrey';
+d.pointRadius=3;
+d.borderWidth=1;
+}
+});
+this.chart.update();
+}
+}
+},
+scales:{
+x:{title:{display:true,text:'Spieltag'}},
+y:{beginAtZero:true}
+}
+}
+});
+}
+
+/* =========================
+   CHARTS
+   ========================= */
+
+const ctx1=document.getElementById('chartSeason');
+const ctx2=document.getElementById('chartMatchdayPoints');
+const ctx3=document.getElementById('chartLeague');
+const ctx4=document.getElementById('chartMatchdayRank');
+
+const seasonChart = new Chart(ctx1,{
+type:'line',
+data:{labels,datasets:players.map((p,i)=>({
+label:p,
+data:playerPoints[p],
+borderColor:colors[i],
+backgroundColor:colors[i],
+borderWidth:2,
+pointRadius:4
+}))}
+});
+
+const matchdayChart = new Chart(ctx2,{
+type:'line',
+data:{labels,datasets:players.map((p,i)=>({
+label:p,
+data:mdPoints[p],
+borderColor:colors[i],
+backgroundColor:colors[i],
+borderWidth:2,
+pointRadius:4
+}))}
+});
+
+const leagueChart = new Chart(ctx3,{
+type:'line',
+data:{labels,datasets:players.map((p,i)=>({
+label:p,
+data:leaguePos[p],
+borderColor:colors[i],
+backgroundColor:colors[i],
+borderWidth:2,
+pointRadius:4
+}))},
+options:{scales:{y:{reverse:true,stepSize:1}}}
+});
+
+const rankChart = new Chart(ctx4,{
+type:'line',
+data:{labels,datasets:players.map((p,i)=>({
+label:p,
+data:mdRank[p],
+borderColor:colors[i],
+backgroundColor:colors[i],
+borderWidth:2,
+pointRadius:4
+}))},
+options:{scales:{y:{reverse:true,stepSize:1}}}
+});
+
+/* =========================
+   TABLES (Hin + Rück)
+   ========================= */
+
+function segment(arr,start,end){
+return arr[end-1]-(start>1?arr[start-2]:0);
+}
+
+const mid=Math.floor(days/2);
+
+const hin = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],1,mid)
+})).sort((a,b)=>b.pts-a.pts);
+
+const rueck = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],mid+1,days)
+})).sort((a,b)=>b.pts-a.pts);
+
+const container=document.getElementById('tables');
+
+function table(title,data){
+const div=document.createElement('div');
+div.innerHTML=`<h3>${title}</h3>`;
+const t=document.createElement('table');
+
+t.innerHTML=
+`<tr><th>R</th><th>Player</th><th>Points</th></tr>`+
+data.map((x,i)=>
+`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.pts}</td></tr>`
+).join('');
+
+div.appendChild(t);
+return div;
+}
+
+container.appendChild(table('Hinrunde',hin));
+container.appendChild(table('Rückrunde',rueck));
+
+</script>
+</body>
+</html>
