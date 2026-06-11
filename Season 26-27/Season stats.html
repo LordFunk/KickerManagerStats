@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kicker Manager Stats 26-27</title>
+<title>Kicker Manager Stats</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -45,20 +45,17 @@ display:flex;
 width:90%;
 max-width:1200px;
 justify-content:space-between;
-margin-bottom:40px;
 gap:10px;
 flex-wrap:wrap;
+margin-bottom:40px;
 }
 
-.table-block{
-width:47%;
-}
+.table-block{width:47%}
 
 .table-title{
 text-align:center;
 font-weight:700;
 margin-bottom:8px;
-font-size:1.1rem;
 }
 
 table{
@@ -77,31 +74,18 @@ border-bottom:1px solid #ddd;
 font-size:0.9rem;
 }
 
-th{
-background:#f0f0f0;
-}
+th{background:#f0f0f0}
 </style>
 </head>
 
 <body>
 
-<h1>Kicker Manager Stats 26-27</h1>
+<h1>Kicker Manager Stats</h1>
 
-<div class="chart-container">
-<canvas id="c1"></canvas>
-</div>
-
-<div class="chart-container">
-<canvas id="c2"></canvas>
-</div>
-
-<div class="chart-container">
-<canvas id="c3"></canvas>
-</div>
-
-<div class="chart-container">
-<canvas id="c4"></canvas>
-</div>
+<div class="chart-container"><canvas id="c1"></canvas></div>
+<div class="chart-container"><canvas id="c2"></canvas></div>
+<div class="chart-container"><canvas id="c3"></canvas></div>
+<div class="chart-container"><canvas id="c4"></canvas></div>
 
 <div class="tables-wrapper" id="tablesContainer"></div>
 
@@ -121,26 +105,29 @@ const playerPoints={
 'Espen':[57, 102, 149, 198, 249, 251, 292, 353, 410, 422, 474, 499, 528, 575, 591, 632, 665, 678, 706, 741, 792, 821, 854, 850, 870, 909, 913, 931, 953, 969, 1001, 1032, 1057, 1125],
 'Alex':[55, 121, 169, 194, 245, 322, 344, 395, 443, 507, 543, 585, 611, 641, 688, 746, 795, 847, 893, 949, 1016, 1057, 1134, 1173, 1230, 1273, 1338, 1395, 1448, 1511, 1546, 1602, 1626, 1660]
 }
-/* ------------ */
+/* ---------------- */
 
-const players=Object.keys(playerPoints);
+const players = Object.keys(playerPoints);
 
 const colors=[
 '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
 '#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
 ];
 
-const selected=new Set();
+const selected = new Set();
 
 /* HELPERS */
-const mdPoints=a=>a.map((v,i)=>i? v-a[i-1]:v);
+function mdPoints(arr){
+return arr.map((v,i)=>i?v-arr[i-1]:v);
+}
 
 function leaguePos(data){
 const d=data[players[0]].length;
 const out={};
 players.forEach(p=>out[p]=[]);
 for(let i=0;i<d;i++){
-const r=players.map(p=>({p,pts:data[p][i]})).sort((a,b)=>b.pts-a.pts);
+const r=players.map(p=>({p,pts:data[p][i]}))
+.sort((a,b)=>b.pts-a.pts);
 r.forEach((x,i)=>out[x.p].push(i+1));
 }
 return out;
@@ -160,16 +147,39 @@ r.forEach((x,i)=>out[x.p].push(i+1));
 return out;
 }
 
-const md=Object.fromEntries(players.map(p=>[p,mdPoints(playerPoints[p])]));
-const league=leaguePos(playerPoints);
-const rank=mdRank(playerPoints);
+function segment(arr,start,end){
+end=Math.min(end,arr.length);
+if(start>arr.length) return 0;
+return arr[end-1]-(start>1?arr[start-2]:0);
+}
 
-const labels=Array.from({length:playerPoints[players[0]].length},(_,i)=>i+1);
+const played = playerPoints[players[0]].length;
+
+const labels = Array.from({length:34},(_,i)=>i+1);
+
+const md = Object.fromEntries(players.map(p=>[p,mdPoints(playerPoints[p])]));
+const league = leaguePos(playerPoints);
+const rank = mdRank(playerPoints);
+
+/* HIN / RUECK FIX */
+const hinEnd = Math.min(17, played);
+const rueckStart = 18;
+const rueckEnd = played;
+
+const hin = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],1,hinEnd)
+})).sort((a,b)=>b.pts-a.pts);
+
+const rueck = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],rueckStart,rueckEnd)
+})).sort((a,b)=>b.pts-a.pts);
 
 /* CHART FACTORY */
 function makeChart(id,title,data,reverseY=false){
 
-new Chart(document.getElementById(id),{
+const chart = new Chart(document.getElementById(id),{
 type:'line',
 data:{
 labels,
@@ -188,16 +198,14 @@ responsive:true,
 maintainAspectRatio:false,
 plugins:{
 legend:{
-labels:{
-usePointStyle:true,
-pointStyle:'circle'
-},
+labels:{usePointStyle:true,pointStyle:'circle'},
 onClick:(e,leg)=>{
-const n=leg.text;
-selected.has(n)?selected.delete(n):selected.add(n);
+const name=leg.text;
+selected.has(name)?selected.delete(name):selected.add(name);
 
-this.chart.data.datasets.forEach(d=>{
+chart.data.datasets.forEach(d=>{
 const i=players.indexOf(d.label);
+
 if(!selected.size||selected.has(d.label)){
 d.borderColor=colors[i];
 d.pointRadius=5;
@@ -208,19 +216,19 @@ d.pointRadius=3;
 d.borderWidth=1;
 }
 });
-this.chart.update();
+
+chart.update();
 }
 }
 },
 scales:{
 x:{title:{display:true,text:'Spieltag'}},
-y:{
-beginAtZero:false,
-reverse:reverseY
+y:{beginAtZero:false,reverse:reverseY}
 }
 }
-}
-}).options.plugins.title={display:true,text:title};
+});
+
+chart.options.plugins.title={display:true,text:title};
 }
 
 /* CHARTS */
@@ -229,21 +237,7 @@ makeChart('c2','Punkte je Spieltag',md);
 makeChart('c3','Tabellenplatzentwicklung',league,true);
 makeChart('c4','Spieltagsplatzierung',rank,true);
 
-/* TABLES (original style restored) */
-function seg(a,s,e){
-return a[e-1]-(s>1?a[s-2]:0);
-}
-
-const mid=Math.floor(labels.length/2);
-
-const hin=players.map(p=>({name:p,pts:seg(playerPoints[p],1,mid)}))
-.sort((a,b)=>b.pts-a.pts);
-
-const rueck=players.map(p=>({name:p,pts:seg(playerPoints[p],mid+1,labels.length)}))
-.sort((a,b)=>b.pts-a.pts);
-
-const t=document.getElementById('tablesContainer');
-
+/* TABLES */
 function table(title,data){
 const w=document.createElement('div');
 w.className='table-block';
@@ -260,6 +254,7 @@ w.innerHTML=html;
 return w;
 }
 
+const t=document.getElementById('tablesContainer');
 t.appendChild(table('Hinrunde',hin));
 t.appendChild(table('Rückrunde',rueck));
 
