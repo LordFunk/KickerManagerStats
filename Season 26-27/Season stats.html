@@ -148,29 +148,25 @@ return out;
 }
 
 function segment(arr,start,end){
-end=Math.min(end,arr.length);
-if(start>arr.length) return 0;
-return arr[end-1]-(start>1?arr[start-2]:0);
+if(start > arr.length) return 0;
+end = Math.min(end, arr.length);
+return arr[end-1] - (start > 1 ? arr[start-2] : 0);
 }
 
 const played = playerPoints[players[0]].length;
 
-const labels = Array.from({length:34},(_,i)=>i+1);
-
-const md = Object.fromEntries(players.map(p=>[p,mdPoints(playerPoints[p])]));
-const league = leaguePos(playerPoints);
-const rank = mdRank(playerPoints);
-
-/* HIN / RUECK FIX */
+/* REAL FOOTBALL SPLIT */
 const hinEnd = Math.min(17, played);
 const rueckStart = 18;
 const rueckEnd = played;
 
+/* HINRUNDE = 1–17 (or up to played) */
 const hin = players.map(p=>({
 name:p,
 pts:segment(playerPoints[p],1,hinEnd)
 })).sort((a,b)=>b.pts-a.pts);
 
+/* RÜCKRUNDE = 18–current matchday */
 const rueck = players.map(p=>({
 name:p,
 pts:segment(playerPoints[p],rueckStart,rueckEnd)
