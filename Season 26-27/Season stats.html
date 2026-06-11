@@ -76,6 +76,10 @@ font-size:0.9rem;
 }
 
 th{background:#f0f0f0}
+
+.diff-pos{color:#1a8a1a;font-weight:700}
+.diff-neg{color:#cc1a1a;font-weight:700}
+.diff-zero{color:#888;font-weight:700}
 </style>
 </head>
 
@@ -118,138 +122,168 @@ const labels = Array.from({length: playerPoints[players[0]].length},(_,i)=>i+1);
 
 /* HELPERS */
 function mdPoints(arr){
-return arr.map((v,i)=>i?v-arr[i-1]:v);
+  return arr.map((v,i)=>i?v-arr[i-1]:v);
 }
 
 function leaguePos(data){
-const d=data[players[0]].length;
-const out={};
-players.forEach(p=>out[p]=[]);
-for(let i=0;i<d;i++){
-const r=players.map(p=>({p,pts:data[p][i]}))
-.sort((a,b)=>b.pts-a.pts);
-r.forEach((x,i)=>out[x.p].push(i+1));
-}
-return out;
+  const d=data[players[0]].length;
+  const out={};
+  players.forEach(p=>out[p]=[]);
+  for(let i=0;i<d;i++){
+    const r=players.map(p=>({p,pts:data[p][i]}))
+      .sort((a,b)=>b.pts-a.pts);
+    r.forEach((x,i)=>out[x.p].push(i+1));
+  }
+  return out;
 }
 
 function mdRank(data){
-const d=data[players[0]].length;
-const out={};
-players.forEach(p=>out[p]=[]);
-for(let i=0;i<d;i++){
-const r=players.map(p=>{
-const pts=i?data[p][i]-data[p][i-1]:data[p][0];
-return {p,pts};
-}).sort((a,b)=>b.pts-a.pts);
-r.forEach((x,i)=>out[x.p].push(i+1));
-}
-return out;
+  const d=data[players[0]].length;
+  const out={};
+  players.forEach(p=>out[p]=[]);
+  for(let i=0;i<d;i++){
+    const r=players.map(p=>{
+      const pts=i?data[p][i]-data[p][i-1]:data[p][0];
+      return {p,pts};
+    }).sort((a,b)=>b.pts-a.pts);
+    r.forEach((x,i)=>out[x.p].push(i+1));
+  }
+  return out;
 }
 
 const md = Object.fromEntries(players.map(p=>[p, mdPoints(playerPoints[p])]));
 const league = leaguePos(playerPoints);
 const rank = mdRank(playerPoints);
 
-/* SEGMENTS */
-function segment(arr,start,end){
-if(start>arr.length) return 0;
-end=Math.min(end,arr.length);
-return arr[end-1]-(start>1?arr[start-2]:0);
+/* SEGMENTS
+   Hinrunde:  Spieltage 1–17  (index 0–16)
+   Rückrunde: Spieltage 18–34 (index 17–33)
+   
+   Points for a segment = cumulative[endIdx] - cumulative[startIdx-1]
+   where startIdx is 0-based.
+*/
+const played = playerPoints[players[0]].length;
+const hinEnd   = Math.min(17, played);   // last index of Hinrunde (0-based: 16)
+const rueckStart = 17;                    // first index of Rückrunde (0-based)
+const rueckEnd   = played - 1;           // last index of Rückrunde (0-based)
+
+function segmentPts(arr, startIdx, endIdx) {
+  // startIdx / endIdx are 0-based
+  if (startIdx > arr.length - 1) return 0;
+  const end = Math.min(endIdx, arr.length - 1);
+  return arr[end] - (startIdx > 0 ? arr[startIdx - 1] : 0);
 }
 
-const played = playerPoints[players[0]].length;
-const hinEnd = Math.min(17,played);
-const rueckStart = 18;
-const rueckEnd = played;
+// Hinrunde points per player (Spieltag 1–17)
+const hinPtsMap = {};
+players.forEach(p => {
+  hinPtsMap[p] = segmentPts(playerPoints[p], 0, hinEnd - 1);
+});
 
-const hin = players.map(p=>({
-name:p,
-pts:segment(playerPoints[p],1,hinEnd)
-})).sort((a,b)=>b.pts-a.pts);
+// Rückrunde points per player (Spieltag 18–played)
+const rueckPtsMap = {};
+players.forEach(p => {
+  rueckPtsMap[p] = segmentPts(playerPoints[p], rueckStart, rueckEnd);
+});
 
-const rueck = players.map(p=>({
-name:p,
-pts:segment(playerPoints[p],rueckStart,rueckEnd)
-})).sort((a,b)=>b.pts-a.pts);
+const hin = players.map(p => ({
+  name: p,
+  pts: hinPtsMap[p]
+})).sort((a,b) => b.pts - a.pts);
+
+const rueck = players.map(p => ({
+  name: p,
+  pts: rueckPtsMap[p],
+  diff: rueckPtsMap[p] - hinPtsMap[p]
+})).sort((a,b) => b.pts - a.pts);
 
 /* CHARTS */
 function makeChart(id,title,data,reverseY=false){
-
-const chart = new Chart(document.getElementById(id),{
-type:'line',
-data:{
-labels,
-datasets:players.map((p,i)=>({
-label:p,
-data:data[p],
-borderColor:colors[i],
-backgroundColor:colors[i],
-pointStyle:'circle',
-pointRadius:4,
-borderWidth:2
-}))
-},
-options:{
-responsive:true,
-maintainAspectRatio:false,
-plugins:{
-legend:{
-labels:{usePointStyle:true,pointStyle:'circle'}
-},
-title:{
-display:true,
-text:title,
-font:{
-size:24,
-weight:'bold'
-},
-padding:{
-top:10,
-bottom:20
-},
-color:'#111'
-}
-},
-scales:{
-x:{title:{display:true,text:'Spieltag'}},
-y:{beginAtZero:false,reverse:reverseY}
-}
-}
-});
-
-return chart;
+  new Chart(document.getElementById(id),{
+    type:'line',
+    data:{
+      labels,
+      datasets:players.map((p,i)=>({
+        label:p,
+        data:data[p],
+        borderColor:colors[i],
+        backgroundColor:colors[i],
+        pointStyle:'circle',
+        pointRadius:4,
+        borderWidth:2
+      }))
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{usePointStyle:true,pointStyle:'circle'}},
+        title:{
+          display:true,
+          text:title,
+          font:{size:24,weight:'bold'},
+          padding:{top:10,bottom:20},
+          color:'#111'
+        }
+      },
+      scales:{
+        x:{title:{display:true,text:'Spieltag'}},
+        y:{beginAtZero:false,reverse:reverseY}
+      }
+    }
+  });
 }
 
-/* RENDER */
 makeChart('c1','Saisonpunkte 26-27',playerPoints);
 makeChart('c2','Punkte je Spieltag',md);
 makeChart('c3','Tabellenplatzentwicklung',league,true);
 makeChart('c4','Spieltagsplatzierung',rank,true);
 
 /* TABLES */
-const t=document.getElementById('tablesContainer');
+const t = document.getElementById('tablesContainer');
 
-function table(title,data){
-const w=document.createElement('div');
-w.className='table-block';
-
-let html=`<div class="table-title">${title}</div><table>
-<tr><th>Rang</th><th>Spieler</th><th>Punkte</th></tr>`;
-
-data.forEach((d,i)=>{
-html+=`<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td></tr>`;
-});
-
-html+='</table>';
-w.innerHTML=html;
-return w;
+function hinTable(title, data) {
+  const w = document.createElement('div');
+  w.className = 'table-block';
+  let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag 1–${hinEnd})</span></div>
+  <table>
+  <tr><th>Rang</th><th>Spieler</th><th>Punkte</th></tr>`;
+  data.forEach((d,i) => {
+    html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td></tr>`;
+  });
+  html += '</table>';
+  w.innerHTML = html;
+  return w;
 }
 
-t.appendChild(table('Hinrunde',hin));
-t.appendChild(table('Rückrunde',rueck));
+function rueckTable(title, data) {
+  const w = document.createElement('div');
+  w.className = 'table-block';
+  const rueckLabel = played > hinEnd ? `${hinEnd+1}–${played}` : '—';
+  let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag ${rueckLabel})</span></div>
+  <table>
+  <tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff (vs Hin)</th></tr>`;
+  data.forEach((d,i) => {
+    const diff = d.diff;
+    let diffClass, diffStr;
+    if (diff > 0)      { diffClass = 'diff-pos'; diffStr = '+' + diff; }
+    else if (diff < 0) { diffClass = 'diff-neg'; diffStr = '' + diff; }
+    else               { diffClass = 'diff-zero'; diffStr = '±0'; }
+    html += `<tr>
+      <td>${i+1}</td>
+      <td>${d.name}</td>
+      <td>${d.pts}</td>
+      <td class="${diffClass}">${diffStr}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  w.innerHTML = html;
+  return w;
+}
+
+t.appendChild(hinTable('Hinrunde', hin));
+t.appendChild(rueckTable('Rückrunde', rueck));
 
 </script>
-
 </body>
 </html>
