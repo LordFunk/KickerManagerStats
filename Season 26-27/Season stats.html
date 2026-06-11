@@ -56,6 +56,7 @@ margin-bottom:40px;
 text-align:center;
 font-weight:700;
 margin-bottom:8px;
+font-size:1.2rem;
 }
 
 table{
@@ -91,6 +92,7 @@ th{background:#f0f0f0}
 
 <script>
 
+/* DATA */
 const playerPoints={
 'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
 'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
@@ -114,6 +116,7 @@ const colors=[
 
 const labels = Array.from({length: playerPoints[players[0]].length},(_,i)=>i+1);
 
+/* HELPERS */
 function mdPoints(arr){
 return arr.map((v,i)=>i?v-arr[i-1]:v);
 }
@@ -148,6 +151,29 @@ const md = Object.fromEntries(players.map(p=>[p, mdPoints(playerPoints[p])]));
 const league = leaguePos(playerPoints);
 const rank = mdRank(playerPoints);
 
+/* SEGMENTS */
+function segment(arr,start,end){
+if(start>arr.length) return 0;
+end=Math.min(end,arr.length);
+return arr[end-1]-(start>1?arr[start-2]:0);
+}
+
+const played = playerPoints[players[0]].length;
+const hinEnd = Math.min(17,played);
+const rueckStart = 18;
+const rueckEnd = played;
+
+const hin = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],1,hinEnd)
+})).sort((a,b)=>b.pts-a.pts);
+
+const rueck = players.map(p=>({
+name:p,
+pts:segment(playerPoints[p],rueckStart,rueckEnd)
+})).sort((a,b)=>b.pts-a.pts);
+
+/* CHARTS */
 function makeChart(id,title,data,reverseY=false){
 
 const chart = new Chart(document.getElementById(id),{
@@ -195,11 +221,13 @@ y:{beginAtZero:false,reverse:reverseY}
 return chart;
 }
 
+/* RENDER */
 makeChart('c1','Saisonpunkte 26-27',playerPoints);
 makeChart('c2','Punkte je Spieltag',md);
 makeChart('c3','Tabellenplatzentwicklung',league,true);
 makeChart('c4','Spieltagsplatzierung',rank,true);
 
+/* TABLES */
 const t=document.getElementById('tablesContainer');
 
 function table(title,data){
@@ -217,6 +245,9 @@ html+='</table>';
 w.innerHTML=html;
 return w;
 }
+
+t.appendChild(table('Hinrunde',hin));
+t.appendChild(table('Rückrunde',rueck));
 
 </script>
 
