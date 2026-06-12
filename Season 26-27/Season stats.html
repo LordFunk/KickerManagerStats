@@ -2,294 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kicker Manager 26-27</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Season 26-27</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*, *::before, *::after { box-sizing: border-box; }
-
-:root {
-  --page-bg:   #f0f4f8;
-  --card-bg:   #ffffff;
-  --border:    #e4e8ee;
-  --text-main: #1a1d23;
-  --text-muted:#6b7280;
-  --shadow:    0 2px 12px rgba(0,0,0,0.07);
-  --radius:    14px;
-  --accent1:   #0056b3;
-  --accent2:   #0091ff;
-  --gold:      #f5c518;
+body{
+font-family:'Segoe UI',Roboto,sans-serif;
+margin:0;
+padding:0;
+background:linear-gradient(135deg,#e9eff5,#f9fafc);
+color:#222;
+display:flex;
+flex-direction:column;
+align-items:center;
+min-height:100vh;
 }
 
-body {
-  font-family: 'Inter', 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
-  background: var(--page-bg);
-  color: var(--text-main);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
+h1{
+margin:25px 0;
+font-size:1.8rem;
+font-weight:700;
+background:linear-gradient(90deg,#0056b3,#0091ff);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-align:center;
 }
 
-/* ── Header ── */
-.page-header {
-  width: 100%;
-  text-align: center;
-  padding: 28px 16px 4px;
+.chart-container{
+width:90%;
+max-width:1200px;
+height:60vh;
+background:white;
+border-radius:12px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+padding:20px;
+margin-bottom:40px;
 }
 
-.page-header h1 {
-  margin: 0 0 6px;
-  font-size: clamp(1.4rem, 4vw, 2rem);
-  font-weight: 700;
-  background: linear-gradient(90deg, var(--accent1), var(--accent2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.tables-wrapper{
+display:flex;
+width:90%;
+max-width:1200px;
+justify-content:space-between;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:40px;
 }
 
-.page-header p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
+.table-block{width:47%}
+
+.table-title{
+text-align:center;
+font-weight:700;
+margin-bottom:8px;
+font-size:1.2rem;
 }
 
-/* ── Section label ── */
-.section-label {
-  width: 90%;
-  max-width: 1200px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin: 28px 0 8px;
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
 }
 
-/* ── Charts ── */
-.chart-card {
-  width: 90%;
-  max-width: 1200px;
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  padding: 20px 20px 16px;
-  margin-bottom: 20px;
-  /* height driven by aspect ratio on desktop, fixed on mobile */
-  height: 55vh;
-  min-height: 280px;
-  max-height: 560px;
+th,td{
+padding:8px;
+text-align:center;
+border-bottom:1px solid #ddd;
+font-size:0.9rem;
 }
 
-/* ── Tables ── */
-.tables-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  width: 90%;
-  max-width: 1200px;
-  margin: 8px 0 48px;
-}
+th{background:#f0f0f0}
 
-.table-card {
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.table-header {
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid var(--border);
-}
-
-.table-header h2 {
-  margin: 0 0 2px;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.table-header span {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  font-weight: 400;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  background: #f7f9fb;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  padding: 8px 12px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-
-td {
-  padding: 8px 12px;
-  text-align: center;
-  font-size: 0.88rem;
-  border-bottom: 1px solid #f0f2f5;
-}
-
-tr:last-child td { border-bottom: none; }
-
-/* Zebra */
-tbody tr:nth-child(even) td { background: #fafbfc; }
-
-/* Rank 1 gold highlight */
-tbody tr:first-child td {
-  background: #fffbeb;
-  font-weight: 600;
-}
-
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  font-size: 0.75rem;
-  font-weight: 700;
-  background: #eef0f4;
-  color: var(--text-main);
-}
-
-tbody tr:first-child .rank-badge {
-  background: var(--gold);
-  color: #5a3e00;
-}
-
-.player-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: flex-start;
-  white-space: nowrap;
-}
-
-.player-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.diff-pos  { color: #15803d; font-weight: 600; }
-.diff-neg  { color: #b91c1c; font-weight: 600; }
-.diff-zero { color: var(--text-muted); font-weight: 500; }
-
-/* ── Mobile ── */
-@media (max-width: 640px) {
-  .chart-card {
-    width: 95%;
-    height: 52vw;
-    min-height: 220px;
-    max-height: 340px;
-    padding: 12px 10px 8px;
-    margin-bottom: 14px;
-  }
-
-  .section-label { width: 95%; margin-top: 20px; }
-
-  .tables-wrapper {
-    grid-template-columns: 1fr;
-    width: 95%;
-    gap: 12px;
-  }
-
-  th { padding: 6px 8px; font-size: 0.65rem; }
-  td { padding: 7px 8px; font-size: 0.82rem; }
-
-  .player-dot { width: 8px; height: 8px; }
-  .player-cell { gap: 6px; }
-
-  .rank-badge { width: 19px; height: 19px; font-size: 0.7rem; }
-
-  .page-header { padding: 20px 16px 0; }
-}
+.diff-pos{color:#1a8a1a;font-weight:700}
+.diff-neg{color:#cc1a1a;font-weight:700}
+.diff-zero{color:#888;font-weight:700}
 </style>
 </head>
+
 <body>
 
-<div class="page-header">
-  <h1>Kicker Manager 26-27</h1>
-  <p>Tippe auf einen Namen in der Legende, um ihn hervorzuheben</p>
-</div>
+<h1>Kicker Manager Stats</h1>
 
-<div class="section-label">Saisonverlauf</div>
-<div class="chart-card"><canvas id="c1"></canvas></div>
+<div class="chart-container"><canvas id="c1"></canvas></div>
+<div class="chart-container"><canvas id="c2"></canvas></div>
+<div class="chart-container"><canvas id="c3"></canvas></div>
+<div class="chart-container"><canvas id="c4"></canvas></div>
 
-<div class="section-label">Punkte je Spieltag</div>
-<div class="chart-card"><canvas id="c2"></canvas></div>
-
-<div class="section-label">Tabellenplatzierung</div>
-<div class="chart-card"><canvas id="c3"></canvas></div>
-
-<div class="section-label">Spieltagsplatzierung</div>
-<div class="chart-card"><canvas id="c4"></canvas></div>
-
-<div class="section-label">Hin- &amp; Rückrunde</div>
 <div class="tables-wrapper" id="tablesContainer"></div>
 
 <script>
-/* ── DATA ── */
-const playerPoints = {
-  'Markus': [63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
-  'Erwin':  [48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
-  'Phil':   [76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
-  'Didi':   [50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
-  'Steffo': [53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
-  'Basti':  [47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
-  'Eirik':  [46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
-  'Emil':   [61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
-  'Kempka': [36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
-  'Espen':  [57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
-  'Alex':   [55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
+
+/* DATA */
+const playerPoints={
+'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
+'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
+'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
+'Didi':[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
+'Steffo':[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
+'Basti':[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
+'Eirik':[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
+'Emil':[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
+'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
+'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
+'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
 };
 
 const players = Object.keys(playerPoints);
 
-const colors = [
-  '#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
-  '#A65628','#F781BF','#888888','#2EAA8A','#D4A800','#222222'
+const colors=[
+'#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00',
+'#A65628','#F781BF','#999999','#66C2A5','#FFD92F','#000000'
 ];
 
-const labels = Array.from({length: playerPoints[players[0]].length}, (_,i) => i+1);
+const labels = Array.from({length: playerPoints[players[0]].length},(_,i)=>i+1);
 
-/* ── HELPERS ── */
-function mdPoints(arr){ return arr.map((v,i)=>i?v-arr[i-1]:v); }
+/* HELPERS */
+function mdPoints(arr){
+  return arr.map((v,i)=>i?v-arr[i-1]:v);
+}
 
 function leaguePos(data){
-  const d = data[players[0]].length, out = {};
+  const d=data[players[0]].length;
+  const out={};
   players.forEach(p=>out[p]=[]);
   for(let i=0;i<d;i++){
-    players.map(p=>({p,pts:data[p][i]})).sort((a,b)=>b.pts-a.pts)
-           .forEach((x,j)=>out[x.p].push(j+1));
+    const r=players.map(p=>({p,pts:data[p][i]}))
+      .sort((a,b)=>b.pts-a.pts);
+    r.forEach((x,i)=>out[x.p].push(i+1));
   }
   return out;
 }
 
 function mdRank(data){
-  const d = data[players[0]].length, out = {};
+  const d=data[players[0]].length;
+  const out={};
   players.forEach(p=>out[p]=[]);
   for(let i=0;i<d;i++){
-    players.map(p=>({p,pts:i?data[p][i]-data[p][i-1]:data[p][0]}))
-           .sort((a,b)=>b.pts-a.pts).forEach((x,j)=>out[x.p].push(j+1));
+    const r=players.map(p=>{
+      const pts=i?data[p][i]-data[p][i-1]:data[p][0];
+      return {p,pts};
+    }).sort((a,b)=>b.pts-a.pts);
+    r.forEach((x,i)=>out[x.p].push(i+1));
   }
   return out;
 }
@@ -298,126 +155,113 @@ const md     = Object.fromEntries(players.map(p=>[p, mdPoints(playerPoints[p])])
 const league = leaguePos(playerPoints);
 const rank   = mdRank(playerPoints);
 
-/* ── SEGMENTS ── */
+/* SEGMENTS */
 const played     = playerPoints[players[0]].length;
 const hinEnd     = Math.min(17, played);
 const rueckStart = 17;
 const rueckEnd   = played - 1;
 
-function segmentPts(arr, s, e){
-  if(s > arr.length-1) return 0;
-  return arr[Math.min(e,arr.length-1)] - (s>0 ? arr[s-1] : 0);
+function segmentPts(arr, startIdx, endIdx){
+  if(startIdx > arr.length-1) return 0;
+  const end = Math.min(endIdx, arr.length-1);
+  return arr[end] - (startIdx > 0 ? arr[startIdx-1] : 0);
 }
 
-const hinPtsMap = {}, rueckPtsMap = {};
+const hinPtsMap  = {};
+const rueckPtsMap= {};
 players.forEach(p=>{
   hinPtsMap[p]   = segmentPts(playerPoints[p], 0, hinEnd-1);
   rueckPtsMap[p] = segmentPts(playerPoints[p], rueckStart, rueckEnd);
 });
 
-const hin  = players.map(p=>({name:p, pts:hinPtsMap[p]})).sort((a,b)=>b.pts-a.pts);
-const rueck= players.map(p=>({name:p, pts:rueckPtsMap[p], diff:rueckPtsMap[p]-hinPtsMap[p]})).sort((a,b)=>b.pts-a.pts);
+const hin = players.map(p=>({name:p, pts:hinPtsMap[p]}))
+              .sort((a,b)=>b.pts-a.pts);
+const rueck= players.map(p=>({name:p, pts:rueckPtsMap[p], diff:rueckPtsMap[p]-hinPtsMap[p]}))
+              .sort((a,b)=>b.pts-a.pts);
 
-/* ── SHARED FADE ── */
+/* ── SHARED FADE STATE ── */
 const selectedPlayers = new Set();
-const allCharts = [];
+const allCharts = [];   // filled after chart creation
 
 function applyFade(){
-  const none = selectedPlayers.size === 0;
   allCharts.forEach(chart=>{
-    chart.data.datasets.forEach(ds=>{
-      const idx = players.indexOf(ds.label);
-      const active = none || selectedPlayers.has(ds.label);
-      const col = active ? colors[idx] : 'rgba(0,0,0,0.06)';
-      ds.borderColor = ds.backgroundColor = ds.pointBackgroundColor = ds.pointBorderColor = col;
-      ds.borderWidth      = active && !none ? 2.5 : active ? 2 : 1;
-      ds.pointRadius      = active ? (none ? 3.5 : 5) : 0;
-      ds.pointHoverRadius = active ? 6 : 0;
+    chart.data.datasets.forEach(dataset=>{
+      const idx   = players.indexOf(dataset.label);
+      const isSelected = selectedPlayers.has(dataset.label);
+      const noneSelected = selectedPlayers.size === 0;
+
+      if(noneSelected || isSelected){
+        const col = colors[idx];
+        dataset.borderColor          = col;
+        dataset.backgroundColor      = col;
+        dataset.pointBackgroundColor = col;
+        dataset.pointBorderColor     = col;
+        dataset.borderWidth          = isSelected ? 3 : 2;
+        dataset.pointRadius          = isSelected ? 6 : 4;
+        dataset.pointHoverRadius     = isSelected ? 7 : 5;
+      } else {
+        dataset.borderColor          = 'lightgrey';
+        dataset.backgroundColor      = 'lightgrey';
+        dataset.pointBackgroundColor = 'lightgrey';
+        dataset.pointBorderColor     = 'lightgrey';
+        dataset.borderWidth          = 1;
+        dataset.pointRadius          = 3;
+        dataset.pointHoverRadius     = 4;
+      }
     });
-    chart.update('none'); // skip animation on fade for snappiness
+    chart.update();
   });
 }
 
-function legendClick(e, item){
-  selectedPlayers.has(item.text) ? selectedPlayers.delete(item.text) : selectedPlayers.add(item.text);
+function legendClickHandler(e, legendItem){
+  const clicked = legendItem.text;
+  if(selectedPlayers.has(clicked)){
+    selectedPlayers.delete(clicked);
+  } else {
+    selectedPlayers.add(clicked);
+  }
   applyFade();
 }
 
-/* ── CHART FACTORY ── */
-function isMobile(){ return window.innerWidth <= 640; }
-
+/* CHARTS */
 function makeChart(id, title, data, reverseY=false){
-  const mob = isMobile();
-  const chart = new Chart(document.getElementById(id), {
-    type: 'line',
-    data: {
+  const chart = new Chart(document.getElementById(id),{
+    type:'line',
+    data:{
       labels,
       datasets: players.map((p,i)=>({
         label: p,
         data:  data[p],
-        borderColor: colors[i], backgroundColor: colors[i],
-        pointBackgroundColor: colors[i], pointBorderColor: colors[i],
+        borderColor:          colors[i],
+        backgroundColor:      colors[i],
+        pointBackgroundColor: colors[i],
+        pointBorderColor:     colors[i],
         pointBorderWidth: 0,
-        pointRadius: mob ? 2.5 : 3.5,
-        pointHoverRadius: mob ? 5 : 6,
-        borderWidth: mob ? 1.5 : 2,
-        tension: 0.15
+        pointStyle:  'circle',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2
       }))
     },
-    options: {
+    options:{
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            usePointStyle: true,
-            pointStyle: 'circle',
-            padding: mob ? 10 : 16,
-            font: { size: mob ? 10 : 12, family: "'Inter','Segoe UI',sans-serif" },
-            boxWidth: mob ? 8 : 10,
-            boxHeight: mob ? 8 : 10
-          },
-          onClick: legendClick
+      plugins:{
+        legend:{
+          labels:{ usePointStyle:true, pointStyle:'circle' },
+          onClick: legendClickHandler
         },
-        title: {
+        title:{
           display: true,
           text: title,
-          font: { size: mob ? 13 : 17, weight: '700', family: "'Inter','Segoe UI',sans-serif" },
-          padding: { top: 0, bottom: mob ? 10 : 14 },
-          color: '#1a1d23'
-        },
-        tooltip: {
-          backgroundColor: 'rgba(255,255,255,0.97)',
-          titleColor: '#1a1d23',
-          bodyColor: '#374151',
-          borderColor: '#e4e8ee',
-          borderWidth: 1,
-          padding: 10,
-          boxPadding: 4,
-          usePointStyle: true,
-          callbacks: {
-            labelColor: (ctx) => ({
-              borderColor: colors[ctx.datasetIndex],
-              backgroundColor: colors[ctx.datasetIndex],
-              borderRadius: 3
-            })
-          }
+          font:{ size:24, weight:'bold' },
+          padding:{ top:10, bottom:20 },
+          color:'#111'
         }
       },
-      scales: {
-        x: {
-          title: { display: !mob, text: 'Spieltag', font:{size:11}, color:'#6b7280' },
-          ticks: { font:{size: mob?9:11}, maxTicksLimit: mob?9:18, color:'#6b7280' },
-          grid:  { color: '#f0f2f5' }
-        },
-        y: {
-          beginAtZero: false,
-          reverse: reverseY,
-          ticks: { font:{size: mob?9:11}, color:'#6b7280' },
-          grid:  { color: '#f0f2f5' }
-        }
+      scales:{
+        x:{ title:{ display:true, text:'Spieltag' } },
+        y:{ beginAtZero:false, reverse:reverseY }
       }
     }
   });
@@ -425,73 +269,49 @@ function makeChart(id, title, data, reverseY=false){
   return chart;
 }
 
-makeChart('c1', 'Saisonpunkte 26-27',        playerPoints);
-makeChart('c2', 'Punkte je Spieltag',         md);
-makeChart('c3', 'Tabellenplatzentwicklung',   league, true);
-makeChart('c4', 'Spieltagsplatzierung',       rank,   true);
+makeChart('c1','Saisonpunkte 26-27', playerPoints);
+makeChart('c2','Punkte je Spieltag',  md);
+makeChart('c3','Tabellenplatzentwicklung', league, true);
+makeChart('c4','Spieltagsplatzierung',    rank,   true);
 
-/* ── TABLES ── */
+/* TABLES */
 const t = document.getElementById('tablesContainer');
 
-function colorDot(name){
-  const idx = players.indexOf(name);
-  return `<span class="player-dot" style="background:${colors[idx]}"></span>`;
-}
-
-function buildHinTable(){
-  const card = document.createElement('div');
-  card.className = 'table-card';
-  let html = `
-    <div class="table-header">
-      <h2>Hinrunde</h2>
-      <span>Spieltag 1–${hinEnd}</span>
-    </div>
-    <table>
-      <thead><tr><th>Rang</th><th style="text-align:left;padding-left:12px">Spieler</th><th>Punkte</th></tr></thead>
-      <tbody>`;
-  hin.forEach((d,i)=>{
-    html += `<tr>
-      <td><span class="rank-badge">${i+1}</span></td>
-      <td><div class="player-cell">${colorDot(d.name)}${d.name}</div></td>
-      <td><strong>${d.pts}</strong></td>
-    </tr>`;
+function hinTable(title, data){
+  const w = document.createElement('div');
+  w.className = 'table-block';
+  let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag 1–${hinEnd})</span></div>
+  <table><tr><th>Rang</th><th>Spieler</th><th>Punkte</th></tr>`;
+  data.forEach((d,i)=>{
+    html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td></tr>`;
   });
-  html += `</tbody></table>`;
-  card.innerHTML = html;
-  return card;
+  html += '</table>';
+  w.innerHTML = html;
+  return w;
 }
 
-function buildRueckTable(){
-  const card = document.createElement('div');
-  card.className = 'table-card';
+function rueckTable(title, data){
+  const w = document.createElement('div');
+  w.className = 'table-block';
   const rueckLabel = played > hinEnd ? `${hinEnd+1}–${played}` : '—';
-  let html = `
-    <div class="table-header">
-      <h2>Rückrunde</h2>
-      <span>Spieltag ${rueckLabel}</span>
-    </div>
-    <table>
-      <thead><tr><th>Rang</th><th style="text-align:left;padding-left:12px">Spieler</th><th>Punkte</th><th>Diff</th></tr></thead>
-      <tbody>`;
-  rueck.forEach((d,i)=>{
+  let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag ${rueckLabel})</span></div>
+  <table><tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff (vs Hin)</th></tr>`;
+  data.forEach((d,i)=>{
+    const diff = d.diff;
     let cls, str;
-    if(d.diff>0)      { cls='diff-pos'; str='+'+d.diff; }
-    else if(d.diff<0) { cls='diff-neg'; str=''+d.diff; }
+    if(diff > 0)      { cls='diff-pos'; str='+'+diff; }
+    else if(diff < 0) { cls='diff-neg'; str=''+diff; }
     else              { cls='diff-zero'; str='±0'; }
-    html += `<tr>
-      <td><span class="rank-badge">${i+1}</span></td>
-      <td><div class="player-cell">${colorDot(d.name)}${d.name}</div></td>
-      <td><strong>${d.pts}</strong></td>
-      <td class="${cls}">${str}</td>
-    </tr>`;
+    html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td><td class="${cls}">${str}</td></tr>`;
   });
-  html += `</tbody></table>`;
-  card.innerHTML = html;
-  return card;
+  html += '</table>';
+  w.innerHTML = html;
+  return w;
 }
 
-t.appendChild(buildHinTable());
-t.appendChild(buildRueckTable());
+t.appendChild(hinTable('Hinrunde', hin));
+t.appendChild(rueckTable('Rückrunde', rueck));
+
 </script>
 </body>
 </html>
