@@ -337,6 +337,30 @@ function legendClickHandler(e, legendItem) {
 /* ─── CHART FACTORY ─── */
 function isMobile() { return window.innerWidth <= 640; }
 
+/* Register a custom tooltip positioner that pins the tooltip to the top of the chart area */
+Chart.Tooltip.positioners.side = function(elements, eventPosition) {
+  const chart = this.chart;
+  if (!elements.length) return false;
+
+  const x = elements[0].element.x;
+  const chartArea = chart.chartArea;
+
+  const totalGamedays = chart.data.labels.length;
+  const chartWidth = chartArea.right - chartArea.left;
+  const spacingPer = chartWidth / (totalGamedays - 1);
+  const offset = spacingPer * 2 + 12;
+
+  // Get the hovered gameday index to decide which side
+  const hoveredIndex = elements[0].index;
+  const goLeft = hoveredIndex >= 17;
+
+  const tooltipWidth = this.width || 160;
+  return {
+    x: goLeft ? x - offset - tooltipWidth : x + offset,
+    y: (chartArea.top + chartArea.bottom) / 2
+  };
+};
+
 function makeChart(id, title, data, reverseY = false) {
   const mobile = isMobile();
   const chart = new Chart(document.getElementById(id), {
@@ -394,6 +418,11 @@ function makeChart(id, title, data, reverseY = false) {
           boxWidth:        10,
           boxHeight:       10,
           usePointStyle:   true,
+          position:        'side',
+          xAlign:          'left',
+          yAlign:          'center',
+          caretSize:       0,
+          caretPadding:    8,
           callbacks: {
             labelColor: function(context) {
               const col = colors[players.indexOf(context.dataset.label)];
