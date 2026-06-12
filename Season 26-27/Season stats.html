@@ -206,9 +206,7 @@ tbody tr.rank-1 td {
 
 <body>
 
-<h1>Kicker Manager Stats</h1>
-<p class="hint">Click on a name to highlight</p>
-<p class="hint">Tooltips appear when clicking on a certain matchday</p>
+<h1>Kicker Interactive Manager Season 26-27</h1>
 
 <script>
 /* ─── DATA ─── */
@@ -470,6 +468,14 @@ function addChartContainer(id) {
   document.body.appendChild(div);
 }
 
+addSection('Saisonverlauf');
+addChartContainer('c1');
+addSection('Punkte je Spieltag');
+addChartContainer('c2');
+addSection('Tabellenplatz');
+addChartContainer('c3');
+addSection('Spieltagsplatz');
+addChartContainer('c4');
 
 makeChart('c1', 'Saisonpunkte 26-27',         playerPoints);
 makeChart('c2', 'Punkte je Spieltag',          md);
