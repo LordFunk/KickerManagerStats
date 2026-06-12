@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kicker Interactive Manager Season 26-27</title>
+<title>Season 26-27</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -206,7 +206,8 @@ tbody tr.rank-1 td {
 
 <body>
 
-<h1>Kicker Interactive Manager Season 26-27</h1>
+<h1>Kicker Manager Stats</h1>
+<p class="hint">Tippe auf einen Namen in der Legende, um Spieler hervorzuheben</p>
 
 <script>
 /* ─── DATA ─── */
@@ -294,7 +295,6 @@ const selectedPlayers = new Set();
 const allCharts = [];
 
 function applyFade() {
-  const mobile = isMobile();
   allCharts.forEach(chart => {
     chart.data.datasets.forEach(dataset => {
       const idx          = players.indexOf(dataset.label);
@@ -307,22 +307,20 @@ function applyFade() {
         dataset.backgroundColor      = col;
         dataset.pointBackgroundColor = col;
         dataset.pointBorderColor     = col;
-        dataset.pointBorderWidth     = 1;
-        dataset.borderWidth          = isSelected ? 3 : (mobile ? 1.5 : 2);
-        dataset.pointRadius          = isSelected ? 6 : (mobile ? 2 : 4);
-        dataset.pointHoverRadius     = isSelected ? 7 : (mobile ? 4 : 5);
+        dataset.borderWidth          = isSelected ? 3 : 2;
+        dataset.pointRadius          = isSelected ? 6 : 4;
+        dataset.pointHoverRadius     = isSelected ? 7 : 5;
       } else {
         dataset.borderColor          = 'lightgrey';
         dataset.backgroundColor      = 'lightgrey';
         dataset.pointBackgroundColor = 'lightgrey';
         dataset.pointBorderColor     = 'lightgrey';
-        dataset.pointBorderWidth     = 1;          // must be >0 so pointBorderColor renders
         dataset.borderWidth          = 1;
-        dataset.pointRadius          = mobile ? 2 : 3;
-        dataset.pointHoverRadius     = mobile ? 3 : 4;
+        dataset.pointRadius          = 3;
+        dataset.pointHoverRadius     = 4;
       }
     });
-    chart.update('none');
+    chart.update();
   });
 }
 
@@ -352,12 +350,11 @@ function makeChart(id, title, data, reverseY = false) {
         backgroundColor:      colors[i],
         pointBackgroundColor: colors[i],
         pointBorderColor:     colors[i],
-        pointBorderWidth:     1,
+        pointBorderWidth:     0,
         pointStyle:           'circle',
         pointRadius:          mobile ? 2 : 4,
         pointHoverRadius:     mobile ? 4 : 6,
-        borderWidth:          mobile ? 1.5 : 2,
-        tension:              0.15
+        borderWidth:          mobile ? 1.5 : 2
       }))
     },
     options: {
