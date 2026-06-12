@@ -296,33 +296,64 @@ const allCharts = [];
  
 function applyFade() {
   const mobile = isMobile();
+
   allCharts.forEach(chart => {
+
     chart.data.datasets.forEach(dataset => {
-      const idx          = players.indexOf(dataset.label);
-      const isSelected   = selectedPlayers.has(dataset.label);
+      const idx = players.indexOf(dataset.label);
+      const isSelected = selectedPlayers.has(dataset.label);
       const noneSelected = selectedPlayers.size === 0;
- 
+
       if (noneSelected || isSelected) {
         const col = colors[idx];
-        dataset.borderColor          = col;
-        dataset.backgroundColor      = col;
+
+        dataset.borderColor = col;
+        dataset.backgroundColor = col;
         dataset.pointBackgroundColor = col;
-        dataset.pointBorderColor     = col;
-        dataset.pointBorderWidth     = 1;
-        dataset.borderWidth          = isSelected ? 3 : (mobile ? 1.5 : 2);
-        dataset.pointRadius          = isSelected ? 6 : (mobile ? 2 : 4);
-        dataset.pointHoverRadius     = isSelected ? 7 : (mobile ? 4 : 5);
+        dataset.pointBorderColor = col;
+        dataset.pointBorderWidth = 1;
+
+        dataset.borderWidth = isSelected ? 4 : (mobile ? 1.5 : 2);
+        dataset.pointRadius = isSelected ? 7 : (mobile ? 2 : 4);
+        dataset.pointHoverRadius = isSelected ? 8 : (mobile ? 4 : 6);
       } else {
-        dataset.borderColor          = 'lightgrey';
-        dataset.backgroundColor      = 'lightgrey';
-        dataset.pointBackgroundColor = 'lightgrey';
-        dataset.pointBorderColor     = 'lightgrey';
-        dataset.pointBorderWidth     = 1;          // must be >0 so pointBorderColor renders
-        dataset.borderWidth          = 1;
-        dataset.pointRadius          = mobile ? 2 : 3;
-        dataset.pointHoverRadius     = mobile ? 3 : 4;
+        const fadeColor = 'rgba(180,180,180,0.25)';
+
+        dataset.borderColor = fadeColor;
+        dataset.backgroundColor = fadeColor;
+        dataset.pointBackgroundColor = fadeColor;
+        dataset.pointBorderColor = fadeColor;
+        dataset.pointBorderWidth = 1;
+
+        dataset.borderWidth = 1;
+        dataset.pointRadius = mobile ? 2 : 3;
+        dataset.pointHoverRadius = mobile ? 3 : 4;
       }
     });
+
+    chart.options.plugins.legend.labels.generateLabels = function(chart) {
+      return chart.data.datasets.map((dataset, i) => {
+
+        const isSelected = selectedPlayers.has(dataset.label);
+        const noneSelected = selectedPlayers.size === 0;
+
+        const color =
+          (noneSelected || isSelected)
+            ? colors[i]
+            : 'rgba(180,180,180,0.4)';
+
+        return {
+          text: dataset.label,
+          fillStyle: color,
+          strokeStyle: color,
+          lineWidth: 2,
+          hidden: false,
+          datasetIndex: i,
+          pointStyle: 'circle'
+        };
+      });
+    };
+
     chart.update('none');
   });
 }
