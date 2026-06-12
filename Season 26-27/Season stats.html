@@ -470,14 +470,6 @@ function addChartContainer(id) {
   document.body.appendChild(div);
 }
 
-addSection('Saisonverlauf');
-addChartContainer('c1');
-addSection('Punkte je Spieltag');
-addChartContainer('c2');
-addSection('Tabellenplatz');
-addChartContainer('c3');
-addSection('Spieltagsplatz');
-addChartContainer('c4');
 
 makeChart('c1', 'Saisonpunkte 26-27',         playerPoints);
 makeChart('c2', 'Punkte je Spieltag',          md);
