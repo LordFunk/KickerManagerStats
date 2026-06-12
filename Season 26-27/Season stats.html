@@ -151,104 +151,138 @@ function mdRank(data){
   return out;
 }
 
-const md = Object.fromEntries(players.map(p=>[p, mdPoints(playerPoints[p])]));
+const md     = Object.fromEntries(players.map(p=>[p, mdPoints(playerPoints[p])]));
 const league = leaguePos(playerPoints);
-const rank = mdRank(playerPoints);
+const rank   = mdRank(playerPoints);
 
-/* SEGMENTS
-   Hinrunde:  Spieltage 1–17  (index 0–16)
-   Rückrunde: Spieltage 18–34 (index 17–33)
-   
-   Points for a segment = cumulative[endIdx] - cumulative[startIdx-1]
-   where startIdx is 0-based.
-*/
-const played = playerPoints[players[0]].length;
-const hinEnd   = Math.min(17, played);   // last index of Hinrunde (0-based: 16)
-const rueckStart = 17;                    // first index of Rückrunde (0-based)
-const rueckEnd   = played - 1;           // last index of Rückrunde (0-based)
+/* SEGMENTS */
+const played     = playerPoints[players[0]].length;
+const hinEnd     = Math.min(17, played);
+const rueckStart = 17;
+const rueckEnd   = played - 1;
 
-function segmentPts(arr, startIdx, endIdx) {
-  // startIdx / endIdx are 0-based
-  if (startIdx > arr.length - 1) return 0;
-  const end = Math.min(endIdx, arr.length - 1);
-  return arr[end] - (startIdx > 0 ? arr[startIdx - 1] : 0);
+function segmentPts(arr, startIdx, endIdx){
+  if(startIdx > arr.length-1) return 0;
+  const end = Math.min(endIdx, arr.length-1);
+  return arr[end] - (startIdx > 0 ? arr[startIdx-1] : 0);
 }
 
-// Hinrunde points per player (Spieltag 1–17)
-const hinPtsMap = {};
-players.forEach(p => {
-  hinPtsMap[p] = segmentPts(playerPoints[p], 0, hinEnd - 1);
-});
-
-// Rückrunde points per player (Spieltag 18–played)
-const rueckPtsMap = {};
-players.forEach(p => {
+const hinPtsMap  = {};
+const rueckPtsMap= {};
+players.forEach(p=>{
+  hinPtsMap[p]   = segmentPts(playerPoints[p], 0, hinEnd-1);
   rueckPtsMap[p] = segmentPts(playerPoints[p], rueckStart, rueckEnd);
 });
 
-const hin = players.map(p => ({
-  name: p,
-  pts: hinPtsMap[p]
-})).sort((a,b) => b.pts - a.pts);
+const hin = players.map(p=>({name:p, pts:hinPtsMap[p]}))
+              .sort((a,b)=>b.pts-a.pts);
+const rueck= players.map(p=>({name:p, pts:rueckPtsMap[p], diff:rueckPtsMap[p]-hinPtsMap[p]}))
+              .sort((a,b)=>b.pts-a.pts);
 
-const rueck = players.map(p => ({
-  name: p,
-  pts: rueckPtsMap[p],
-  diff: rueckPtsMap[p] - hinPtsMap[p]
-})).sort((a,b) => b.pts - a.pts);
+/* ── SHARED FADE STATE ── */
+const selectedPlayers = new Set();
+const allCharts = [];   // filled after chart creation
+
+function applyFade(){
+  allCharts.forEach(chart=>{
+    chart.data.datasets.forEach(dataset=>{
+      const idx   = players.indexOf(dataset.label);
+      const isSelected = selectedPlayers.has(dataset.label);
+      const noneSelected = selectedPlayers.size === 0;
+
+      if(noneSelected || isSelected){
+        const col = colors[idx];
+        dataset.borderColor          = col;
+        dataset.backgroundColor      = col;
+        dataset.pointBackgroundColor = col;
+        dataset.pointBorderColor     = col;
+        dataset.borderWidth          = isSelected ? 3 : 2;
+        dataset.pointRadius          = isSelected ? 6 : 4;
+        dataset.pointHoverRadius     = isSelected ? 7 : 5;
+      } else {
+        dataset.borderColor          = 'lightgrey';
+        dataset.backgroundColor      = 'lightgrey';
+        dataset.pointBackgroundColor = 'lightgrey';
+        dataset.pointBorderColor     = 'lightgrey';
+        dataset.borderWidth          = 1;
+        dataset.pointRadius          = 3;
+        dataset.pointHoverRadius     = 4;
+      }
+    });
+    chart.update();
+  });
+}
+
+function legendClickHandler(e, legendItem){
+  const clicked = legendItem.text;
+  if(selectedPlayers.has(clicked)){
+    selectedPlayers.delete(clicked);
+  } else {
+    selectedPlayers.add(clicked);
+  }
+  applyFade();
+}
 
 /* CHARTS */
-function makeChart(id,title,data,reverseY=false){
-  new Chart(document.getElementById(id),{
+function makeChart(id, title, data, reverseY=false){
+  const chart = new Chart(document.getElementById(id),{
     type:'line',
     data:{
       labels,
-      datasets:players.map((p,i)=>({
-        label:p,
-        data:data[p],
-        borderColor:colors[i],
-        backgroundColor:colors[i],
-        pointStyle:'circle',
-        pointRadius:4,
-        borderWidth:2
+      datasets: players.map((p,i)=>({
+        label: p,
+        data:  data[p],
+        borderColor:          colors[i],
+        backgroundColor:      colors[i],
+        pointBackgroundColor: colors[i],
+        pointBorderColor:     colors[i],
+        pointBorderWidth: 0,
+        pointStyle:  'circle',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2
       }))
     },
     options:{
-      responsive:true,
-      maintainAspectRatio:false,
+      responsive: true,
+      maintainAspectRatio: false,
       plugins:{
-        legend:{labels:{usePointStyle:true,pointStyle:'circle'}},
+        legend:{
+          labels:{ usePointStyle:true, pointStyle:'circle' },
+          onClick: legendClickHandler
+        },
         title:{
-          display:true,
-          text:title,
-          font:{size:24,weight:'bold'},
-          padding:{top:10,bottom:20},
+          display: true,
+          text: title,
+          font:{ size:24, weight:'bold' },
+          padding:{ top:10, bottom:20 },
           color:'#111'
         }
       },
       scales:{
-        x:{title:{display:true,text:'Spieltag'}},
-        y:{beginAtZero:false,reverse:reverseY}
+        x:{ title:{ display:true, text:'Spieltag' } },
+        y:{ beginAtZero:false, reverse:reverseY }
       }
     }
   });
+  allCharts.push(chart);
+  return chart;
 }
 
-makeChart('c1','Saisonpunkte 26-27',playerPoints);
-makeChart('c2','Punkte je Spieltag',md);
-makeChart('c3','Tabellenplatzentwicklung',league,true);
-makeChart('c4','Spieltagsplatzierung',rank,true);
+makeChart('c1','Saisonpunkte 26-27', playerPoints);
+makeChart('c2','Punkte je Spieltag',  md);
+makeChart('c3','Tabellenplatzentwicklung', league, true);
+makeChart('c4','Spieltagsplatzierung',    rank,   true);
 
 /* TABLES */
 const t = document.getElementById('tablesContainer');
 
-function hinTable(title, data) {
+function hinTable(title, data){
   const w = document.createElement('div');
   w.className = 'table-block';
   let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag 1–${hinEnd})</span></div>
-  <table>
-  <tr><th>Rang</th><th>Spieler</th><th>Punkte</th></tr>`;
-  data.forEach((d,i) => {
+  <table><tr><th>Rang</th><th>Spieler</th><th>Punkte</th></tr>`;
+  data.forEach((d,i)=>{
     html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td></tr>`;
   });
   html += '</table>';
@@ -256,25 +290,19 @@ function hinTable(title, data) {
   return w;
 }
 
-function rueckTable(title, data) {
+function rueckTable(title, data){
   const w = document.createElement('div');
   w.className = 'table-block';
   const rueckLabel = played > hinEnd ? `${hinEnd+1}–${played}` : '—';
   let html = `<div class="table-title">${title} <span style="font-size:0.75rem;font-weight:400;color:#666">(Spieltag ${rueckLabel})</span></div>
-  <table>
-  <tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff (vs Hin)</th></tr>`;
-  data.forEach((d,i) => {
+  <table><tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff (vs Hin)</th></tr>`;
+  data.forEach((d,i)=>{
     const diff = d.diff;
-    let diffClass, diffStr;
-    if (diff > 0)      { diffClass = 'diff-pos'; diffStr = '+' + diff; }
-    else if (diff < 0) { diffClass = 'diff-neg'; diffStr = '' + diff; }
-    else               { diffClass = 'diff-zero'; diffStr = '±0'; }
-    html += `<tr>
-      <td>${i+1}</td>
-      <td>${d.name}</td>
-      <td>${d.pts}</td>
-      <td class="${diffClass}">${diffStr}</td>
-    </tr>`;
+    let cls, str;
+    if(diff > 0)      { cls='diff-pos'; str='+'+diff; }
+    else if(diff < 0) { cls='diff-neg'; str=''+diff; }
+    else              { cls='diff-zero'; str='±0'; }
+    html += `<tr><td>${i+1}</td><td>${d.name}</td><td>${d.pts}</td><td class="${cls}">${str}</td></tr>`;
   });
   html += '</table>';
   w.innerHTML = html;
