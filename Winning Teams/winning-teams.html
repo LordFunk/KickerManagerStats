@@ -57,15 +57,30 @@ h1 {
   height: 100vh;
   background: #000;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   z-index: 9999;
   touch-action: none;
 }
 
-.overlay img {
+.overlay-header {
+  color: white;
+  text-align: center;
+  padding: 12px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+
+.overlay-img-wrap {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.overlay-img-wrap img {
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
@@ -120,9 +135,22 @@ h1 {
 <script>
 const images = Array.from(document.querySelectorAll(".run-block img"));
 
+const meta = images.map(img => {
+  const season = img.closest("article").querySelector("h3").textContent;
+  const type = img.closest(".run-block").querySelector("h4").textContent;
+  return { src: img.src, label: season + " • " + type };
+});
+
 let index = 0;
 let overlay = null;
+let header = null;
+let imgEl = null;
 let startX = 0;
+
+function update() {
+  imgEl.src = meta[index].src;
+  header.textContent = meta[index].label;
+}
 
 function openViewer(i) {
   index = i;
@@ -130,13 +158,18 @@ function openViewer(i) {
   overlay = document.createElement("div");
   overlay.className = "overlay";
 
-  const img = document.createElement("img");
-  overlay.appendChild(img);
-  document.body.appendChild(overlay);
+  header = document.createElement("div");
+  header.className = "overlay-header";
 
-  function update() {
-    img.src = images[index].src;
-  }
+  const wrap = document.createElement("div");
+  wrap.className = "overlay-img-wrap";
+
+  imgEl = document.createElement("img");
+
+  wrap.appendChild(imgEl);
+  overlay.appendChild(header);
+  overlay.appendChild(wrap);
+  document.body.appendChild(overlay);
 
   update();
 
@@ -153,31 +186,14 @@ function openViewer(i) {
     const diff = e.changedTouches[0].clientX - startX;
 
     if (Math.abs(diff) > 40) {
-      if (diff > 0) index--;
-      else index++;
+      index = diff > 0 ? index - 1 : index + 1;
 
-      if (index < 0) index = images.length - 1;
-      if (index >= images.length) index = 0;
+      if (index < 0) index = meta.length - 1;
+      if (index >= meta.length) index = 0;
 
       update();
     }
   }, { passive: true });
-
-  window.addEventListener("keydown", keyHandler);
-
-  function keyHandler(e) {
-    if (!overlay) return;
-
-    if (e.key === "Escape") overlay.remove();
-    if (e.key === "ArrowRight") {
-      index = (index + 1) % images.length;
-      update();
-    }
-    if (e.key === "ArrowLeft") {
-      index = (index - 1 + images.length) % images.length;
-      update();
-    }
-  }
 }
 
 images.forEach((img, i) => {
