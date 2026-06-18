@@ -34,14 +34,6 @@ h1 {
   width: min(100%, 1000px);
 }
 
-.winner-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
 .run-block {
   margin-bottom: 18px;
 }
@@ -61,17 +53,20 @@ h1 {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.9);
+  width: 100vw;
+  height: 100vh;
+  background: #000;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  touch-action: none;
 }
 
 .overlay img {
-  max-width: 95%;
-  max-height: 95%;
-  border-radius: 8px;
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -86,38 +81,38 @@ h1 {
 
 <article class="winner-card">
   <h3>Saison 20/21 • Eirik</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="20-21-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="20-21-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="20-21-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="20-21-rueckrunde.png"></div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 21/22 • Phil</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="21-22-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="21-22-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="21-22-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="21-22-rueckrunde.png"></div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 22/23 • Erwin</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="22-23-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="22-23-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="22-23-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="22-23-rueckrunde.png"></div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 23/24 • Markus</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="23-24-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="23-24-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="23-24-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="23-24-rueckrunde.png"></div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 24/25 • Espen</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="24-25-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="24-25-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="24-25-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="24-25-rueckrunde.png"></div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 25/26 • Markus</h3>
-  <div class="run-block"><h4>Hinrunde</h4><img src="25-26-hinrunde.png" alt=""></div>
-  <div class="run-block"><h4>Rückrunde</h4><img src="25-26-rueckrunde.png" alt=""></div>
+  <div class="run-block"><h4>Hinrunde</h4><img src="25-26-hinrunde.png"></div>
+  <div class="run-block"><h4>Rückrunde</h4><img src="25-26-rueckrunde.png"></div>
 </article>
 
 </main>
@@ -125,75 +120,68 @@ h1 {
 <script>
 const images = Array.from(document.querySelectorAll(".run-block img"));
 
-let currentIndex = 0;
+let index = 0;
 let overlay = null;
-let overlayImg = null;
+let startX = 0;
 
-function openViewer(index) {
-  currentIndex = index;
+function openViewer(i) {
+  index = i;
 
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.className = "overlay";
+  overlay = document.createElement("div");
+  overlay.className = "overlay";
 
-    overlayImg = document.createElement("img");
-    overlay.appendChild(overlayImg);
-    document.body.appendChild(overlay);
+  const img = document.createElement("img");
+  overlay.appendChild(img);
+  document.body.appendChild(overlay);
 
-    overlay.addEventListener("click", closeViewer);
-
-    let startX = 0;
-
-    overlay.addEventListener("touchstart", e => {
-      startX = e.touches[0].clientX;
-    });
-
-    overlay.addEventListener("touchend", e => {
-      const endX = e.changedTouches[0].clientX;
-      const diff = endX - startX;
-
-      if (Math.abs(diff) > 40) {
-        if (diff > 0) prev();
-        else next();
-      }
-    });
-
-    window.addEventListener("keydown", e => {
-      if (!overlay) return;
-      if (e.key === "Escape") closeViewer();
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-    });
+  function update() {
+    img.src = images[index].src;
   }
 
-  updateImage();
-}
+  update();
 
-function updateImage() {
-  const img = images[currentIndex];
-  overlayImg.src = img.src;
-}
-
-function closeViewer() {
-  if (overlay) {
+  overlay.addEventListener("click", () => {
     overlay.remove();
     overlay = null;
-    overlayImg = null;
+  });
+
+  overlay.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+
+  overlay.addEventListener("touchend", e => {
+    const diff = e.changedTouches[0].clientX - startX;
+
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) index--;
+      else index++;
+
+      if (index < 0) index = images.length - 1;
+      if (index >= images.length) index = 0;
+
+      update();
+    }
+  }, { passive: true });
+
+  window.addEventListener("keydown", keyHandler);
+
+  function keyHandler(e) {
+    if (!overlay) return;
+
+    if (e.key === "Escape") overlay.remove();
+    if (e.key === "ArrowRight") {
+      index = (index + 1) % images.length;
+      update();
+    }
+    if (e.key === "ArrowLeft") {
+      index = (index - 1 + images.length) % images.length;
+      update();
+    }
   }
 }
 
-function next() {
-  currentIndex = (currentIndex + 1) % images.length;
-  updateImage();
-}
-
-function prev() {
-  currentIndex = (currentIndex - 1 + images.length) % images.length;
-  updateImage();
-}
-
-images.forEach((img, index) => {
-  img.addEventListener("click", () => openViewer(index));
+images.forEach((img, i) => {
+  img.addEventListener("click", () => openViewer(i));
 });
 </script>
 
