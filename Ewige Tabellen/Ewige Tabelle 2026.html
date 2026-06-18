@@ -9,13 +9,643 @@
   <style>
     /* ... your existing styles ... */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f4f8;
-      margin: 2rem;
+      font-family: 'Segoe U<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ewige Tabelle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e9eff5, #f9fafc);
+      margin: 0;
+      padding: 0 0 3rem;
       color: #222;
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin: 28px 0 4px;
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #0056b3, #0091ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 0.78rem;
+      color: #888;
+      margin: 0 0 24px;
+      text-align: center;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      width: 90%;
+      max-width: 1200px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #aaa;
+      padding: 0 4px 6px;
+      border-bottom: 1px solid #dde3ea;
+      margin: 28px 0 0;
+    }
+
+    /* ── Loading / error ── */
+    #status {
+      font-size: 0.9rem;
+      color: #888;
+      margin: 2rem 0;
+    }
+
+    /* ── Table ── */
+    .table-responsive {
+      width: 90%;
+      max-width: 1200px;
+      overflow-x: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+      margin-top: 12px;
+      margin-bottom: 8px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 700px;
+    }
+
+    thead tr {
+      background: linear-gradient(90deg, #004e92, #000428);
+      color: white;
+    }
+
+    thead th {
+      padding: 11px 14px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+      position: relative;
+    }
+    thead th:first-child { text-align: center; }
+    thead th.sort-asc::after  { content: " ▲"; position: absolute; right: 6px; }
+    thead th.sort-desc::after { content: " ▼"; position: absolute; right: 6px; }
+
+    tbody tr:nth-child(even) td { background: #fafbfc; }
+    tbody tr.rank-1 td { background: #fffbea !important; }
+    tbody tr:hover td { background: #e8f0ff !important; }
+
+    tbody td {
+      padding: 9px 14px;
+      font-size: 0.875rem;
+      border-bottom: 1px solid #f0f2f5;
+      text-align: center;
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #eef0f3;
+      color: #555;
+    }
+    .rank-badge.gold {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      color: white;
+    }
+
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      justify-content: flex-start;
+    }
+    .player-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Chart ── */
+    .chart-container {
+      width: 90%;
+      max-width: 1200px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+      padding: 20px 20px 16px;
+      margin-top: 12px;
+      aspect-ratio: 2.4 / 1;
+      min-height: 260px;
+      max-height: 480px;
+      position: relative;
+    }
+
+    /* ── Highlights ── */
+    .highlights-box {
+      width: 90%;
+      max-width: 1200px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      padding: 1rem 1.5rem;
+      margin-top: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .highlights-box ul {
+      list-style: inside disc;
+      color: #444;
+      font-size: 0.9rem;
+      line-height: 1.8;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      h1 { font-size: 1.35rem; }
+      .section-label { font-size: 0.65rem; }
+      .table-responsive { width: 96%; border-radius: 10px; }
+      thead th, tbody td { padding: 7px 8px; font-size: 0.75rem; }
+      .chart-container {
+        width: 96%;
+        aspect-ratio: unset;
+        height: 52vw;
+        min-height: 200px;
+        max-height: 300px;
+      }
+      .highlights-box { width: 96%; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Ewige Tabelle</h1>
+<p class="subtitle" id="status">Lade Daten…</p>
+
+<script>
+/* ══════════════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════════════ */
+const SEASONS = [
+  { label: '26-27', path: '../Season 26-27/Season stats.html' }
+  // Add future seasons here, e.g.:
+  // { label: '27-28', path: '../Season 27-28/Season stats.html' }
+];
+
+const PLAYER_COLORS = {
+  'Markus': '#E41A1C',
+  'Erwin':  '#377EB8',
+  'Phil':   '#4DAF4A',
+  'Didi':   '#984EA3',
+  'Steffo': '#FF7F00',
+  'Basti':  '#A65628',
+  'Eirik':  '#F781BF',
+  'Emil':   '#999999',
+  'Kempka': '#66C2A5',
+  'Espen':  '#FFD92F',
+  'Alex':   '#000000'
+};
+
+const HIGHLIGHTS = [
+  // Fill in manually after each season
+  // "- Meiste Spieltagssiege von Markus mit 13",
+];
+
+/* ══════════════════════════════════════════════
+   FETCH & PARSE playerPoints from a season file
+   ══════════════════════════════════════════════ */
+async function fetchSeasonData(path) {
+  const res = await fetch(path);
+  if (!res.ok) throw new Error(`Could not load ${path} (${res.status})`);
+  const html = await res.text();
+
+  // Extract the playerPoints object literal from the JS source
+  const match = html.match(/const\s+playerPoints\s*=\s*(\{[\s\S]*?\});/);
+  if (!match) throw new Error(`playerPoints not found in ${path}`);
+
+  // Safe eval via Function
+  const obj = Function('"use strict"; return (' + match[1] + ')')();
+  return obj; // { Markus: [...], Erwin: [...], ... }
+}
+
+/* ══════════════════════════════════════════════
+   CALCULATE stats from playerPoints
+   ══════════════════════════════════════════════ */
+function calcStats(playerPoints) {
+  const players = Object.keys(playerPoints);
+  const gamedays = playerPoints[players[0]].length;
+
+  // Per-gameday points (matchday delta)
+  function mdPts(arr) {
+    return arr.map((v, i) => i === 0 ? v : v - arr[i - 1]);
+  }
+
+  const stats = {};
+  players.forEach(p => {
+    stats[p] = {
+      spiele:            gamedays,
+      punkte:            playerPoints[p][gamedays - 1],
+      spieltagssiege:    0,
+      spieltagsletzter:  0,
+      tabellenerster:    0,
+      tabellenletzter:   0,
+      meister:           0,
+      letzter:           0
+    };
+  });
+
+  for (let i = 0; i < gamedays; i++) {
+    // Cumulative table rank (Tabellenplatz)
+    const cumRanked = players
+      .map(p => ({ p, pts: playerPoints[p][i] }))
+      .sort((a, b) => b.pts - a.pts);
+    cumRanked[0] && (stats[cumRanked[0].p].tabellenerster++);
+    cumRanked[cumRanked.length - 1] && (stats[cumRanked[cumRanked.length - 1].p].tabellenletzter++);
+
+    // Matchday rank (Spieltagssiege / Spieltagsletzter)
+    const mdRanked = players
+      .map(p => ({ p, pts: i === 0 ? playerPoints[p][0] : playerPoints[p][i] - playerPoints[p][i - 1] }))
+      .sort((a, b) => b.pts - a.pts);
+    mdRanked[0] && (stats[mdRanked[0].p].spieltagssiege++);
+    mdRanked[mdRanked.length - 1] && (stats[mdRanked[mdRanked.length - 1].p].spieltagsletzter++);
+  }
+
+  // Meister & Letzter = final cumulative standings
+  const finalRanked = players
+    .map(p => ({ p, pts: playerPoints[p][gamedays - 1] }))
+    .sort((a, b) => b.pts - a.pts);
+  stats[finalRanked[0].p].meister = 1;
+  stats[finalRanked[finalRanked.length - 1].p].letzter = 1;
+
+  return stats;
+}
+
+/* ══════════════════════════════════════════════
+   AGGREGATE across seasons
+   ══════════════════════════════════════════════ */
+function aggregateStats(allSeasonStats, allSeasonPoints) {
+  const players = new Set();
+  allSeasonStats.forEach(s => Object.keys(s).forEach(p => players.add(p)));
+
+  const totals = {};
+  players.forEach(p => {
+    totals[p] = {
+      spiele: 0, punkte: 0,
+      spieltagssiege: 0, spieltagsletzter: 0,
+      tabellenerster: 0, tabellenletzter: 0,
+      meister: 0, letzter: 0,
+      seasonPts: {} // season label → season total pts
+    };
+  });
+
+  allSeasonStats.forEach((s, si) => {
+    const label = SEASONS[si].label;
+    Object.entries(s).forEach(([p, d]) => {
+      totals[p].spiele          += d.spiele;
+      totals[p].punkte          += d.punkte;
+      totals[p].spieltagssiege  += d.spieltagssiege;
+      totals[p].spieltagsletzter+= d.spieltagsletzter;
+      totals[p].tabellenerster  += d.tabellenerster;
+      totals[p].tabellenletzter += d.tabellenletzter;
+      totals[p].meister         += d.meister;
+      totals[p].letzter         += d.letzter;
+      totals[p].seasonPts[label] = d.punkte;
+    });
+  });
+
+  return totals;
+}
+
+/* ══════════════════════════════════════════════
+   RENDER TABLE
+   ══════════════════════════════════════════════ */
+let currentData   = [];
+let sortKey       = 'punkte';
+let sortAsc       = false;
+
+const COLUMNS = [
+  { key: 'platz',            label: 'Platz' },
+  { key: 'spieler',          label: 'Spieler' },
+  { key: 'spiele',           label: 'Spiele' },
+  { key: 'punkte',           label: 'Punkte' },
+  { key: 'avg',              label: 'ø P.p.S' },
+  { key: 'meister',          label: 'Meister' },
+  { key: 'letzter',          label: 'Letzter' },
+  { key: 'spieltagssiege',   label: 'Spieltagssiege' },
+  { key: 'spieltagsletzter', label: 'Spieltagsletzter' },
+  { key: 'tabellenerster',   label: 'Tabellenerster' },
+  { key: 'tabellenletzter',  label: 'Tabellenletzter' },
+];
+
+function buildTable(totals) {
+  // Convert to array with platz & avg
+  currentData = Object.entries(totals).map(([name, d]) => ({
+    spieler:          name,
+    spiele:           d.spiele,
+    punkte:           d.punkte,
+    avg:              d.spiele > 0 ? Math.round((d.punkte / d.spiele) * 100) / 100 : 0,
+    meister:          d.meister,
+    letzter:          d.letzter,
+    spieltagssiege:   d.spieltagssiege,
+    spieltagsletzter: d.spieltagsletzter,
+    tabellenerster:   d.tabellenerster,
+    tabellenletzter:  d.tabellenletzter,
+    seasonPts:        d.seasonPts
+  }));
+
+  // Build DOM
+  const wrap = document.createElement('div');
+  wrap.className = 'section-label';
+  wrap.textContent = 'Ewige Tabelle';
+  document.body.appendChild(wrap);
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'table-responsive';
+
+  const table = document.createElement('table');
+  table.id = 'leaderboard';
+  table.setAttribute('aria-label', 'Ewige Tabelle');
+
+  // Head
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  COLUMNS.forEach(col => {
+    const th = document.createElement('th');
+    th.dataset.key = col.key;
+    th.textContent = col.label;
+    th.addEventListener('click', () => {
+      if (sortKey === col.key) { sortAsc = !sortAsc; }
+      else { sortKey = col.key; sortAsc = false; }
+      renderRows();
+      updateSortIndicators();
+    });
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  tbody.id = 'leaderboard-body';
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  document.body.appendChild(tableWrap);
+
+  renderRows();
+  updateSortIndicators();
+}
+
+function renderRows() {
+  const sorted = currentData.slice().sort((a, b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'spieler') {
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  // Assign platz based on punkte rank (always by punkte total)
+  const byPunkte = currentData.slice().sort((a, b) => b.punkte - a.punkte);
+  const rankMap = {};
+  byPunkte.forEach((d, i) => rankMap[d.spieler] = i + 1);
+
+  const tbody = document.getElementById('leaderboard-body');
+  tbody.innerHTML = '';
+
+  sorted.forEach(d => {
+    const rank = rankMap[d.spieler];
+    const tr = document.createElement('tr');
+    if (rank === 1) tr.classList.add('rank-1');
+
+    COLUMNS.forEach(col => {
+      const td = document.createElement('td');
+      if (col.key === 'platz') {
+        const badge = document.createElement('span');
+        badge.className = 'rank-badge' + (rank === 1 ? ' gold' : '');
+        badge.textContent = rank;
+        td.appendChild(badge);
+      } else if (col.key === 'spieler') {
+        const cell = document.createElement('div');
+        cell.className = 'player-cell';
+        const dot = document.createElement('span');
+        dot.className = 'player-dot';
+        dot.style.background = PLAYER_COLORS[d.spieler] || '#ccc';
+        const name = document.createElement('span');
+        name.textContent = d.spieler;
+        cell.appendChild(dot);
+        cell.appendChild(name);
+        td.appendChild(cell);
+      } else if (col.key === 'avg') {
+        td.textContent = d.avg.toFixed(2);
+      } else {
+        td.textContent = d[col.key];
+      }
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function updateSortIndicators() {
+  document.querySelectorAll('#leaderboard thead th').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.key === sortKey) {
+      th.classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════
+   FIEBERKURVE CHART
+   ══════════════════════════════════════════════ */
+function buildFieberkurve(totals) {
+  const section = document.createElement('div');
+  section.className = 'section-label';
+  section.textContent = 'Fieberkurve';
+  document.body.appendChild(section);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'chart-container';
+  const canvas = document.createElement('canvas');
+  canvas.id = 'fieberkurveChart';
+  wrap.appendChild(canvas);
+  document.body.appendChild(wrap);
+
+  const seasonLabels = SEASONS.map(s => s.label);
+  const players = Object.keys(totals);
+
+  // Build cumulative season points per player
+  const datasets = players.map(p => {
+    let cum = 0;
+    const data = seasonLabels.map(lbl => {
+      if (totals[p].seasonPts[lbl] !== undefined) {
+        cum += totals[p].seasonPts[lbl];
+        return cum;
+      }
+      return null;
+    });
+    return {
+      label:           p,
+      data,
+      borderColor:     PLAYER_COLORS[p] || '#ccc',
+      backgroundColor: PLAYER_COLORS[p] || '#ccc',
+      pointBackgroundColor: PLAYER_COLORS[p] || '#ccc',
+      pointBorderColor:     PLAYER_COLORS[p] || '#ccc',
+      pointBorderWidth: 1,
+      pointRadius:      4,
+      pointHoverRadius: 6,
+      borderWidth:      2,
+      fill:             false,
+      spanGaps:         true
+    };
+  });
+
+  const selectedIndices = new Set();
+
+  const chart = new Chart(canvas, {
+    type: 'line',
+    data: { labels: seasonLabels, datasets },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', padding: 14, font: { size: 12 } },
+          onClick: (e, legendItem) => {
+            const idx = legendItem.datasetIndex;
+            if (selectedIndices.has(idx)) { selectedIndices.delete(idx); }
+            else { selectedIndices.add(idx); }
+
+            chart.data.datasets.forEach((ds, i) => {
+              const col = PLAYER_COLORS[ds.label] || '#ccc';
+              const isSelected   = selectedIndices.has(i);
+              const noneSelected = selectedIndices.size === 0;
+              if (noneSelected || isSelected) {
+                ds.borderColor          = col;
+                ds.backgroundColor      = col;
+                ds.pointBackgroundColor = col;
+                ds.pointBorderColor     = col;
+                ds.borderWidth          = isSelected ? 3 : 2;
+                ds.pointRadius          = isSelected ? 6 : 4;
+              } else {
+                ds.borderColor          = 'lightgrey';
+                ds.backgroundColor      = 'lightgrey';
+                ds.pointBackgroundColor = 'lightgrey';
+                ds.pointBorderColor     = 'lightgrey';
+                ds.borderWidth          = 1;
+                ds.pointRadius          = 3;
+              }
+            });
+            chart.update();
+          }
+        },
+        tooltip: {
+          backgroundColor: 'white',
+          borderColor:     '#dde3ea',
+          borderWidth:     1,
+          titleColor:      '#555',
+          bodyColor:       '#222',
+          padding:         10,
+          usePointStyle:   true,
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y ?? '–'}`
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Saison' }, grid: { color: '#f0f2f5' } },
+        y: { title: { display: true, text: 'Kumulierte Punkte' }, beginAtZero: true, grid: { color: '#f0f2f5' } }
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════
+   HIGHLIGHTS
+   ══════════════════════════════════════════════ */
+function buildHighlights() {
+  if (!HIGHLIGHTS.length) return;
+  const section = document.createElement('div');
+  section.className = 'section-label';
+  section.textContent = 'Highlights';
+  document.body.appendChild(section);
+
+  const box = document.createElement('div');
+  box.className = 'highlights-box';
+  const ul = document.createElement('ul');
+  HIGHLIGHTS.forEach(text => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  document.body.appendChild(box);
+}
+
+/* ══════════════════════════════════════════════
+   MAIN
+   ══════════════════════════════════════════════ */
+async function main() {
+  const statusEl = document.getElementById('status');
+  try {
+    // Fetch all season files in parallel
+    const allPlayerPoints = await Promise.all(
+      SEASONS.map(s => fetchSeasonData(s.path))
+    );
+
+    // Calculate per-season stats
+    const allSeasonStats = allPlayerPoints.map(pp => calcStats(pp));
+
+    // Aggregate
+    const totals = aggregateStats(allSeasonStats, allPlayerPoints);
+
+    statusEl.textContent = `Daten von ${SEASONS.length} Saison(en) geladen · Stand: Spieltag ${allPlayerPoints[allPlayerPoints.length - 1][Object.keys(allPlayerPoints[allPlayerPoints.length - 1])[0]].length}`;
+
+    buildTable(totals);
+    buildFieberkurve(totals);
+    buildHighlights();
+
+  } catch (err) {
+    statusEl.textContent = `Fehler beim Laden: ${err.message}`;
+    statusEl.style.color = '#cc1a1a';
+    console.error(err);
+  }
+}
+
+main();
+</script>
+</body>
+</html>
       min-height: 100vh;
     }
     .table-responsive {
