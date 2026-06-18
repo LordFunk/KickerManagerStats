@@ -9,9 +9,6 @@
 :root {
   --primary: #0056b3;
   --background: #f4f4f9;
-  --card-bg: #ffffff;
-  --shadow: 0 2px 10px rgba(0,0,0,0.08);
-  --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
 }
 
 * {
@@ -20,17 +17,12 @@
 
 body {
   font-family: "Segoe UI", Arial, sans-serif;
-  line-height: 1.5;
-  background-color: var(--background);
+  background: var(--background);
   margin: 0;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-body.no-scroll {
-  overflow: hidden;
 }
 
 h1 {
@@ -43,53 +35,53 @@ h1 {
 }
 
 .winner-card {
-  background: var(--card-bg);
+  background: #fff;
   border-radius: 12px;
   padding: 15px;
   margin-bottom: 20px;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.winner-card:hover {
-  box-shadow: var(--shadow-hover);
-  transform: translateY(-2px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .winner-card h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin: 0 0 15px 0;
 }
 
-.runs {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+.run-block {
+  margin-bottom: 18px;
 }
 
 .run-block h4 {
   margin: 0 0 8px 0;
-  font-weight: 600;
-  color: #333;
 }
 
 .run-block img {
   width: 100%;
   max-width: 700px;
-  height: auto;
   border-radius: 8px;
-  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.winner-card.fullscreen {
+.run-block img:hover {
+  transform: scale(1.01);
+}
+
+/* FULLSCREEN IMAGE */
+.img-overlay {
   position: fixed;
   inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 9999;
-  margin: 0;
-  border-radius: 0;
-  overflow: auto;
-  padding: 30px;
+  cursor: zoom-out;
+}
+
+.img-overlay img {
+  max-width: 95%;
+  max-height: 95%;
+  border-radius: 8px;
 }
 </style>
 </head>
@@ -102,106 +94,116 @@ h1 {
 
 <article class="winner-card">
   <h3>Saison 20/21 • Eirik</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="20-21-hinrunde.png" alt="20/21 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="20-21-rueckrunde.png" alt="20/21 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="20-21-hinrunde.png" alt="20/21 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="20-21-rueckrunde.png" alt="20/21 Rückrunde" loading="lazy">
   </div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 21/22 • Phil</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="21-22-hinrunde.png" alt="21/22 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="21-22-rueckrunde.png" alt="21/22 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="21-22-hinrunde.png" alt="21/22 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="21-22-rueckrunde.png" alt="21/22 Rückrunde" loading="lazy">
   </div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 22/23 • Erwin</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="22-23-hinrunde.png" alt="22/23 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="22-23-rueckrunde.png" alt="22/23 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="22-23-hinrunde.png" alt="22/23 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="22-23-rueckrunde.png" alt="22/23 Rückrunde" loading="lazy">
   </div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 23/24 • Markus</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="23-24-hinrunde.png" alt="23/24 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="23-24-rueckrunde.png" alt="23/24 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="23-24-hinrunde.png" alt="23/24 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="23-24-rueckrunde.png" alt="23/24 Rückrunde" loading="lazy">
   </div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 24/25 • Espen</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="24-25-hinrunde.png" alt="24/25 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="24-25-rueckrunde.png" alt="24/25 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="24-25-hinrunde.png" alt="24/25 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="24-25-rueckrunde.png" alt="24/25 Rückrunde" loading="lazy">
   </div>
 </article>
 
 <article class="winner-card">
   <h3>Saison 25/26 • Markus</h3>
-  <div class="runs">
-    <div class="run-block">
-      <h4>Hinrunde</h4>
-      <img src="25-26-hinrunde.png" alt="25/26 Hinrunde" loading="lazy">
-    </div>
-    <div class="run-block">
-      <h4>Rückrunde</h4>
-      <img src="25-26-rueckrunde.png" alt="25/26 Rückrunde" loading="lazy">
-    </div>
+
+  <div class="run-block">
+    <h4>Hinrunde</h4>
+    <img src="25-26-hinrunde.png" alt="25/26 Hinrunde" loading="lazy">
+  </div>
+
+  <div class="run-block">
+    <h4>Rückrunde</h4>
+    <img src="25-26-rueckrunde.png" alt="25/26 Rückrunde" loading="lazy">
   </div>
 </article>
 
 </main>
 
 <script>
-const cards = document.querySelectorAll(".winner-card");
+const images = document.querySelectorAll(".run-block img");
 
-cards.forEach(card => {
-  card.addEventListener("click", () => {
-    const active = document.querySelector(".winner-card.fullscreen");
+images.forEach(img => {
+  img.addEventListener("click", (e) => {
+    e.stopPropagation();
 
-    if (active && active !== card) {
-      active.classList.remove("fullscreen");
+    const existing = document.querySelector(".img-overlay");
+
+    if (existing) {
+      existing.remove();
     }
 
-    card.classList.toggle("fullscreen");
-    document.body.classList.toggle(
-      "no-scroll",
-      !!document.querySelector(".winner-card.fullscreen")
-    );
+    const overlay = document.createElement("div");
+    overlay.className = "img-overlay";
+
+    const fullImg = document.createElement("img");
+    fullImg.src = img.src;
+    fullImg.alt = img.alt;
+
+    overlay.appendChild(fullImg);
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener("click", () => {
+      overlay.remove();
+    });
   });
 });
 </script>
