@@ -552,19 +552,26 @@ function rueckTable(title, data) {
   <table>
     <thead><tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff</th></tr></thead>
     <tbody>`;
+  const rueckStarted = played > hinEnd;
   data.forEach((d, i) => {
     const isFirst = i === 0;
     const badgeClass = isFirst ? 'rank-badge gold' : 'rank-badge';
-    const diff = d.diff;
-    let cls, str;
-    if (diff > 0)       { cls = 'diff-pos'; str = '+' + diff; }
-    else if (diff < 0)  { cls = 'diff-neg'; str = '' + diff;  }
-    else                { cls = 'diff-zero'; str = '±0';       }
+    let diffCell;
+    if (!rueckStarted) {
+      diffCell = `<td class="diff-zero">—</td>`;
+    } else {
+      const diff = d.diff;
+      let cls, str;
+      if (diff > 0)       { cls = 'diff-pos'; str = '+' + diff; }
+      else if (diff < 0)  { cls = 'diff-neg'; str = '' + diff;  }
+      else                { cls = 'diff-zero'; str = '±0';       }
+      diffCell = `<td class="${cls}">${str}</td>`;
+    }
     html += `<tr class="${isFirst ? 'rank-1' : ''}">
       <td><span class="${badgeClass}">${i+1}</span></td>
       <td>${playerNameCell(d.name)}</td>
       <td>${d.pts}</td>
-      <td class="${cls}">${str}</td>
+      ${diffCell}
     </tr>`;
   });
   html += '</tbody></table>';
