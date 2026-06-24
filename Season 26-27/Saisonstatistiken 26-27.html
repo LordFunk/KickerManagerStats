@@ -67,7 +67,6 @@ h1 {
   box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
   padding: 20px 20px 16px;
   margin-bottom: 24px;
-  /* Aspect-ratio sizing: default ~2.4:1, clamped */
   aspect-ratio: 2.4 / 1;
   min-height: 280px;
   max-height: 520px;
@@ -124,16 +123,13 @@ td {
   font-size: 0.875rem;
 }
 
-/* Zebra striping */
 tbody tr:nth-child(even) td { background: #fafbfc; }
 tbody tr:last-child td { border-bottom: none; }
 
-/* Gold row for rank 1 */
 tbody tr.rank-1 td {
   background: #fffbea !important;
 }
 
-/* Rank badge */
 .rank-badge {
   display: inline-flex;
   align-items: center;
@@ -151,7 +147,6 @@ tbody tr.rank-1 td {
   color: white;
 }
 
-/* Player name with colored dot */
 .player-cell {
   display: flex;
   align-items: center;
@@ -166,7 +161,6 @@ tbody tr.rank-1 td {
   flex-shrink: 0;
 }
 
-/* Diff colors */
 .diff-pos  { color: #1a8a1a; font-weight: 700; }
 .diff-neg  { color: #cc1a1a; font-weight: 700; }
 .diff-zero { color: #888;    font-weight: 700; }
@@ -233,42 +227,72 @@ const colors = [
 
 const colorMap = Object.fromEntries(players.map((p,i) => [p, colors[i]]));
 
-const labels = Array.from({ length: playerPoints[players[0]].length }, (_, i) => i + 1);
+/* ── Always show all 34 matchdays on the x-axis ── */
+const TOTAL_MDS = 34;
+const labels = Array.from({ length: TOTAL_MDS }, (_, i) => i + 1);
+
+/* How many matchdays have actually been played (based on the longest array) */
+const played = Math.max(...players.map(p => playerPoints[p].length));
 
 /* ─── HELPERS ─── */
 function mdPoints(arr) {
-  return arr.map((v, i) => i ? v - arr[i-1] : v);
+  /* Returns per-matchday points; undefined slots stay undefined (null for Chart.js) */
+  return Array.from({ length: TOTAL_MDS }, (_, i) =>
+    i < arr.length ? (i ? arr[i] - arr[i-1] : arr[0]) : null
+  );
 }
+
+function cumulativeForChart(arr) {
+  /* Pad the cumulative series with nulls beyond what's been played */
+  return Array.from({ length: TOTAL_MDS }, (_, i) =>
+    i < arr.length ? arr[i] : null
+  );
+}
+
 function leaguePos(data) {
-  const d = data[players[0]].length;
   const out = {};
   players.forEach(p => out[p] = []);
-  for (let i = 0; i < d; i++) {
-    const r = players.map(p => ({ p, pts: data[p][i] })).sort((a,b) => b.pts - a.pts);
-    r.forEach((x, i) => out[x.p].push(i + 1));
+  for (let i = 0; i < TOTAL_MDS; i++) {
+    if (i >= played) {
+      players.forEach(p => out[p].push(null));
+      continue;
+    }
+    /* Only rank players who have data for this matchday */
+    const eligible = players.filter(p => i < data[p].length);
+    const ranked = eligible.map(p => ({ p, pts: data[p][i] })).sort((a,b) => b.pts - a.pts);
+    ranked.forEach((x, rank) => out[x.p].push(rank + 1));
+    /* Players with no data for this matchday get null */
+    players.filter(p => i >= data[p].length).forEach(p => out[p].push(null));
   }
   return out;
 }
+
 function mdRank(data) {
-  const d = data[players[0]].length;
   const out = {};
   players.forEach(p => out[p] = []);
-  for (let i = 0; i < d; i++) {
-    const r = players.map(p => {
+  for (let i = 0; i < TOTAL_MDS; i++) {
+    if (i >= played) {
+      players.forEach(p => out[p].push(null));
+      continue;
+    }
+    const eligible = players.filter(p => i < data[p].length);
+    const ranked = eligible.map(p => {
       const pts = i ? data[p][i] - data[p][i-1] : data[p][0];
       return { p, pts };
     }).sort((a,b) => b.pts - a.pts);
-    r.forEach((x, i) => out[x.p].push(i + 1));
+    ranked.forEach((x, rank) => out[x.p].push(rank + 1));
+    players.filter(p => i >= data[p].length).forEach(p => out[p].push(null));
   }
   return out;
 }
 
-const md     = Object.fromEntries(players.map(p => [p, mdPoints(playerPoints[p])]));
-const league = leaguePos(playerPoints);
-const rank   = mdRank(playerPoints);
+/* Padded cumulative series for all players */
+const cumulative = Object.fromEntries(players.map(p => [p, cumulativeForChart(playerPoints[p])]));
+const md         = Object.fromEntries(players.map(p => [p, mdPoints(playerPoints[p])]));
+const league     = leaguePos(playerPoints);
+const rank       = mdRank(playerPoints);
 
 /* ─── SEGMENTS ─── */
-const played     = playerPoints[players[0]].length;
 const hinEnd     = Math.min(17, played);
 const rueckStart = 17;
 const rueckEnd   = played - 1;
@@ -336,7 +360,6 @@ function legendClickHandler(e, legendItem) {
 /* ─── CHART FACTORY ─── */
 function isMobile() { return window.innerWidth <= 640; }
 
-/* Register a custom tooltip positioner that pins the tooltip to the top of the chart area */
 Chart.Tooltip.positioners.side = function(elements, eventPosition) {
   const chart = this.chart;
   if (!elements.length) return false;
@@ -349,7 +372,6 @@ Chart.Tooltip.positioners.side = function(elements, eventPosition) {
   const spacingPer = chartWidth / (totalGamedays - 1);
   const offset = spacingPer * 2 + 12;
 
-  // Get the hovered gameday index to decide which side
   const hoveredIndex = elements[0].index;
   const goLeft = hoveredIndex >= 17;
 
@@ -377,7 +399,8 @@ function makeChart(id, title, data, reverseY = false) {
         pointStyle:           'circle',
         pointRadius:          mobile ? 2 : 4,
         pointHoverRadius:     mobile ? 4 : 6,
-        borderWidth:          mobile ? 1.5 : 2
+        borderWidth:          mobile ? 1.5 : 2,
+        spanGaps:             false   /* don't connect across null gaps */
       }))
     },
     options: {
@@ -477,7 +500,7 @@ addChartContainer('c3');
 addSection('');
 addChartContainer('c4');
 
-makeChart('c1', 'Saisonpunkte 26-27',         playerPoints);
+makeChart('c1', 'Saisonpunkte 26-27',         cumulative);
 makeChart('c2', 'Punkte je Spieltag',          md);
 makeChart('c3', 'Tabellenplatzentwicklung',    league, true);
 makeChart('c4', 'Spieltagsplatzierung',        rank,   true);
