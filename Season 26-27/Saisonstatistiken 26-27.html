@@ -303,15 +303,20 @@ function segmentPts(arr, startIdx, endIdx) {
   return arr[end] - (startIdx > 0 ? arr[startIdx - 1] : 0);
 }
 
-const hinPtsMap  = {};
-const rueckPtsMap = {};
+/* How many Rückrunde matchdays have been played (0 if none yet) */
+const rueckPlayed = Math.max(0, played - hinEnd);
+
+const hinPtsMap      = {};
+const rueckPtsMap    = {};
+const hinEquivPtsMap = {}; /* Hinrunde points over the same number of MDs as Rückrunde so far */
 players.forEach(p => {
-  hinPtsMap[p]   = segmentPts(playerPoints[p], 0, hinEnd - 1);
-  rueckPtsMap[p] = segmentPts(playerPoints[p], rueckStart, rueckEnd);
+  hinPtsMap[p]      = segmentPts(playerPoints[p], 0, hinEnd - 1);          // full Hinrunde (MD 1–17)
+  rueckPtsMap[p]    = segmentPts(playerPoints[p], rueckStart, rueckEnd);   // Rückrunde so far
+  hinEquivPtsMap[p] = segmentPts(playerPoints[p], 0, rueckPlayed - 1);     // MD 1–N (same N as Rück)
 });
 
 const hin  = players.map(p => ({ name: p, pts: hinPtsMap[p] })).sort((a,b) => b.pts - a.pts);
-const rueck= players.map(p => ({ name: p, pts: rueckPtsMap[p], diff: rueckPtsMap[p] - hinPtsMap[p] })).sort((a,b) => b.pts - a.pts);
+const rueck= players.map(p => ({ name: p, pts: rueckPtsMap[p], diff: rueckPtsMap[p] - hinEquivPtsMap[p] })).sort((a,b) => b.pts - a.pts);
 
 /* ─── SHARED FADE STATE ─── */
 const selectedPlayers = new Set();
@@ -550,7 +555,7 @@ function rueckTable(title, data) {
   const rueckLabel = played > hinEnd ? `${hinEnd+1}–${played}` : '—';
   let html = `<div class="table-title">${title} <span style="font-size:0.72rem;font-weight:400;color:#888">(Spieltag ${rueckLabel})</span></div>
   <table>
-    <thead><tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Diff</th></tr></thead>
+    <thead><tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th title="Rückrunde MD 1–${rueckPlayed} vs. Hinrunde MD 1–${rueckPlayed}">Diff*</th></tr></thead>
     <tbody>`;
   const rueckStarted = played > hinEnd;
   data.forEach((d, i) => {
@@ -575,6 +580,9 @@ function rueckTable(title, data) {
     </tr>`;
   });
   html += '</tbody></table>';
+  if (rueckStarted) {
+    html += `<p style="font-size:0.7rem;color:#aaa;margin:6px 4px 0;text-align:center">* Rück MD 18–${played} vs. Hin MD 1–${rueckPlayed}</p>`;
+  }
   w.innerHTML = html;
   return w;
 }
