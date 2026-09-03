@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f0f4f8;color:#222;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;min-height:100vh}
+h2{max-width:1200px;width:100%;margin:0 0 1rem;font-weight:700;font-size:1.4rem;background:linear-gradient(90deg,#6a11cb,#2575fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.table-responsive{width:100%;max-width:1200px;overflow-x:auto;background:#fff;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.1);margin-bottom:2rem}
+table{border-collapse:collapse;width:100%;min-width:700px}
+thead{background:linear-gradient(90deg,#004e92,#000428);color:#fff;font-weight:700;font-size:.9rem;text-align:left;position:sticky;top:0;z-index:2}
+thead th{padding:11px 14px;cursor:pointer;user-select:none;position:relative;white-space:nowrap}
+thead th.sort-asc::after{content:" ▲";position:absolute;right:8px}
+thead th.sort-desc::after{content:" ▼";position:absolute;right:8px}
+tbody tr:nth-child(even){background:#f9fafb}
+tbody tr:hover{background:#e1eaff}
+tbody td{padding:10px 14px;font-size:.85rem;border-bottom:1px solid #ddd;white-space:nowrap}
+.chart-container{width:90%;max-width:1200px;height:400px;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);padding:20px;margin-bottom:3rem}
+ul#highlight-list{max-width:1200px;width:100%;background:#fff;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.1);padding:1rem 1.5rem;list-style:inside disc;color:#444;font-size:.92rem;line-height:1.6;max-height:400px;overflow-y:auto;margin-bottom:2rem}
+@media(max-width:800px){body{padding:.5rem}.table-responsive{border-radius:0;box-shadow:none}tbody td,thead th{padding:7px 7px;font-size:.76rem}.chart-container{height:250px;padding:10px}h2{font-size:1.1rem}}
+</style>
+</head>
+<body>
+
+<div class="table-responsive" style="margin-top:1rem">
+  <table id="leaderboard" aria-label="Leaderboard">
+    <thead>
+      <tr>
+        <th data-key="platz">Platz</th>
+        <th data-key="spieler">Spieler</th>
+        <th data-key="spiele">Spiele</th>
+        <th data-key="punkte">Punkte</th>
+        <th data-key="avg">ø P.p.S</th>
+        <th data-key="meister">Meister</th>
+        <th data-key="letzter">Letzter</th>
+        <th data-key="spieltagssiege">Spieltagssiege</th>
+        <th data-key="spieltagsletzter">Spieltagsletzter</th>
+        <th data-key="tabellenerster">Tabellenerster</th>
+        <th data-key="tabellenletzter">Tabellenletzter</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<h2>Fiebertabelle</h2>
+<div class="chart-container">
+  <canvas id="fieberkurveChart"></canvas>
+</div>
+
+<h2>Highlights</h2>
+<ul id="highlight-list"></ul>
+
+<script>
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  BASE DATA — S1 through S6 final totals. DO NOT EDIT THIS.          ║
+// ║  These are the locked-in historical stats after 6 seasons.          ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+const base = {
+  //           spiele  punkte  meister letzter  stsiege  stletzt  tberster tbletzt
+  'Markus': { spiele: 204, punkte: 11269, meister: 2, letzter: 0, spieltagssiege: 49, spieltagsletzter: 11, tabellenerster: 70, tabellenletzter: 3  },
+  'Erwin':  { spiele: 204, punkte: 10534, meister: 1, letzter: 0, spieltagssiege: 27, spieltagsletzter: 13, tabellenerster: 34, tabellenletzter: 19 },
+  'Phil':   { spiele: 204, punkte: 10399, meister: 1, letzter: 0, spieltagssiege: 38, spieltagsletzter: 32, tabellenerster: 50, tabellenletzter: 2  },
+  'Eirik':  { spiele: 204, punkte:  9438, meister: 1, letzter: 1, spieltagssiege: 25, spieltagsletzter: 29, tabellenerster:  6, tabellenletzter: 34 },
+  'Didi':   { spiele: 204, punkte:  9269, meister: 0, letzter: 3, spieltagssiege: 23, spieltagsletzter: 38, tabellenerster:  5, tabellenletzter: 79 },
+  'Basti':  { spiele: 170, punkte:  7673, meister: 0, letzter: 0, spieltagssiege: 16, spieltagsletzter: 21, tabellenerster:  1, tabellenletzter: 2  },
+  'Steffo': { spiele: 170, punkte:  7062, meister: 0, letzter: 1, spieltagssiege:  5, spieltagsletzter: 34, tabellenerster:  0, tabellenletzter: 33 },
+  'Emil':   { spiele: 102, punkte:  5245, meister: 0, letzter: 0, spieltagssiege:  8, spieltagsletzter:  9, tabellenerster:  3, tabellenletzter: 14 },
+  'Espen':  { spiele:  68, punkte:  3167, meister: 1, letzter: 1, spieltagssiege: 12, spieltagsletzter: 10, tabellenerster: 34, tabellenletzter: 17 },
+  'Kempka': { spiele:  68, punkte:  3627, meister: 0, letzter: 0, spieltagssiege:  7, spieltagsletzter:  5, tabellenerster:  0, tabellenletzter: 1  },
+  'Alex':   { spiele:  34, punkte:  1660, meister: 0, letzter: 0, spieltagssiege:  3, spieltagsletzter:  4, tabellenerster:  0, tabellenletzter: 0  },
+};
+
+// Fiebertabelle: cumulative season-end totals S1–S6 per player.
+const fiebertabelleBase = {
+  'Markus': [1923, 3656, 5302, 7526, 9287, 11269],
+  'Erwin':  [1536, 3107, 5064, 6909, 8812, 10534],
+  'Phil':   [1717, 3543, 4973, 6644, 8432, 10399],
+  'Didi':   [1391, 3126, 4393, 6060, 7272,  9269],
+  'Eirik':  [1846, 2953, 4583, 6004, 7585,  9438],
+  'Steffo': [null,  957, 2515, 4135, 5573,  7062],
+  'Basti':  [null, 1441, 2744, 4668, 6180,  7673],
+  'Emil':   [null, null, null, 2014, 3887,  5245], 
+  'Kempka': [null, null, null, null, 1750,  3627],  
+  'Espen':  [null, null, null, null, 2042,  3167],
+  'Alex':   [null, null, null, null, null,  1660],
+};
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  SEASON 7 — PASTE MATCHDAY DATA HERE                                ║
+// ║                                                                      ║
+// ║  After each matchday, add the cumulative season points for each      ║
+// ║  player. These reset to 0 at the start of each new season.          ║
+// ║                                                                      ║
+// ║  Example after matchday 1: 'Markus': [63],                          ║
+// ║  Example after matchday 2: 'Markus': [63, 131],                     ║
+// ║  ...and so on up to matchday 34.                                     ║
+// ║                                                                      ║
+// ║  Leave arrays empty [] if the season hasn't started yet.            ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+const s7 = {
+  'Markus': [83],
+  'Erwin':  [58],
+  'Phil':   [59],
+  'Didi':   [68],
+  'Eirik':  [69],
+  'Basti':  [62],
+  'Steffo': [59],
+  'Emil':   [51],
+  'Espen':  [64],
+  'Kempka': [49],
+  'Alex':   [42],
+};
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  SEASON 8 — PASTE MATCHDAY DATA HERE (when played)                  ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+const s8 = {
+  'Markus': [],
+  'Erwin':  [],
+  'Phil':   [],
+  'Didi':   [],
+  'Eirik':  [],
+  'Basti':  [],
+  'Steffo': [],
+  'Emil':   [],
+  'Espen':  [],
+  'Kempka': [],
+  'Alex':   [],
+};
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  SEASON 9 — PASTE MATCHDAY DATA HERE (when played)                  ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+const s9 = {
+  'Markus': [],
+  'Erwin':  [],
+  'Phil':   [],
+  'Didi':   [],
+  'Eirik':  [],
+  'Basti':  [],
+  'Steffo': [],
+  'Emil':   [],
+  'Espen':  [],
+  'Kempka': [],
+  'Alex':   [],
+};
+
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  MEISTER & LETZTER                                                   ║
+// ║  Update once per season when it ends.                                ║
+// ║  S7 winner: change the relevant player's meister count by +1        ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+// (already included in base above — only update if a new season ends)
+
+// ════════════════════════════════════════════════════════════════════════
+//  AUTO-CALCULATION ENGINE — do not edit below this line
+// ════════════════════════════════════════════════════════════════════════
+
+const allSeasons = [s7, s8, s9]; // add s10, s11... here in the future
+const seasonLabels = ['S1 20/21','S2 21/22','S3 22/23','S4 23/24','S5 24/25','S6 25/26','S7 26/27','S8 27/28','S9 28/29'];
+
+function deriveGains(cumulativeArr) {
+  return cumulativeArr.map((v, i) => i === 0 ? v : v - cumulativeArr[i - 1]);
+}
+
+function computeSeasonStats(seasonData) {
+  const players = Object.keys(base);
+  const numMatchdays = Math.max(...players.map(p => (seasonData[p] || []).length), 0);
+  const stats = {};
+  players.forEach(p => { stats[p] = { spieltagssiege: 0, spieltagsletzter: 0, tabellenerster: 0, tabellenletzter: 0 }; });
+
+  const gains = {};
+  players.forEach(p => { gains[p] = deriveGains(seasonData[p] || []); });
+
+  for (let md = 0; md < numMatchdays; md++) {
+    const active = players.filter(p => (seasonData[p] || []).length > md);
+    if (active.length === 0) continue;
+
+    const mdGains = active.map(p => ({ p, g: gains[p][md] }));
+    const maxGain = Math.max(...mdGains.map(x => x.g));
+    const minGain = Math.min(...mdGains.map(x => x.g));
+    mdGains.forEach(({ p, g }) => {
+      if (g === maxGain) stats[p].spieltagssiege++;
+      if (g === minGain) stats[p].spieltagsletzter++;
+    });
+
+    const cumuls = active.map(p => ({ p, c: seasonData[p][md] }));
+    const maxC = Math.max(...cumuls.map(x => x.c));
+    const minC = Math.min(...cumuls.map(x => x.c));
+    cumuls.forEach(({ p, c }) => {
+      if (c === maxC) stats[p].tabellenerster++;
+      if (c === minC) stats[p].tabellenletzter++;
+    });
+  }
+  return { stats, numMatchdays };
+}
+
+function buildLeaderboard() {
+  const players = Object.keys(base);
+  const combined = {};
+  players.forEach(p => {
+    combined[p] = { ...base[p] };
+  });
+
+  allSeasons.forEach(seasonData => {
+    const { stats, numMatchdays } = computeSeasonStats(seasonData);
+    players.forEach(p => {
+      const arr = seasonData[p] || [];
+      const seasonPunkte = arr.length > 0 ? arr[arr.length - 1] : 0;
+      combined[p].punkte += seasonPunkte;
+      combined[p].spiele += arr.length;
+      combined[p].spieltagssiege   += stats[p].spieltagssiege;
+      combined[p].spieltagsletzter += stats[p].spieltagsletzter;
+      combined[p].tabellenerster   += stats[p].tabellenerster;
+      combined[p].tabellenletzter  += stats[p].tabellenletzter;
+    });
+  });
+
+  const rows = players.map(p => ({
+    spieler: p,
+    platz: 0,
+    ...combined[p],
+    avg: combined[p].spiele > 0 ? Math.round((combined[p].punkte / combined[p].spiele) * 100) / 100 : 0
+  }));
+
+  rows.sort((a, b) => b.punkte - a.punkte);
+  rows.forEach((r, i) => r.platz = i + 1);
+  return rows;
+}
+
+const leaderboardData = buildLeaderboard();
+
+// ─── Render table ────────────────────────────────────────────────
+
+function renderLeaderboard(data) {
+  const tbody = document.querySelector('#leaderboard tbody');
+  tbody.innerHTML = '';
+  data.forEach(player => {
+    const row = document.createElement('tr');
+    ['platz','spieler','spiele','punkte','avg','meister','letzter','spieltagssiege','spieltagsletzter','tabellenerster','tabellenletzter'].forEach(key => {
+      const td = document.createElement('td');
+      const val = player[key];
+      td.textContent = (val === null || val === undefined || val === '') ? '-' : val;
+      row.appendChild(td);
+    });
+    tbody.appendChild(row);
+  });
+}
+
+let currentSortKey = 'punkte', currentSortAsc = false;
+
+function sortAndRender(key) {
+  if (currentSortKey === key) currentSortAsc = !currentSortAsc;
+  else { currentSortKey = key; currentSortAsc = false; }
+  document.querySelectorAll('#leaderboard thead th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  const th = document.querySelector(`#leaderboard thead th[data-key="${key}"]`);
+  if (th) th.classList.add(currentSortAsc ? 'sort-asc' : 'sort-desc');
+  const sorted = [...leaderboardData].sort((a, b) => {
+    let va = a[key], vb = b[key];
+    if (typeof va === 'number' && typeof vb === 'number') return currentSortAsc ? va - vb : vb - va;
+    return currentSortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+  });
+  renderLeaderboard(sorted);
+}
+
+document.querySelectorAll('#leaderboard thead th').forEach(th => {
+  th.addEventListener('click', () => { if (th.dataset.key) sortAndRender(th.dataset.key); });
+});
+renderLeaderboard([...leaderboardData].sort((a, b) => b.punkte - a.punkte));
+document.querySelector("#leaderboard thead th[data-key='punkte']").classList.add('sort-desc');
+
+// ─── Fieberkurve ─────────────────────────────────────────────────
+
+function buildFieberData() {
+  const players = Object.keys(base);
+  const result = {};
+  players.forEach(p => {
+    const base6 = fiebertabelleBase[p]; // array of 6 season-end cumulative totals
+    const newSeasonTotals = allSeasons.map(s => {
+      const arr = (s[p] || []);
+      return arr.length > 0 ? arr[arr.length - 1] : null;
+    });
+    // Build cumulative across all seasons
+    let running = 0;
+    const points = [];
+    base6.forEach(v => {
+      if (v !== null) { running = v; points.push(running); }
+      else points.push(null);
+    });
+    newSeasonTotals.forEach(v => {
+      if (v !== null) { running += v; points.push(running); }
+      else points.push(null);
+    });
+    result[p] = points;
+  });
+  return result;
+}
+
+const fieberData = buildFieberData();
+
+const colors = {
+  'Markus':'#E41A1C','Erwin':'#377EB8','Phil':'#4DAF4A','Didi':'#984EA3',
+  'Eirik':'#F781BF','Steffo':'#FF7F00','Basti':'#A65628','Emil':'#888888',
+  'Kempka':'#66C2A5','Espen':'#CC9900','Alex':'#000000'
+};
+
+const players = Object.keys(base);
+const datasets = players.map(name => ({
+  label: name,
+  data: fieberData[name],
+  borderColor: colors[name] || '#999',
+  backgroundColor: colors[name] || '#999',
+  fill: false, pointRadius: 4, borderWidth: 2, spanGaps: true
+}));
+
+const selectedIdx = new Set();
+const allColors = players.map(n => colors[n] || '#999');
+const displayedLabels = seasonLabels.slice(0, 6 + allSeasons.length);
+
+const ctx = document.getElementById('fieberkurveChart').getContext('2d');
+const fieberChart = new Chart(ctx, {
+  type: 'line',
+  data: { labels: displayedLabels, datasets },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true, position: 'top',
+        labels: { usePointStyle: true, pointStyle: 'circle', color: '#222' },
+        onClick: (e, item) => {
+          const i = item.datasetIndex;
+          selectedIdx.has(i) ? selectedIdx.delete(i) : selectedIdx.add(i);
+          datasets.forEach((ds, j) => {
+            if (selectedIdx.size === 0) {
+              ds.borderColor = allColors[j]; ds.backgroundColor = allColors[j]; ds.borderWidth = 2;
+            } else if (selectedIdx.has(j)) {
+              ds.borderColor = allColors[j]; ds.backgroundColor = allColors[j]; ds.borderWidth = 4;
+            } else {
+              ds.borderColor = '#ccc'; ds.backgroundColor = '#ccc'; ds.borderWidth = 1;
+            }
+          });
+          fieberChart.update();
+        }
+      },
+      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y ?? '–'}` } }
+    },
+    scales: {
+      y: { beginAtZero: false, title: { display: true, text: 'Kumulative Punkte' } },
+      x: { title: { display: true, text: 'Saison' } }
+    }
+  }
+});
+
+// ─── Highlights ───────────────────────────────────────────────────
+
+const highlights = [
+  "=== Highlights der Saison 26-27 ===",
+  "- Meiste Spieltagssiege von ",
+  "- Keine Spieltagssiege in der Saison ",
+  "- Keine Spieltagsniederlagen in der Saison von ",
+  "- Höchste Spieltagpunkte von ",
+  "- Niedrigste Spieltagspunkte von ",
+  "-  Spieltagssiege in Folge von ",
+  "-  Spieltagsniederlagen in Folge ",
+  "- Schlechtester Erster ",
+  "- Bester Letzter ",
+  "","","","",
+  "=== Ewige Bestplatzierungen ===",
+  "27. Markus mit 108 Punkten 22/23","36. Phil mit 93 Punkten 22/23",
+  "108. Phil mit 104 Punkten 24/25","278. Phil mit 91 Punkten 22/23",
+  "444. Markus mit 104 Punkten 20/21","614. Phil mit 87 Punkten 22/23",
+  "739. Eirik mit 93* Punkten 20/21","766. Phil mit 96 Punkten 21/22",
+  "807. Phil mit 92 Punkten 25/26","982. Eirik mit 96 Punkten 25/26",
+  "984. Didi mit 91 Punkten 23/24","989. Markus mit 94 Punkten 23/24",
+  "","","","",
+  "=== Ewige Statistiken ===",
+  "- Meiste Spieltagssiege in einer Saison vom Markus mit 13 (21/22)",
+  "- Meiste Spieltagssiege in Folge von Espen mit 5 (24/25)",
+  "- Meiste Spieltagsniederlagen in einer Saison von Steffo mit 15 (21/22)",
+  "- Ewig wenigste Punkte für Spieltagssieg von Erwin mit 31* Punkten (20/21)",
+  "- Ewig wenigste Punkte von Phil mit -9 (22/23)",
+  "- Ewig Höchstpunktzahl von Emil mit 113 (23/24)",
+  "- Ewig beste Gesamtplatzierung von Espen Saison 24/25 Spieltag 14 mit Platz 302",
+  "- Ewig beste Endplatzierung von Espen Saison 24/25 mit Platz 6066",
+  "","","","",
+  "=== Meister ===",
+  "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga, 47,32 ø Punkte pro Spiel)",
+  "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga, 43,56 ø Punkte pro Spiel)",
+  "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga, 45,32 ø Punkte pro Spiel)",
+  "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga, 52,91 ø Punkte pro Spiel)",
+  "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga, 49,59 ø Punkte pro Spiel)",
+  "- Meister 2026: Markus mit 2009 Punkten (1681 Ø Punkte in der Liga, 49,45 Ø Punkte pro Spiel)",
+  "","","",
+  "=== Fussnoten ===",
+  "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
+  "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage."
+];
+
+const ul = document.getElementById('highlight-list');
+highlights.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+
+</script>
+</body>
+</html>
