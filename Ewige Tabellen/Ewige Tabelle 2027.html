@@ -19,6 +19,8 @@ tbody tr:hover{background:#e1eaff}
 tbody td{padding:10px 14px;font-size:.85rem;border-bottom:1px solid #ddd;white-space:nowrap}
 .chart-container{width:90%;max-width:1200px;height:400px;background:#fff;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);padding:20px;margin-bottom:3rem}
 ul#highlight-list{max-width:1200px;width:100%;background:#fff;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,.1);padding:1rem 1.5rem;list-style:inside disc;color:#444;font-size:.92rem;line-height:1.6;max-height:400px;overflow-y:auto;margin-bottom:2rem}
+ul#highlight-list li.highlight-header{list-style:none;margin:1.1rem 0 .4rem;margin-left:-1.2rem;font-size:1.15rem;font-weight:700;color:#222}
+ul#highlight-list li.highlight-header:first-child{margin-top:0}
 @media(max-width:800px){body{padding:.5rem}.table-responsive{border-radius:0;box-shadow:none}tbody td,thead th{padding:7px 7px;font-size:.76rem}.chart-container{height:250px;padding:10px}h2{font-size:1.1rem}}
 </style>
 </head>
@@ -528,7 +530,13 @@ const highlights = [
 ];
 
 const ul = document.getElementById('highlight-list');
-highlights.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+highlights.forEach(t => {
+  const li = document.createElement('li');
+  const isHeader = /^===.*===$/.test(t.trim());
+  if (isHeader) li.classList.add('highlight-header');
+  li.textContent = t;
+  ul.appendChild(li);
+});
 
 </script>
 </body>
