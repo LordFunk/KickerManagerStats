@@ -220,6 +220,15 @@ const allSeasons = [s7, s8, s9]; // add s10, s11... here in the future
 // one label per base season (6) + one per entry in allSeasons
 const seasonLabels = ['20/21','21/22','22/23','23/24','24/25','25/26','26/27','27/28','28/29'];
 
+// Index (into allSeasons) of the current season = the last one with any
+// matchday data. -1 if no season has started yet (only base data shown).
+let currentSeasonIdx = -1;
+for (let i = allSeasons.length - 1; i >= 0; i--) {
+  if (Object.values(allSeasons[i]).some(arr => arr.length > 0)) { currentSeasonIdx = i; break; }
+}
+// How many season-slots (S7, S8, ...) should actually be displayed.
+const numActiveSeasons = currentSeasonIdx + 1;
+
 function deriveGains(cumulativeArr) {
   return cumulativeArr.map((v, i) => i === 0 ? v : v - cumulativeArr[i - 1]);
 }
@@ -376,7 +385,9 @@ const datasets = players.map(name => ({
 
 const selectedIdx = new Set();
 const allColors = players.map(n => colors[n] || '#999');
-const displayedLabels = seasonLabels.slice(0, 6 + allSeasons.length);
+const displayedSlots = 6 + numActiveSeasons; // base seasons + only the seasons played so far
+const displayedLabels = seasonLabels.slice(0, displayedSlots);
+datasets.forEach(ds => { ds.data = ds.data.slice(0, displayedSlots); });
 
 const ctx = document.getElementById('fieberkurveChart').getContext('2d');
 const fieberChart = new Chart(ctx, {
@@ -505,17 +516,14 @@ function computeSeasonHighlights(seasonData) {
   return lines;
 }
 
-// Pick the "current" season = the last one in allSeasons that has any
-// matchday data. Falls back to the first slot (s7) if none has started yet.
-let currentSeasonIdx = 0;
-for (let i = allSeasons.length - 1; i >= 0; i--) {
-  if (Object.values(allSeasons[i]).some(arr => arr.length > 0)) { currentSeasonIdx = i; break; }
-}
-const currentSeasonLabel = seasonLabels[6 + currentSeasonIdx].replace('/', '-');
+// currentSeasonIdx was already computed above (used for the Fiebertabelle too).
+// Fall back to s7's label if no season has started yet.
+const highlightSeasonIdx = currentSeasonIdx >= 0 ? currentSeasonIdx : 0;
+const currentSeasonLabel = seasonLabels[6 + highlightSeasonIdx].replace('/', '-');
 
 const highlights = [
   `=== Highlights der Saison ${currentSeasonLabel} ===`,
-  ...computeSeasonHighlights(allSeasons[currentSeasonIdx]),
+  ...computeSeasonHighlights(allSeasons[highlightSeasonIdx]),
   ...staticHighlights
 ];
 
