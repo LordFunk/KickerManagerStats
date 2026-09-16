@@ -257,11 +257,9 @@ function leaguePos(data) {
       players.forEach(p => out[p].push(null));
       continue;
     }
-    /* Only rank players who have data for this matchday */
     const eligible = players.filter(p => i < data[p].length);
     const ranked = eligible.map(p => ({ p, pts: data[p][i] })).sort((a,b) => b.pts - a.pts);
     ranked.forEach((x, rank) => out[x.p].push(rank + 1));
-    /* Players with no data for this matchday get null */
     players.filter(p => i >= data[p].length).forEach(p => out[p].push(null));
   }
   return out;
@@ -292,6 +290,17 @@ const md         = Object.fromEntries(players.map(p => [p, mdPoints(playerPoints
 const league     = leaguePos(playerPoints);
 const rank       = mdRank(playerPoints);
 
+/* ─── AVERAGE POINTS PER MATCHDAY (for the "Punkte je Spieltag" chart only) ─── */
+const avgMd = Array.from({ length: TOTAL_MDS }, (_, i) => {
+  if (i >= played) return null;
+  const vals = players
+    .map(p => md[p][i])
+    .filter(v => v !== null && v !== undefined);
+  if (!vals.length) return null;
+  const sum = vals.reduce((a, b) => a + b, 0);
+  return Math.round((sum / vals.length) * 10) / 10;
+});
+
 /* ─── SEGMENTS ─── */
 const hinEnd     = Math.min(17, played);
 const rueckStart = 17;
@@ -303,16 +312,15 @@ function segmentPts(arr, startIdx, endIdx) {
   return arr[end] - (startIdx > 0 ? arr[startIdx - 1] : 0);
 }
 
-/* How many Rückrunde matchdays have been played (0 if none yet) */
 const rueckPlayed = Math.max(0, played - hinEnd);
 
 const hinPtsMap      = {};
 const rueckPtsMap    = {};
-const hinEquivPtsMap = {}; /* Hinrunde points over the same number of MDs as Rückrunde so far */
+const hinEquivPtsMap = {};
 players.forEach(p => {
-  hinPtsMap[p]      = segmentPts(playerPoints[p], 0, hinEnd - 1);          // full Hinrunde (MD 1–17)
-  rueckPtsMap[p]    = segmentPts(playerPoints[p], rueckStart, rueckEnd);   // Rückrunde so far
-  hinEquivPtsMap[p] = segmentPts(playerPoints[p], 0, rueckPlayed - 1);     // MD 1–N (same N as Rück)
+  hinPtsMap[p]      = segmentPts(playerPoints[p], 0, hinEnd - 1);
+  rueckPtsMap[p]    = segmentPts(playerPoints[p], rueckStart, rueckEnd);
+  hinEquivPtsMap[p] = segmentPts(playerPoints[p], 0, rueckPlayed - 1);
 });
 
 const hin  = players.map(p => ({ name: p, pts: hinPtsMap[p] })).sort((a,b) => b.pts - a.pts);
@@ -325,7 +333,9 @@ const allCharts = [];
 function applyFade() {
   allCharts.forEach(chart => {
     chart.data.datasets.forEach(dataset => {
-      const idx          = players.indexOf(dataset.label);
+      const idx = players.indexOf(dataset.label);
+      if (idx === -1) return; /* non-player datasets (e.g. average line) are never faded */
+
       const isSelected   = selectedPlayers.has(dataset.label);
       const noneSelected = selectedPlayers.size === 0;
 
@@ -387,26 +397,30 @@ Chart.Tooltip.positioners.side = function(elements, eventPosition) {
   };
 };
 
-function makeChart(id, title, data, reverseY = false) {
+function makeChart(id, title, data, reverseY = false, extraDatasets = []) {
   const mobile = isMobile();
   const chart = new Chart(document.getElementById(id), {
     type: 'line',
     data: {
       labels,
-      datasets: players.map((p, i) => ({
-        label:                p,
-        data:                 data[p],
-        borderColor:          colors[i],
-        backgroundColor:      colors[i],
-        pointBackgroundColor: colors[i],
-        pointBorderColor:     colors[i],
-        pointBorderWidth:     0,
-        pointStyle:           'circle',
-        pointRadius:          mobile ? 2 : 4,
-        pointHoverRadius:     mobile ? 4 : 6,
-        borderWidth:          mobile ? 1.5 : 2,
-        spanGaps:             false   /* don't connect across null gaps */
-      }))
+      datasets: [
+        ...players.map((p, i) => ({
+          label:                p,
+          data:                 data[p],
+          borderColor:          colors[i],
+          backgroundColor:      colors[i],
+          pointBackgroundColor: colors[i],
+          pointBorderColor:     colors[i],
+          pointBorderWidth:     0,
+          pointStyle:           'circle',
+          pointRadius:          mobile ? 2 : 4,
+          pointHoverRadius:     mobile ? 4 : 6,
+          borderWidth:          mobile ? 1.5 : 2,
+          spanGaps:             false,
+          order:                0
+        })),
+        ...extraDatasets
+      ]
     },
     options: {
       responsive:          true,
@@ -452,7 +466,8 @@ function makeChart(id, title, data, reverseY = false) {
           caretPadding:    8,
           callbacks: {
             labelColor: function(context) {
-              const col = colors[players.indexOf(context.dataset.label)];
+              const idx = players.indexOf(context.dataset.label);
+              const col = idx === -1 ? '#bbbbbb' : colors[idx];
               return { borderColor: col, backgroundColor: col, borderWidth: 2 };
             }
           }
@@ -505,8 +520,27 @@ addChartContainer('c3');
 addSection('');
 addChartContainer('c4');
 
+const mobileNow = isMobile();
+const avgDataset = {
+  label:                'Ø Punkte',
+  data:                 avgMd,
+  borderColor:          '#bbbbbb',
+  backgroundColor:      'rgba(160,160,160,0.18)',
+  pointBackgroundColor: '#bbbbbb',
+  pointBorderColor:     '#bbbbbb',
+  pointBorderWidth:     0,
+  pointStyle:           'circle',
+  pointRadius:          mobileNow ? 2 : 4,
+  pointHoverRadius:     mobileNow ? 4 : 6,
+  borderWidth:          mobileNow ? 1.5 : 2,
+  borderDash:           [6, 4],
+  spanGaps:             false,
+  fill:                 'origin',
+  order:                1
+};
+
 makeChart('c1', 'Saisonpunkte 26-27',         cumulative);
-makeChart('c2', 'Punkte je Spieltag',          md);
+makeChart('c2', 'Punkte je Spieltag',          md, false, [avgDataset]);
 makeChart('c3', 'Tabellenplatzentwicklung',    league, true);
 makeChart('c4', 'Spieltagsplatzierung',        rank,   true);
 
