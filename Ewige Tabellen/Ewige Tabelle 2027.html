@@ -161,12 +161,64 @@ const s9 = {
 
 // (already included in base above — only update if a new season ends)
 
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  EWIGE BESTPLATZIERUNGEN / STATISTIKEN / MEISTER / FUSSNOTEN         ║
+// ║  These stay hand-maintained (they draw on full historical matchday  ║
+// ║  data older than what's stored in this file). Only the "Highlights  ║
+// ║  der Saison" block below is generated automatically from s7/s8/s9.  ║
+// ╚══════════════════════════════════════════════════════════════════════╝
+
+const staticHighlights = [
+  "","","","",
+  "=== Ewige Bestplatzierungen ===",
+  "27. Markus mit 108 Punkten 22/23",
+  "36. Phil mit 93 Punkten 22/23",
+  "108. Phil mit 104 Punkten 24/25",
+  "278. Phil mit 91 Punkten 22/23",
+  "444. Markus mit 104 Punkten 20/21",
+  "614. Phil mit 87 Punkten 22/23",
+  "739. Eirik mit 93* Punkten 20/21",
+  "766. Phil mit 96 Punkten 21/22",
+  "807. Phil mit 92 Punkten 25/26",
+  "982. Eirik mit 96 Punkten 25/26",
+  "984. Didi mit 91 Punkten 23/24",
+  "989. Markus mit 94 Punkten 23/24",
+  "","","","",
+  "=== Ewige Statistiken ===",
+  "- Meiste Spieltagssiege in einer Saison: Markus mit 13 Spieltagssiegen (21/22)",
+  "- Meiste Spieltagssiege in Folge: Espen mit 5 Spieltagssiegen hintereinander (24/25)",
+  "- Meiste Spieltagsniederlagen in einer Saison: Steffo mit 15 Niederlagen (21/22)",
+  "- Niedrigste Punktzahl für einen Spieltagssieg: Erwin mit 31 Punkten (20/21)",
+  "- Niedrigste jemals erzielte Punktzahl: Phil mit -9 Punkten (22/23)",
+  "- Höchste jemals erzielte Punktzahl: Emil mit 113 Punkten (23/24)",
+  "- Beste Gesamtplatzierung während einer Saison: Espen auf Platz 302 nach Spieltag 14 der Saison 24/25",
+  "- Beste Gesamtendplatzierung: Espen auf Platz 6.066 in der Saison 24/25",
+  "- Größter Vorsprung zwischen Meister und Vizemeister: Erwin vor Markus mit 311 Punkten (22/23)",
+  "- Engster Vorsprung zwischen Meister und Vizemeister: Markus vor Didi mit 12 Punkten (25/26)",
+  "- Start-Ziel-Siege: Erwin (22/23) und Espen (24/25)",
+  "- Meiste Punkte auf der Bank gelassen: Didi mit 582 Punkten (24/25)",
+  "- Wenigste Tabellenführungen auf dem Weg zur Meisterschaft: Eirik mit 6 Tabellenführungen (20/21)",
+  "","","","",
+  "=== Meister ===",
+  "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga, 47,32 ø Punkte pro Spiel)",
+  "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga, 43,56 ø Punkte pro Spiel)",
+  "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga, 45,32 ø Punkte pro Spiel)",
+  "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga, 52,91 ø Punkte pro Spiel)",
+  "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga, 49,59 ø Punkte pro Spiel)",
+  "- Meister 2026: Markus mit 2009 Punkten (1681 Ø Punkte in der Liga, 49,45 Ø Punkte pro Spiel)",
+  "","","",
+  "=== Fussnoten ===",
+  "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
+  "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
+];
+
 // ════════════════════════════════════════════════════════════════════════
 //  AUTO-CALCULATION ENGINE — do not edit below this line
 // ════════════════════════════════════════════════════════════════════════
 
 const allSeasons = [s7, s8, s9]; // add s10, s11... here in the future
-const seasonLabels = ['20/21','21/22','22/23','23/24','24/25','25/26','26/27'];
+// one label per base season (6) + one per entry in allSeasons
+const seasonLabels = ['20/21','21/22','22/23','23/24','24/25','25/26','26/27','27/28','28/29'];
 
 function deriveGains(cumulativeArr) {
   return cumulativeArr.map((v, i) => i === 0 ? v : v - cumulativeArr[i - 1]);
@@ -360,60 +412,111 @@ const fieberChart = new Chart(ctx, {
   }
 });
 
-// ─── Highlights ───────────────────────────────────────────────────
+// ─── Highlights: current-season stats, computed automatically ────
+
+function fmtNames(arr) {
+  const uniq = [...new Set(arr)];
+  if (uniq.length === 0) return '–';
+  if (uniq.length === 1) return uniq[0];
+  return uniq.slice(0, -1).join(', ') + ' & ' + uniq[uniq.length - 1];
+}
+
+function computeSeasonHighlights(seasonData) {
+  const players = Object.keys(base).filter(p => (seasonData[p] || []).length > 0);
+  if (players.length === 0) {
+    return ["- Diese Saison hat noch nicht begonnen."];
+  }
+
+  const numMatchdays = Math.max(...players.map(p => seasonData[p].length));
+  const gains = {};
+  players.forEach(p => { gains[p] = deriveGains(seasonData[p]); });
+
+  const winCount = {}, lossCount = {};
+  players.forEach(p => { winCount[p] = 0; lossCount[p] = 0; });
+
+  let highestScore = { val: -Infinity, players: [], md: 0 };
+  let lowestScore  = { val:  Infinity, players: [], md: 0 };
+  let worstWinner  = { val:  Infinity, players: [], md: 0 };
+  let bestLoser    = { val: -Infinity, players: [], md: 0 };
+
+  const curWinStreak = {}, curLossStreak = {};
+  let bestWinStreak  = { val: 0, players: [] };
+  let bestLossStreak = { val: 0, players: [] };
+  players.forEach(p => { curWinStreak[p] = 0; curLossStreak[p] = 0; });
+
+  for (let md = 0; md < numMatchdays; md++) {
+    const active = players.filter(p => seasonData[p].length > md);
+    if (active.length === 0) continue;
+
+    const dayGains = active.map(p => ({ p, g: gains[p][md] }));
+    const maxG = Math.max(...dayGains.map(x => x.g));
+    const minG = Math.min(...dayGains.map(x => x.g));
+    const winners = dayGains.filter(x => x.g === maxG).map(x => x.p);
+    const losers  = dayGains.filter(x => x.g === minG).map(x => x.p);
+
+    winners.forEach(p => winCount[p]++);
+    losers.forEach(p => lossCount[p]++);
+
+    dayGains.forEach(({ p, g }) => {
+      if (g > highestScore.val) { highestScore = { val: g, players: [p], md: md + 1 }; }
+      else if (g === highestScore.val) { highestScore.players.push(p); }
+      if (g < lowestScore.val) { lowestScore = { val: g, players: [p], md: md + 1 }; }
+      else if (g === lowestScore.val) { lowestScore.players.push(p); }
+    });
+
+    if (maxG < worstWinner.val) { worstWinner = { val: maxG, players: [...winners], md: md + 1 }; }
+    else if (maxG === worstWinner.val) { worstWinner.players.push(...winners); }
+    if (minG > bestLoser.val) { bestLoser = { val: minG, players: [...losers], md: md + 1 }; }
+    else if (minG === bestLoser.val) { bestLoser.players.push(...losers); }
+
+    active.forEach(p => {
+      if (winners.includes(p)) curWinStreak[p]++; else curWinStreak[p] = 0;
+      if (losers.includes(p)) curLossStreak[p]++; else curLossStreak[p] = 0;
+
+      if (curWinStreak[p] > bestWinStreak.val) { bestWinStreak = { val: curWinStreak[p], players: [p] }; }
+      else if (curWinStreak[p] > 0 && curWinStreak[p] === bestWinStreak.val && !bestWinStreak.players.includes(p)) { bestWinStreak.players.push(p); }
+
+      if (curLossStreak[p] > bestLossStreak.val) { bestLossStreak = { val: curLossStreak[p], players: [p] }; }
+      else if (curLossStreak[p] > 0 && curLossStreak[p] === bestLossStreak.val && !bestLossStreak.players.includes(p)) { bestLossStreak.players.push(p); }
+    });
+  }
+
+  const maxWinCount = Math.max(...players.map(p => winCount[p]));
+  const topWinners = players.filter(p => winCount[p] === maxWinCount && maxWinCount > 0);
+  const noWins = players.filter(p => winCount[p] === 0);
+  const noLosses = players.filter(p => lossCount[p] === 0);
+
+  const lines = [];
+  lines.push(maxWinCount > 0
+    ? `- Meiste Spieltagssiege von ${fmtNames(topWinners)} mit ${maxWinCount} Spieltagssiegen`
+    : `- Noch keine Spieltagssiege verteilt`);
+  lines.push(noWins.length
+    ? `- Keine Spieltagssiege in der Saison von ${fmtNames(noWins)}`
+    : `- Alle Spieler hatten bereits mindestens einen Spieltagssieg`);
+  lines.push(noLosses.length
+    ? `- Keine Spieltagsniederlagen in der Saison von ${fmtNames(noLosses)}`
+    : `- Alle Spieler hatten bereits mindestens eine Spieltagsniederlage`);
+  lines.push(`- Höchste Spieltagspunktzahl von ${fmtNames(highestScore.players)} mit ${highestScore.val} Punkten (${highestScore.md}. Spieltag)`);
+  lines.push(`- Niedrigste Spieltagspunktzahl von ${fmtNames(lowestScore.players)} mit ${lowestScore.val} Punkten (${lowestScore.md}. Spieltag)`);
+  lines.push(`- Längste Serie von Spieltagssiegen in Folge von ${fmtNames(bestWinStreak.players)} mit ${bestWinStreak.val}`);
+  lines.push(`- Längste Serie von Spieltagsniederlagen in Folge von ${fmtNames(bestLossStreak.players)} mit ${bestLossStreak.val}`);
+  lines.push(`- Schlechtester Spieltagssieger: ${fmtNames(worstWinner.players)} mit ${worstWinner.val} Punkten (${worstWinner.md}. Spieltag)`);
+  lines.push(`- Bester Spieltagsletzter: ${fmtNames(bestLoser.players)} mit ${bestLoser.val} Punkten (${bestLoser.md}. Spieltag)`);
+  return lines;
+}
+
+// Pick the "current" season = the last one in allSeasons that has any
+// matchday data. Falls back to the first slot (s7) if none has started yet.
+let currentSeasonIdx = 0;
+for (let i = allSeasons.length - 1; i >= 0; i--) {
+  if (Object.values(allSeasons[i]).some(arr => arr.length > 0)) { currentSeasonIdx = i; break; }
+}
+const currentSeasonLabel = seasonLabels[6 + currentSeasonIdx].replace('/', '-');
 
 const highlights = [
-  "=== Highlights der Saison 26-27 ===",
-  "- Meiste Spieltagssiege von ",
-  "- Keine Spieltagssiege in der Saison",
-  "- Keine Spieltagsniederlagen in der Saison von ",
-  "- Höchste Spieltagspunktzahl von Markus mit 110 Punkten (2. Spieltag)",
-  "- Niedrigste Spieltagspunktzahl von Emil mit 0 Punkten (3. Spieltag)",
-  "- Längste Serie von Spieltagssiegen in Folge von Markus mit 3",
-  "- Längste Serie von Spieltagsniederlagen in Folge von Emil mit 2",
-  "- Schlechtester Spieltagssieger: Markus mit 83 Punkten (1. Spieltag)",
-  "- Bester Spieltagsletzter: Alex mit 42 Punkten (1. Spieltag)",
-  "","","","",
-  "=== Ewige Bestplatzierungen ===",
-  "27. Markus mit 108 Punkten 22/23",
-  "36. Phil mit 93 Punkten 22/23",
-  "108. Phil mit 104 Punkten 24/25",
-  "278. Phil mit 91 Punkten 22/23",
-  "444. Markus mit 104 Punkten 20/21",
-  "614. Phil mit 87 Punkten 22/23",
-  "739. Eirik mit 93* Punkten 20/21",
-  "766. Phil mit 96 Punkten 21/22",
-  "807. Phil mit 92 Punkten 25/26",
-  "982. Eirik mit 96 Punkten 25/26",
-  "984. Didi mit 91 Punkten 23/24",
-  "989. Markus mit 94 Punkten 23/24",
-  "","","","",
-  "=== Ewige Statistiken ===",
-  "- Meiste Spieltagssiege in einer Saison: Markus mit 13 Spieltagssiegen (21/22)",
-  "- Meiste Spieltagssiege in Folge: Espen mit 5 Spieltagssiegen hintereinander (24/25)",
-  "- Meiste Spieltagsniederlagen in einer Saison: Steffo mit 15 Niederlagen (21/22)",
-  "- Niedrigste Punktzahl für einen Spieltagssieg: Erwin mit 31 Punkten (20/21)",
-  "- Niedrigste jemals erzielte Punktzahl: Phil mit -9 Punkten (22/23)",
-  "- Höchste jemals erzielte Punktzahl: Emil mit 113 Punkten (23/24)",
-  "- Beste Gesamtplatzierung während einer Saison: Espen auf Platz 302 nach Spieltag 14 der Saison 24/25",
-  "- Beste Gesamtendplatzierung: Espen auf Platz 6.066 in der Saison 24/25",
-  "- Größter Vorsprung zwischen Meister und Vizemeister: Erwin vor Markus mit 311 Punkten (22/23)",
-  "- Engster Vorsprung zwischen Meister und Vizemeister: Markus vor Didi mit 12 Punkten (25/26)",
-  "- Start-Ziel-Siege: Erwin (22/23) und Espen (24/25)",
-  "- Meiste Punkte auf der Bank gelassen: Didi mit 582 Punkten (24/25)",
-  "- Wenigste Tabellenführungen auf dem Weg zur Meisterschaft: Eirik mit 6 Tabellenführungen (20/21)", 
-  "","","","",
-  "=== Meister ===",
-  "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga, 47,32 ø Punkte pro Spiel)",
-  "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga, 43,56 ø Punkte pro Spiel)",
-  "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga, 45,32 ø Punkte pro Spiel)",
-  "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga, 52,91 ø Punkte pro Spiel)",
-  "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga, 49,59 ø Punkte pro Spiel)",
-  "- Meister 2026: Markus mit 2009 Punkten (1681 Ø Punkte in der Liga, 49,45 Ø Punkte pro Spiel)",
-  "","","",
-  "=== Fussnoten ===",
-  "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
-  "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
+  `=== Highlights der Saison ${currentSeasonLabel} ===`,
+  ...computeSeasonHighlights(allSeasons[currentSeasonIdx]),
+  ...staticHighlights
 ];
 
 const ul = document.getElementById('highlight-list');
