@@ -352,6 +352,16 @@ const chart = new Chart(ctx, {
 
                 intersect: false,
 
+                /* =========================
+                   CIRCLE MARKERS IN TOOLTIP
+                ========================= */
+
+                usePointStyle: true,
+
+                boxWidth: 8,
+
+                boxHeight: 8,
+
 
                 /* =========================
                    SORT TOOLTIP
@@ -457,6 +467,23 @@ const chart = new Chart(ctx, {
                             ': ' +
                             points +
                             ' pts';
+
+                    },
+
+
+                    /* =========================
+                       FORCE CIRCLE POINT STYLE
+                       (per-item, overrides
+                       Chart.js' per-dataset
+                       pointStyle lookup)
+                    ========================= */
+
+                    labelPointStyle: function(context) {
+
+                        return {
+                            pointStyle: 'circle',
+                            rotation: 0
+                        };
 
                     }
 
