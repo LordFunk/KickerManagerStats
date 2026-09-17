@@ -259,36 +259,51 @@ const chart = new Chart(ctx, {
 
             tooltip: {
 
-                enabled: true,
+    enabled: true,
 
-                mode: 'index',
-                intersect: false,
+    mode: 'index',
+    intersect: false,
 
-                callbacks: {
+    itemSort: function(a, b) {
 
-                    title: function(items) {
+        const seasonIndex = a.dataIndex;
 
-                        if (!items.length) {
-                            return '';
-                        }
+        const pointsA = seasonPoints[a.dataset.label][seasonIndex];
+        const pointsB = seasonPoints[b.dataset.label][seasonIndex];
 
-                        return items[0].label;
-                    },
+        // Players without points go to the bottom
+        if (pointsA === null || pointsA === undefined) return 1;
+        if (pointsB === null || pointsB === undefined) return -1;
 
-                    label: function(context) {
+        // Highest points first
+        return pointsB - pointsA;
+    },
 
-                        const seasonIndex = context.dataIndex;
-                        const player = context.dataset.label;
-                        const points = seasonPoints[player][seasonIndex];
+    callbacks: {
 
-                        if (
-                            points === null ||
-                            points === undefined
-                        ) {
-                            return null;
-                        }
+        title: function(items) {
 
-                        return player + ': ' + points + ' pts';
+            if (!items.length) {
+                return '';
+            }
+
+            return items[0].label;
+        },
+
+        label: function(context) {
+
+            const seasonIndex = context.dataIndex;
+            const player = context.dataset.label;
+            const points = seasonPoints[player][seasonIndex];
+
+            if (
+                points === null ||
+                points === undefined
+            ) {
+                return null;
+            }
+
+            return player + ': ' + points + ' pts';
                     }
                 }
             }
