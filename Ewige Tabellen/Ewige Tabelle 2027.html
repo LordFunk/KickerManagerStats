@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -400,6 +401,9 @@ const fieberChart = new Chart(ctx, {
   data: { labels: displayedLabels, datasets },
   options: {
     responsive: true, maintainAspectRatio: false,
+    // Hovering anywhere along a season column now shows every player's
+    // value at that point, not just the one under the cursor.
+    interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: {
         display: true, position: 'top',
@@ -419,7 +423,21 @@ const fieberChart = new Chart(ctx, {
           fieberChart.update();
         }
       },
-      tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y ?? '–'}` } }
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        // Round markers (instead of the default squares), colored to match each line
+        usePointStyle: true,
+        boxWidth: 8,
+        boxHeight: 8,
+        // Re-order the tooltip rows every time so the player currently in
+        // the lead is always on top, matching their live table position
+        itemSort: (a, b) => (b.parsed.y ?? -Infinity) - (a.parsed.y ?? -Infinity),
+        callbacks: {
+          label: c => `${c.dataset.label}: ${c.parsed.y ?? '–'}`,
+          labelPointStyle: () => ({ pointStyle: 'circle', rotation: 0 })
+        }
+      }
     },
     scales: {
       y: { beginAtZero: false, title: { display: true, text: 'Kumulative Punkte' } },
@@ -544,3 +562,4 @@ highlights.forEach(t => {
 </script>
 </body>
 </html>
+```
