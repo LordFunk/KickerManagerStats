@@ -2551,18 +2551,79 @@ function updateRange(){
         ).value;
 
 
-    if(start>end){
+    function updateRange(){
 
-        [start,end]=
-            [end,start];
+    let start =
+        +document.getElementById('rangeMin').value;
 
-        document.getElementById(
-            'rangeMin'
-        ).value=start;
+    let end =
+        +document.getElementById('rangeMax').value;
 
-        document.getElementById(
-            'rangeMax'
-        ).value=end;
+    if(start > end){
+
+        if(document.activeElement.id === 'rangeMin'){
+
+            start = end;
+
+            document.getElementById(
+                'rangeMin'
+            ).value = start;
+
+        }else{
+
+            end = start;
+
+            document.getElementById(
+                'rangeMax'
+            ).value = end;
+
+        }
+
+    }
+
+    document.getElementById(
+        'rangeMinLabel'
+    ).textContent = start;
+
+    document.getElementById(
+        'rangeMaxLabel'
+    ).textContent = end;
+
+    const denominator = TOTAL_MDS - 1;
+
+    document.getElementById(
+        'sliderRange'
+    ).style.left =
+        (
+            (start - 1)
+            /
+            denominator
+            *
+            100
+        ) + '%';
+
+    document.getElementById(
+        'sliderRange'
+    ).style.right =
+        (
+            (TOTAL_MDS - end)
+            /
+            denominator
+            *
+            100
+        ) + '%';
+
+    createC1(
+        start,
+        end
+    );
+
+    updateRangeTable(
+        start,
+        end
+    );
+
+    updateC1Fade();
 
     }
 
