@@ -1,32 +1,58 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
 <title>Kicker Manager</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+>
 
 <style>
 
-*{
+/* =========================================================
+   RESET
+========================================================= */
+
+*,
+*::before,
+*::after{
     box-sizing:border-box;
 }
 
 html{
     scroll-behavior:smooth;
+    overflow-x:hidden;
 }
 
 body{
     margin:0;
-    font-family:'Inter',Arial,sans-serif;
-    background:#080a0d;
-    color:#f4f5f7;
+    padding:0;
+
+    width:100%;
+    min-width:0;
+
     overflow-x:hidden;
+
+    font-family:'Inter',Arial,sans-serif;
+
+    background:#080a0d;
+    color:#f5f6f8;
+}
+
+img,
+canvas{
+    max-width:100%;
 }
 
 a{
@@ -34,8 +60,12 @@ a{
     text-decoration:none;
 }
 
+button{
+    font:inherit;
+}
+
 ::selection{
-    background:#ffffff;
+    background:#fff;
     color:#080a0d;
 }
 
@@ -44,37 +74,45 @@ a{
    SCROLL PROGRESS
 ========================================================= */
 
-.scroll-progress{
+#scrollProgress{
     position:fixed;
     top:0;
     left:0;
+
+    width:0;
     height:3px;
-    width:0%;
+
     background:#fff;
+
     z-index:9999;
-    transition:width .05s linear;
 }
 
 
 /* =========================================================
-   NAVIGATION
+   NAV
 ========================================================= */
 
 .nav{
     position:fixed;
+
     top:0;
     left:0;
+
     width:100%;
-    height:76px;
-    z-index:1000;
+    height:72px;
+
+    z-index:900;
 
     display:flex;
     align-items:center;
     justify-content:space-between;
 
-    padding:0 5vw;
+    padding:
+        0
+        max(24px,5vw);
 
-    background:rgba(8,10,13,.65);
+    background:rgba(8,10,13,.68);
+
     backdrop-filter:blur(18px);
     -webkit-backdrop-filter:blur(18px);
 
@@ -82,29 +120,223 @@ a{
 }
 
 .logo{
-    font-size:14px;
+    flex-shrink:0;
+
+    font-size:13px;
     font-weight:800;
+
     letter-spacing:.14em;
     text-transform:uppercase;
 }
 
 .logo span{
-    opacity:.45;
+    opacity:.4;
 }
 
-.nav-links{
+.nav-right{
     display:flex;
-    gap:28px;
-    font-size:12px;
-    color:#969ba4;
+    align-items:center;
+    gap:24px;
 }
 
-.nav-links a{
-    transition:color .2s ease;
+.nav-season{
+    font-size:11px;
+    color:#777d86;
+    letter-spacing:.12em;
+    text-transform:uppercase;
 }
 
-.nav-links a:hover{
+.menu-button{
+    border:0;
+    background:none;
+
     color:#fff;
+
+    cursor:pointer;
+
+    font-size:11px;
+    font-weight:700;
+
+    letter-spacing:.13em;
+    text-transform:uppercase;
+
+    padding:8px 0;
+}
+
+.menu-button span{
+    display:inline-block;
+    margin-left:8px;
+
+    font-size:15px;
+}
+
+
+/* =========================================================
+   ARCHIVE DRAWER
+========================================================= */
+
+.archive{
+    position:fixed;
+
+    inset:0;
+
+    z-index:1200;
+
+    background:#0a0c0f;
+
+    overflow-y:auto;
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:translateY(-15px);
+
+    transition:
+        opacity:.3s ease,
+        transform:.3s ease,
+        visibility:.3s ease;
+}
+
+.archive.open{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+}
+
+.archive-inner{
+    width:100%;
+    max-width:1300px;
+
+    margin:auto;
+
+    padding:
+        110px
+        max(24px,7vw)
+        80px;
+}
+
+.archive-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:70px;
+}
+
+.archive-label{
+    color:#60666e;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.18em;
+    text-transform:uppercase;
+}
+
+.close-button{
+    border:0;
+    background:none;
+
+    color:#fff;
+
+    cursor:pointer;
+
+    font-size:12px;
+    font-weight:700;
+
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+.archive-title{
+    margin:0 0 60px;
+
+    font-size:clamp(52px,8vw,110px);
+    line-height:.88;
+
+    letter-spacing:-.07em;
+}
+
+.archive-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:2px;
+
+    background:#272b31;
+
+    border:1px solid #272b31;
+}
+
+.archive-season{
+    min-width:0;
+
+    padding:36px;
+
+    background:#0a0c0f;
+
+    transition:background .25s ease;
+}
+
+.archive-season:hover{
+    background:#101318;
+}
+
+.archive-season.current{
+    grid-column:1 / -1;
+}
+
+.archive-year{
+    margin-bottom:20px;
+
+    color:#646a73;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.16em;
+    text-transform:uppercase;
+}
+
+.archive-season h3{
+    margin:0 0 24px;
+
+    font-size:30px;
+    letter-spacing:-.04em;
+}
+
+.archive-links{
+    display:flex;
+    flex-direction:column;
+
+    border-top:1px solid #272b31;
+}
+
+.archive-link{
+    min-width:0;
+
+    padding:13px 0;
+
+    border-bottom:1px solid #272b31;
+
+    color:#999fa8;
+
+    font-size:12px;
+
+    transition:
+        color .2s ease,
+        padding-left .2s ease;
+}
+
+.archive-link:hover{
+    color:#fff;
+    padding-left:8px;
+}
+
+.archive-link:last-child{
+    border-bottom:0;
 }
 
 
@@ -113,19 +345,31 @@ a{
 ========================================================= */
 
 .hero{
-    min-height:100vh;
     position:relative;
+
+    min-height:100svh;
 
     display:flex;
     align-items:center;
 
-    padding:120px 8vw 100px;
+    padding:
+        130px
+        max(24px,8vw)
+        100px;
 
     overflow:hidden;
 
     background:
-        radial-gradient(circle at 70% 40%,rgba(255,255,255,.07),transparent 32%),
-        radial-gradient(circle at 20% 80%,rgba(80,100,130,.08),transparent 30%),
+        radial-gradient(
+            circle at 72% 42%,
+            rgba(255,255,255,.08),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 15% 80%,
+            rgba(90,110,140,.08),
+            transparent 28%
+        ),
         #080a0d;
 }
 
@@ -134,19 +378,40 @@ a{
     inset:0;
 
     background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+        linear-gradient(
+            rgba(255,255,255,.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.035) 1px,
+            transparent 1px
+        );
 
     background-size:80px 80px;
 
-    mask-image:linear-gradient(to bottom,black,transparent 85%);
-    -webkit-mask-image:linear-gradient(to bottom,black,transparent 85%);
+    mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 90%
+        );
+
+    -webkit-mask-image:
+        linear-gradient(
+            to bottom,
+            black,
+            transparent 90%
+        );
 }
 
 .hero-content{
     position:relative;
-    z-index:2;
+
+    width:100%;
     max-width:1100px;
+
+    z-index:2;
 }
 
 .eyebrow{
@@ -154,546 +419,982 @@ a{
     align-items:center;
     gap:12px;
 
-    font-size:11px;
+    margin-bottom:28px;
+
+    color:#777d86;
+
+    font-size:10px;
     font-weight:700;
+
     letter-spacing:.2em;
     text-transform:uppercase;
-
-    color:#858b94;
-
-    margin-bottom:28px;
 }
 
 .eyebrow-line{
     width:36px;
     height:1px;
+
     background:#777d86;
 }
 
 .hero h1{
     margin:0;
 
-    font-size:clamp(72px,12vw,190px);
+    font-size:
+        clamp(
+            64px,
+            12vw,
+            175px
+        );
+
     line-height:.82;
+
     letter-spacing:-.075em;
+
     font-weight:900;
+
+    overflow-wrap:break-word;
 }
 
 .hero h1 .muted{
-    color:#41454c;
+    color:#3e4249;
 }
 
-.hero-subtitle{
-    max-width:550px;
+.hero-description{
+    max-width:560px;
 
-    margin-top:42px;
+    margin-top:40px;
 
-    font-size:17px;
+    color:#9298a1;
+
+    font-size:16px;
     line-height:1.7;
-    color:#9a9fa7;
 }
 
 .hero-season{
     position:absolute;
-    right:7vw;
+
+    right:max(24px,8vw);
     bottom:9vh;
 
-    text-align:right;
+    z-index:2;
 
-    opacity:.9;
+    text-align:right;
 }
 
 .hero-season-label{
-    font-size:10px;
+    color:#666c74;
+
+    font-size:9px;
+    font-weight:700;
+
     letter-spacing:.18em;
     text-transform:uppercase;
-    color:#777d85;
 }
 
 .hero-season-number{
-    font-size:clamp(70px,10vw,150px);
-    line-height:.85;
-    font-weight:900;
+    margin-top:5px;
+
+    font-size:
+        clamp(
+            60px,
+            9vw,
+            130px
+        );
+
+    line-height:.8;
+
     letter-spacing:-.08em;
+
+    font-weight:900;
 }
 
 .scroll-hint{
     position:absolute;
-    left:8vw;
-    bottom:34px;
+
+    left:max(24px,8vw);
+    bottom:32px;
 
     display:flex;
     align-items:center;
     gap:12px;
 
-    font-size:10px;
-    text-transform:uppercase;
+    color:#5f656d;
+
+    font-size:9px;
+    font-weight:700;
+
     letter-spacing:.15em;
-    color:#666b73;
+    text-transform:uppercase;
 }
 
 .scroll-line{
-    width:45px;
+    width:42px;
     height:1px;
-    background:#666b73;
+
+    background:#5f656d;
 }
 
 
 /* =========================================================
-   GENERAL SECTIONS
+   SECTION BASICS
 ========================================================= */
 
-section{
-    position:relative;
-}
-
 .section{
-    padding:150px 8vw;
+    position:relative;
+
+    width:100%;
+
+    padding:
+        150px
+        max(24px,8vw);
 }
 
 .section-inner{
+    width:100%;
     max-width:1300px;
-    margin:auto;
+
+    margin:0 auto;
 }
 
 .section-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
+    display:grid;
 
-    margin-bottom:65px;
+    grid-template-columns:
+        minmax(0,1fr)
+        minmax(260px,420px);
+
+    gap:60px;
+
+    align-items:end;
+
+    margin-bottom:70px;
 }
 
 .section-number{
-    font-size:11px;
-    letter-spacing:.16em;
-    color:#555a62;
+    margin-bottom:24px;
+
+    color:#60666f;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.18em;
+    text-transform:uppercase;
 }
 
 .section-title{
     margin:0;
-    font-size:clamp(42px,6vw,82px);
-    line-height:.95;
-    letter-spacing:-.055em;
+
+    font-size:
+        clamp(
+            44px,
+            6vw,
+            80px
+        );
+
+    line-height:.92;
+
+    letter-spacing:-.06em;
+
     font-weight:800;
 }
 
 .section-description{
-    max-width:420px;
+    margin:0;
+
     color:#777d86;
-    font-size:14px;
-    line-height:1.7;
+
+    font-size:13px;
+    line-height:1.8;
 }
 
 
 /* =========================================================
-   CURRENT SEASON
+   CURRENT SEASON INTRO
 ========================================================= */
 
-.current{
-    background:#f2f3f5;
+.season-intro{
+    background:#f1f2f4;
     color:#0a0c0f;
 }
 
-.current .section-number{
-    color:#999da4;
+.season-intro .section-number{
+    color:#92969d;
 }
 
-.current .section-description{
-    color:#686d75;
+.season-intro .section-description{
+    color:#666c73;
 }
 
-.season-feature{
+.season-facts{
     display:grid;
-    grid-template-columns:1.2fr .8fr;
-    min-height:550px;
 
-    border-top:1px solid #d4d7db;
-    border-bottom:1px solid #d4d7db;
+    grid-template-columns:
+        repeat(3,minmax(0,1fr));
+
+    border-top:1px solid #d3d6da;
+    border-bottom:1px solid #d3d6da;
 }
 
-.season-main{
-    padding:70px 70px 70px 0;
+.fact{
+    min-width:0;
 
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+    padding:40px 30px;
 
-    border-right:1px solid #d4d7db;
+    border-right:1px solid #d3d6da;
 }
 
-.season-label{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.16em;
-    color:#8b9097;
+.fact:last-child{
+    border-right:0;
 }
 
-.season-big{
-    font-size:clamp(100px,17vw,240px);
-    line-height:.75;
-    letter-spacing:-.1em;
+.fact-number{
+    margin-bottom:12px;
+
+    font-size:
+        clamp(
+            42px,
+            6vw,
+            80px
+        );
+
+    line-height:.85;
+
+    letter-spacing:-.07em;
+
     font-weight:900;
-    margin-left:-10px;
 }
 
-.season-name{
-    font-size:16px;
-    color:#686d74;
-}
-
-.season-link{
-    display:inline-flex;
-    align-items:center;
-    gap:18px;
-
-    margin-top:30px;
-
-    font-size:12px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.12em;
-
-    width:max-content;
-
-    border-bottom:1px solid #999da3;
-    padding-bottom:8px;
-
-    transition:gap .25s ease;
-}
-
-.season-link:hover{
-    gap:28px;
-}
-
-.season-side{
-    padding:70px;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-}
-
-.stat-row{
-    padding:22px 0;
-    border-bottom:1px solid #d4d7db;
-}
-
-.stat-row:first-child{
-    border-top:1px solid #d4d7db;
-}
-
-.stat-label{
-    font-size:10px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:#92969c;
-    margin-bottom:8px;
-}
-
-.stat-value{
-    font-size:36px;
-    font-weight:800;
-    letter-spacing:-.04em;
-}
-
-
-/* =========================================================
-   DATA SECTION
-========================================================= */
-
-.data-section{
-    background:#0b0d10;
-}
-
-.data-layout{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:2px;
-
-    background:#292d33;
-    border:1px solid #292d33;
-}
-
-.data-card{
-    min-height:420px;
-    padding:48px;
-
-    background:#0b0d10;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-
-    transition:background .3s ease;
-}
-
-.data-card:hover{
-    background:#101318;
-}
-
-.data-card-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-}
-
-.data-card-number{
-    font-size:11px;
-    color:#555b64;
-}
-
-.data-card h3{
-    margin:0;
-    font-size:28px;
-    letter-spacing:-.04em;
-}
-
-.data-card p{
-    max-width:390px;
-    color:#747a83;
-    font-size:13px;
-    line-height:1.7;
-}
-
-.card-arrow{
-    font-size:26px;
-    color:#555b64;
-    transition:transform .3s ease,color .3s ease;
-}
-
-.data-card:hover .card-arrow{
-    transform:translate(5px,-5px);
-    color:#fff;
-}
-
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-.history{
-    background:#111419;
-}
-
-.history-list{
-    border-top:1px solid #292d33;
-}
-
-.history-item{
-    display:grid;
-    grid-template-columns:180px 1fr 100px;
-
-    align-items:center;
-
-    min-height:145px;
-
-    border-bottom:1px solid #292d33;
-
-    transition:padding .35s ease,background .35s ease;
-}
-
-.history-item:hover{
-    padding-left:24px;
-    background:#15181d;
-}
-
-.history-year{
-    font-size:12px;
-    color:#666c74;
-    letter-spacing:.08em;
-}
-
-.history-title{
-    font-size:28px;
-    font-weight:700;
-    letter-spacing:-.04em;
-}
-
-.history-meta{
-    color:#666c74;
-    font-size:11px;
-    margin-top:7px;
-}
-
-.history-arrow{
-    text-align:right;
-    font-size:25px;
-    color:#555b63;
-}
-
-
-/* =========================================================
-   ALL TIME
-========================================================= */
-
-.all-time{
-    background:#f2f3f5;
-    color:#090b0e;
-}
-
-.all-time .section-description{
-    color:#696e75;
-}
-
-.table-preview{
-    border-top:1px solid #d4d7db;
-}
-
-.table-row{
-    display:grid;
-    grid-template-columns:70px 1fr 130px 100px;
-
-    align-items:center;
-
-    min-height:80px;
-
-    border-bottom:1px solid #d4d7db;
-
-    font-size:14px;
-}
-
-.table-row.header{
-    min-height:48px;
+.fact-label{
+    color:#777d84;
 
     font-size:9px;
+    font-weight:700;
+
+    letter-spacing:.15em;
     text-transform:uppercase;
-    letter-spacing:.14em;
-    color:#999da3;
-}
-
-.table-position{
-    color:#999da3;
-}
-
-.table-player{
-    font-weight:700;
-}
-
-.table-points{
-    text-align:right;
-    font-weight:700;
-}
-
-.table-arrow{
-    text-align:right;
-    color:#999da3;
 }
 
 
 /* =========================================================
-   WINNERS
+   SCROLL STORY
 ========================================================= */
 
-.winners{
+.story{
     background:#080a0d;
+
+    padding-top:120px;
+    padding-bottom:150px;
 }
 
-.winners-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:18px;
+.story-header{
+    width:100%;
+    max-width:1300px;
+
+    margin:0 auto 80px;
+
+    padding:
+        0
+        max(24px,8vw);
 }
 
-.winner{
-    min-height:330px;
-
-    border:1px solid #282c32;
-    padding:30px;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-
-    transition:transform .3s ease,border-color .3s ease;
-}
-
-.winner:hover{
-    transform:translateY(-7px);
-    border-color:#555b63;
-}
-
-.winner-season{
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:.16em;
-    color:#646a73;
-}
-
-.winner h3{
+.story-header h2{
     margin:0;
 
-    font-size:30px;
-    letter-spacing:-.05em;
+    font-size:
+        clamp(
+            44px,
+            7vw,
+            90px
+        );
+
+    line-height:.9;
+
+    letter-spacing:-.065em;
 }
 
-.winner-footer{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-}
+.story-header p{
+    max-width:520px;
 
-.winner-label{
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:.12em;
-    color:#5e646c;
-}
+    margin:28px 0 0;
 
-.winner-arrow{
-    font-size:24px;
-    color:#666c74;
+    color:#777d86;
+
+    font-size:14px;
+    line-height:1.8;
 }
 
 
-/* =========================================================
-   FINAL CTA
-========================================================= */
+/*
+    Desktop:
+    left side = scrolling story
+    right side = sticky chart
+*/
 
-.final{
+.story-layout{
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        minmax(0,1.15fr);
+
+    gap:70px;
+
+    width:100%;
+    max-width:1400px;
+
+    margin:auto;
+
+    padding:
+        0
+        max(24px,5vw);
+}
+
+.story-steps{
+    min-width:0;
+}
+
+.story-step{
     min-height:75vh;
 
     display:flex;
     align-items:center;
 
-    background:
-        radial-gradient(circle at 50% 50%,#1b2027 0%,#080a0d 55%);
+    padding:80px 0;
 }
 
-.final-inner{
+.step-content{
+    max-width:470px;
+
+    opacity:.28;
+
+    transform:translateY(20px);
+
+    transition:
+        opacity .5s ease,
+        transform .5s ease;
+}
+
+.story-step.active .step-content{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.step-number{
+    margin-bottom:24px;
+
+    color:#555b63;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.18em;
+    text-transform:uppercase;
+}
+
+.step-content h3{
+    margin:0;
+
+    font-size:
+        clamp(
+            38px,
+            4.5vw,
+            65px
+        );
+
+    line-height:.94;
+
+    letter-spacing:-.06em;
+}
+
+.step-content p{
+    margin:25px 0 0;
+
+    color:#858b94;
+
+    font-size:14px;
+    line-height:1.8;
+}
+
+.step-tag{
+    display:inline-flex;
+
+    margin-top:30px;
+
+    padding:9px 13px;
+
+    border:1px solid #30343a;
+    border-radius:30px;
+
+    color:#777d86;
+
+    font-size:9px;
+    font-weight:700;
+
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+
+/* Sticky visualization */
+
+.story-visual{
+    position:sticky;
+
+    top:100px;
+
+    align-self:start;
+
+    height:
+        min(
+            72vh,
+            700px
+        );
+
+    min-height:430px;
+
+    min-width:0;
+}
+
+.chart-panel{
+    position:relative;
+
     width:100%;
+    height:100%;
+
+    min-width:0;
+
+    padding:25px;
+
+    border:1px solid #272b31;
+
+    background:#0d1014;
+
+    overflow:hidden;
+}
+
+.chart-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:12px;
+}
+
+.chart-title{
+    margin:0;
+
+    font-size:18px;
+    font-weight:700;
+
+    letter-spacing:-.03em;
+}
+
+.chart-subtitle{
+    margin-top:5px;
+
+    color:#646a72;
+
+    font-size:10px;
+
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.chart-stage-label{
+    flex-shrink:0;
+
+    padding:7px 10px;
+
+    border:1px solid #2d3238;
+
+    color:#777d86;
+
+    font-size:9px;
+    font-weight:700;
+
+    letter-spacing:.1em;
+    text-transform:uppercase;
+}
+
+.canvas-wrap{
+    position:absolute;
+
+    left:25px;
+    right:25px;
+
+    top:105px;
+    bottom:25px;
+
+    min-width:0;
+}
+
+.canvas-wrap canvas{
+    display:block;
+
+    width:100%!important;
+    height:100%!important;
+}
+
+
+/* Current table shown inside visualization */
+
+.story-table{
+    position:absolute;
+
+    left:25px;
+    right:25px;
+
+    top:105px;
+    bottom:25px;
+
+    overflow:auto;
+
+    display:none;
+}
+
+.story-table.visible{
+    display:block;
+}
+
+.story-table table{
+    width:100%;
+
+    border-collapse:collapse;
+
+    font-size:12px;
+}
+
+.story-table th{
+    padding:10px 8px;
+
+    border-bottom:1px solid #30343a;
+
+    color:#646a72;
+
+    font-size:8px;
+    font-weight:700;
+
+    letter-spacing:.12em;
+    text-transform:uppercase;
+
+    text-align:left;
+}
+
+.story-table td{
+    padding:12px 8px;
+
+    border-bottom:1px solid #20242a;
+
+    color:#c5c9ce;
+}
+
+.story-table tr:first-child td{
+    color:#fff;
+}
+
+.story-table .rank{
+    width:40px;
+
+    color:#646a72;
+}
+
+.story-table .points{
+    text-align:right;
+
+    font-weight:700;
+}
+
+
+/* =========================================================
+   SEASON RANGE CONTROLS
+========================================================= */
+
+.range-section{
+    background:#f1f2f4;
+    color:#0a0c0f;
+}
+
+.range-box{
+    padding:35px;
+
+    border:1px solid #d3d6da;
+}
+
+.range-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:30px;
+}
+
+.range-title{
+    font-size:18px;
+    font-weight:700;
+}
+
+.range-value{
+    color:#777d84;
+
+    font-size:12px;
+}
+
+.range-slider{
+    position:relative;
+
+    height:30px;
+}
+
+.range-track{
+    position:absolute;
+
+    top:13px;
+    left:0;
+    right:0;
+
+    height:4px;
+
+    border-radius:4px;
+
+    background:#d5d8dc;
+}
+
+.range-fill{
+    position:absolute;
+
+    top:13px;
+
+    height:4px;
+
+    background:#111;
+
+    border-radius:4px;
+}
+
+.range-slider input{
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:30px;
+
+    margin:0;
+
+    appearance:none;
+    -webkit-appearance:none;
+
+    pointer-events:none;
+
+    background:none;
+}
+
+.range-slider input::-webkit-slider-thumb{
+    appearance:none;
+    -webkit-appearance:none;
+
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+
+    background:#111;
+    border:3px solid #f1f2f4;
+
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
+
+    pointer-events:auto;
+
+    cursor:pointer;
+}
+
+.range-slider input::-moz-range-thumb{
+    width:18px;
+    height:18px;
+
+    border-radius:50%;
+
+    background:#111;
+    border:3px solid #f1f2f4;
+
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
+
+    pointer-events:auto;
+
+    cursor:pointer;
+}
+
+.range-table{
+    margin-top:35px;
+
+    overflow-x:auto;
+}
+
+.range-table table{
+    width:100%;
+
+    min-width:600px;
+
+    border-collapse:collapse;
+}
+
+.range-table th,
+.range-table td{
+    padding:12px 10px;
+
+    border-bottom:1px solid #d3d6da;
+
+    font-size:12px;
+
+    text-align:left;
+}
+
+.range-table th{
+    color:#888d94;
+
+    font-size:9px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+
+/* =========================================================
+   ARCHIVE SECTION
+========================================================= */
+
+.archive-section{
+    background:#111419;
+}
+
+.archive-section .section-description{
+    color:#777d86;
+}
+
+.archive-cards{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:2px;
+
+    background:#292d33;
+
+    border:1px solid #292d33;
+}
+
+.archive-card{
+    min-width:0;
+
+    padding:40px;
+
+    background:#111419;
+
+    transition:background .25s ease;
+}
+
+.archive-card:hover{
+    background:#16191e;
+}
+
+.archive-card.current{
+    grid-column:1 / -1;
+}
+
+.archive-card-year{
+    color:#60666e;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.16em;
+    text-transform:uppercase;
+}
+
+.archive-card h3{
+    margin:18px 0 25px;
+
+    font-size:32px;
+
+    letter-spacing:-.05em;
+}
+
+.archive-card-links{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:1px;
+
+    background:#292d33;
+
+    border:1px solid #292d33;
+}
+
+.archive-card-links a{
+    min-width:0;
+
+    padding:15px;
+
+    background:#111419;
+
+    color:#999fa7;
+
+    font-size:11px;
+
+    transition:
+        color .2s ease,
+        background .2s ease;
+}
+
+.archive-card-links a:hover{
+    color:#fff;
+    background:#191d22;
+}
+
+
+/* =========================================================
+   ALL TIME TABLES
+========================================================= */
+
+.alltime{
+    background:#f1f2f4;
+    color:#0a0c0f;
+}
+
+.alltime-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:2px;
+
+    background:#d3d6da;
+
+    border:1px solid #d3d6da;
+}
+
+.alltime-card{
+    min-width:0;
+
+    padding:35px;
+
+    background:#f1f2f4;
+
+    transition:background .2s ease;
+}
+
+.alltime-card:hover{
+    background:#e9eaec;
+}
+
+.alltime-card h3{
+    margin:0 0 12px;
+
+    font-size:25px;
+
+    letter-spacing:-.04em;
+}
+
+.alltime-card p{
+    margin:0 0 25px;
+
+    color:#747980;
+
+    font-size:12px;
+    line-height:1.7;
+}
+
+.open-link{
+    display:inline-flex;
+
+    align-items:center;
+    gap:12px;
+
+    padding-bottom:7px;
+
+    border-bottom:1px solid #999da3;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:.13em;
+    text-transform:uppercase;
+}
+
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+.final{
+    min-height:80svh;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
     text-align:center;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            #1a1f26,
+            #080a0d 55%
+        );
 }
 
 .final-small{
-    font-size:10px;
+    margin-bottom:30px;
+
+    color:#60666e;
+
+    font-size:9px;
+    font-weight:700;
+
     letter-spacing:.2em;
     text-transform:uppercase;
-    color:#666c74;
-    margin-bottom:28px;
 }
 
 .final h2{
     margin:0;
 
-    font-size:clamp(65px,12vw,170px);
+    font-size:
+        clamp(
+            60px,
+            11vw,
+            155px
+        );
+
     line-height:.8;
+
     letter-spacing:-.08em;
+
     font-weight:900;
 }
 
 .final-link{
-    display:inline-block;
+    display:inline-flex;
 
     margin-top:55px;
 
-    padding:17px 28px;
+    padding:16px 25px;
 
-    border:1px solid #444951;
+    border:1px solid #454a52;
 
-    font-size:11px;
+    font-size:10px;
     font-weight:700;
-    letter-spacing:.14em;
+
+    letter-spacing:.13em;
     text-transform:uppercase;
 
     transition:
@@ -714,31 +1415,38 @@ section{
 ========================================================= */
 
 footer{
-    padding:35px 8vw;
-
-    border-top:1px solid #20242a;
+    width:100%;
 
     display:flex;
     justify-content:space-between;
 
+    padding:
+        30px
+        max(24px,8vw);
+
+    border-top:1px solid #20242a;
+
     color:#4f555e;
 
-    font-size:10px;
-    text-transform:uppercase;
+    font-size:9px;
+    font-weight:700;
+
     letter-spacing:.12em;
+    text-transform:uppercase;
 }
 
 
 /* =========================================================
-   REVEAL ANIMATIONS
+   REVEALS
 ========================================================= */
 
 .reveal{
     opacity:0;
-    transform:translateY(45px);
+    transform:translateY(35px);
+
     transition:
-        opacity .9s ease,
-        transform .9s cubic-bezier(.16,1,.3,1);
+        opacity:.8s ease,
+        transform:.8s cubic-bezier(.16,1,.3,1);
 }
 
 .reveal.visible{
@@ -746,16 +1454,48 @@ footer{
     transform:translateY(0);
 }
 
-.delay-1{
-    transition-delay:.1s;
-}
 
-.delay-2{
-    transition-delay:.2s;
-}
+/* =========================================================
+   TABLET
+========================================================= */
 
-.delay-3{
-    transition-delay:.3s;
+@media(max-width:950px){
+
+    .section-header{
+        grid-template-columns:1fr;
+
+        gap:25px;
+    }
+
+    .story-layout{
+        grid-template-columns:1fr;
+
+        gap:0;
+    }
+
+    .story-visual{
+        position:sticky;
+
+        top:82px;
+
+        order:-1;
+
+        height:60vh;
+
+        min-height:380px;
+
+        margin-bottom:20px;
+    }
+
+    .story-step{
+        min-height:65vh;
+
+        align-items:flex-start;
+
+        padding:
+            100px 0;
+    }
+
 }
 
 
@@ -763,144 +1503,614 @@ footer{
    MOBILE
 ========================================================= */
 
-@media(max-width:800px){
+@media(max-width:640px){
 
-    .nav{
-        height:64px;
-        padding:0 6vw;
+    body{
+        width:100%;
+        max-width:100%;
     }
 
-    .nav-links{
+    .nav{
+        height:62px;
+
+        padding:
+            0 18px;
+    }
+
+    .logo{
+        font-size:11px;
+    }
+
+    .nav-season{
         display:none;
+    }
+
+    .nav-right{
+        gap:10px;
+    }
+
+    .menu-button{
+        font-size:9px;
     }
 
     .hero{
-        padding:100px 7vw 80px;
+        min-height:100svh;
+
+        padding:
+            105px
+            20px
+            80px;
     }
 
     .hero h1{
-        font-size:22vw;
+        font-size:
+            clamp(
+                60px,
+                18vw,
+                100px
+            );
     }
 
-    .hero-subtitle{
-        font-size:14px;
-        margin-top:32px;
+    .hero-description{
+        max-width:100%;
+
+        font-size:13px;
     }
 
     .hero-season{
-        right:7vw;
-        bottom:9vh;
+        right:20px;
+        bottom:70px;
     }
 
     .hero-season-number{
-        font-size:80px;
+        font-size:65px;
+    }
+
+    .scroll-hint{
+        left:20px;
+        bottom:30px;
     }
 
     .section{
-        padding:100px 7vw;
+        padding:
+            90px 20px;
     }
 
     .section-header{
-        display:block;
         margin-bottom:45px;
     }
 
+    .section-title{
+        font-size:
+            clamp(
+                40px,
+                12vw,
+                58px
+            );
+    }
+
     .section-description{
-        margin-top:25px;
+        font-size:12px;
     }
 
-    .season-feature{
-        display:block;
-        min-height:0;
-    }
-
-    .season-main{
-        padding:45px 0;
-        border-right:none;
-        border-bottom:1px solid #d4d7db;
-    }
-
-    .season-big{
-        font-size:34vw;
-        margin:55px 0;
-    }
-
-    .season-side{
-        padding:40px 0;
-    }
-
-    .data-layout{
-        display:block;
-    }
-
-    .data-card{
-        min-height:300px;
-        padding:35px;
-        border-bottom:1px solid #292d33;
-    }
-
-    .history-item{
-        grid-template-columns:90px 1fr 30px;
-        min-height:120px;
-    }
-
-    .history-title{
-        font-size:21px;
-    }
-
-    .history-item:hover{
-        padding-left:10px;
-    }
-
-    .winners-grid{
+    .season-facts{
         grid-template-columns:1fr;
     }
 
-    .table-row{
-        grid-template-columns:45px 1fr 70px;
+    .fact{
+        padding:28px 20px;
+
+        border-right:0;
+        border-bottom:1px solid #d3d6da;
     }
 
-    .table-arrow{
-        display:none;
+    .fact:last-child{
+        border-bottom:0;
+    }
+
+    .fact-number{
+        font-size:55px;
+    }
+
+    .story{
+        padding-top:80px;
+    }
+
+    .story-header{
+        padding:0 20px;
+
+        margin-bottom:45px;
+    }
+
+    .story-header h2{
+        font-size:
+            clamp(
+                42px,
+                12vw,
+                58px
+            );
+    }
+
+    .story-header p{
+        font-size:12px;
+    }
+
+    .story-layout{
+        padding:0 14px;
+    }
+
+    .story-visual{
+        position:sticky;
+
+        top:72px;
+
+        height:58svh;
+
+        min-height:340px;
+        max-height:500px;
+
+        margin:0 -1px 0;
+    }
+
+    .chart-panel{
+        padding:15px;
+    }
+
+    .chart-top{
+        margin-bottom:0;
+    }
+
+    .chart-title{
+        font-size:14px;
+    }
+
+    .chart-subtitle{
+        font-size:8px;
+    }
+
+    .chart-stage-label{
+        padding:6px 7px;
+
+        font-size:7px;
+    }
+
+    .canvas-wrap{
+        left:10px;
+        right:10px;
+
+        top:82px;
+        bottom:10px;
+    }
+
+    .story-table{
+        left:10px;
+        right:10px;
+
+        top:82px;
+        bottom:10px;
+    }
+
+    .story-table table{
+        font-size:10px;
+    }
+
+    .story-table th{
+        padding:8px 5px;
+
+        font-size:7px;
+    }
+
+    .story-table td{
+        padding:9px 5px;
+    }
+
+    .story-step{
+        min-height:65svh;
+
+        padding:
+            100px 8px;
+    }
+
+    .step-content{
+        max-width:100%;
+    }
+
+    .step-content h3{
+        font-size:
+            clamp(
+                38px,
+                11vw,
+                55px
+            );
+    }
+
+    .step-content p{
+        font-size:12px;
+    }
+
+    .range-box{
+        padding:22px 16px;
+    }
+
+    .range-top{
+        display:block;
+    }
+
+    .range-value{
+        display:block;
+
+        margin-top:8px;
+    }
+
+    .range-table{
+        margin-left:-5px;
+        margin-right:-5px;
+    }
+
+    .archive-cards{
+        grid-template-columns:1fr;
+    }
+
+    .archive-card.current{
+        grid-column:auto;
+    }
+
+    .archive-card{
+        padding:26px 20px;
+    }
+
+    .archive-card h3{
+        font-size:26px;
+    }
+
+    .archive-card-links{
+        grid-template-columns:1fr;
+    }
+
+    .alltime-grid{
+        grid-template-columns:1fr;
+    }
+
+    .alltime-card{
+        padding:26px 20px;
+    }
+
+    .archive-inner{
+        padding:
+            90px 20px 50px;
+    }
+
+    .archive-grid{
+        grid-template-columns:1fr;
+    }
+
+    .archive-season.current{
+        grid-column:auto;
+    }
+
+    .archive-season{
+        padding:28px 20px;
     }
 
     footer{
-        padding:30px 7vw;
         display:block;
+
+        padding:
+            25px 20px;
+
         line-height:2;
     }
 
 }
 
-</style>
 
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media(max-width:380px){
+
+    .hero h1{
+        font-size:20vw;
+    }
+
+    .hero-season-number{
+        font-size:55px;
+    }
+
+    .story-visual{
+        height:55svh;
+        min-height:315px;
+    }
+
+    .chart-title{
+        font-size:12px;
+    }
+
+    .chart-stage-label{
+        display:none;
+    }
+
+}
+
+</style>
 </head>
+
 
 <body>
 
-<div class="scroll-progress" id="scrollProgress"></div>
+
+<div id="scrollProgress"></div>
+
 
 <!-- =====================================================
-     NAVIGATION
+     NAV
 ===================================================== -->
 
 <nav class="nav">
 
-```
-<a href="#" class="logo">
-    Kicker <span>/ Manager</span>
-</a>
+    <a href="#" class="logo">
+        Kicker <span>/ Manager</span>
+    </a>
 
-<div class="nav-links">
-    <a href="#season">Season</a>
-    <a href="#stats">Stats</a>
-    <a href="#history">History</a>
-    <a href="#alltime">All Time</a>
-    <a href="#winners">Winners</a>
-</div>
-```
+    <div class="nav-right">
+
+        <div class="nav-season">
+            Season 26 / 27
+        </div>
+
+        <button
+            class="menu-button"
+            id="openArchive"
+            type="button"
+        >
+            Seasons
+            <span>☰</span>
+        </button>
+
+    </div>
 
 </nav>
+
+
+<!-- =====================================================
+     ARCHIVE MENU
+===================================================== -->
+
+<div
+    class="archive"
+    id="archive"
+    aria-hidden="true"
+>
+
+    <div class="archive-inner">
+
+        <div class="archive-top">
+
+            <div class="archive-label">
+                Kicker Manager Archive
+            </div>
+
+            <button
+                class="close-button"
+                id="closeArchive"
+                type="button"
+            >
+                Close ×
+            </button>
+
+        </div>
+
+
+        <h2 class="archive-title">
+            Seasons.<br>
+            Statistics.<br>
+            History.
+        </h2>
+
+
+        <div class="archive-grid">
+
+
+            <!-- CURRENT -->
+
+            <div class="archive-season current">
+
+                <div class="archive-year">
+                    Current
+                </div>
+
+                <h3>
+                    Season 26 / 27
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Season 26-27/Saisonstatistiken 26-27.html">
+                        Complete season statistics
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- 25/26 -->
+
+            <div class="archive-season">
+
+                <div class="archive-year">
+                    2025 / 26
+                </div>
+
+                <h3>
+                    Season 25 / 26
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html">
+                        Accumulated points
+                    </a>
+
+                    <a href="Season 25-26/Punkte pro Spieltag 25-26.html">
+                        Points per matchday
+                    </a>
+
+                    <a href="Season 25-26/Tabelle Spieltag 25-26.html">
+                        League table
+                    </a>
+
+                    <a href="Season 25-26/Tagesplatzplatzierung 25-26.html">
+                        Matchday placement
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 -->
+
+            <div class="archive-season">
+
+                <div class="archive-year">
+                    2024 / 25
+                </div>
+
+                <h3>
+                    Season 24 / 25
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html">
+                        Accumulated points
+                    </a>
+
+                    <a href="Season 24-25/PunkteProSpieltag 24-25.html">
+                        Points per matchday
+                    </a>
+
+                    <a href="Season 24-25/Tabelle Spieltag 24-25.html">
+                        League table
+                    </a>
+
+                    <a href="Season 24-25/Tagesplatzierung 24-25.html">
+                        Matchday placement
+                    </a>
+
+                    <a href="Season 24-25/Hin und Rueckrunde/Hin- und Rückrundentabelle 24-25.html">
+                        First / second half table
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- 23/24 -->
+
+            <div class="archive-season">
+
+                <div class="archive-year">
+                    2023 / 24
+                </div>
+
+                <h3>
+                    Season 23 / 24
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Season 23-24/Punkteentwicklung 23-24.PNG">
+                        Points development
+                    </a>
+
+                    <a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">
+                        League position
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- ALL TIME -->
+
+            <div class="archive-season">
+
+                <div class="archive-year">
+                    All Time
+                </div>
+
+                <h3>
+                    Ewige Tabellen
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2027.html">
+                        Ewige Tabelle 2027
+                    </a>
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2026.html">
+                        Ewige Tabelle 2026
+                    </a>
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2025.html">
+                        Ewige Tabelle 2025
+                    </a>
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">
+                        Ewige Tabelle 2024
+                    </a>
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2023.png">
+                        Ewige Tabelle 2023
+                    </a>
+
+                    <a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">
+                        Ewige Tabelle 2022
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- OTHER -->
+
+            <div class="archive-season">
+
+                <div class="archive-year">
+                    Overview
+                </div>
+
+                <h3>
+                    Other statistics
+                </h3>
+
+                <div class="archive-links">
+
+                    <a href="Endplatzierungen.html">
+                        Final standings
+                    </a>
+
+                    <a href="Winning Teams/winning-teams.html">
+                        Winning teams
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <!-- =====================================================
      HERO
@@ -908,155 +2118,142 @@ footer{
 
 <section class="hero">
 
-```
-<div class="hero-grid"></div>
+    <div class="hero-grid"></div>
 
-<div class="hero-content">
+    <div class="hero-content">
 
-    <div class="eyebrow reveal">
-        <span class="eyebrow-line"></span>
-        Manager Statistics
-    </div>
+        <div class="eyebrow reveal">
 
-    <h1 class="reveal delay-1">
-        KICKER<br>
-        <span class="muted">MANAGER</span>
-    </h1>
+            <span class="eyebrow-line"></span>
 
-    <p class="hero-subtitle reveal delay-2">
-        Every matchday. Every point. Every season.
-        A complete statistical history of our manager league.
-    </p>
+            Manager Statistics
 
-</div>
-
-<div class="hero-season reveal delay-3">
-    <div class="hero-season-label">
-        Current Season
-    </div>
-
-    <div class="hero-season-number">
-        26/27
-    </div>
-</div>
-
-<div class="scroll-hint">
-    <span class="scroll-line"></span>
-    Scroll to explore
-</div>
-```
-
-</section>
-
-<!-- =====================================================
-     CURRENT SEASON
-===================================================== -->
-
-<section class="section current" id="season">
-
-```
-<div class="section-inner">
-
-    <div class="section-header reveal">
-
-        <div>
-            <div class="section-number">01 / CURRENT SEASON</div>
-
-            <h2 class="section-title">
-                The season<br>
-                in numbers.
-            </h2>
         </div>
 
-        <p class="section-description">
-            Follow the current campaign matchday by matchday.
-            Explore the complete interactive statistics and
-            compare every manager's progress throughout the season.
+
+        <h1 class="reveal">
+
+            KICKER<br>
+
+            <span class="muted">
+                MANAGER
+            </span>
+
+        </h1>
+
+
+        <p class="hero-description reveal">
+
+            Every matchday.
+            Every point.
+            Every season.
+
+            A complete statistical history of our
+            Kicker Manager league.
+
         </p>
 
     </div>
 
 
-    <div class="season-feature reveal">
+    <div class="hero-season reveal">
 
-        <div class="season-main">
+        <div class="hero-season-label">
+            Current season
+        </div>
 
-            <div class="season-label">
-                Season
-            </div>
+        <div class="hero-season-number">
+            26/27
+        </div>
 
-            <div class="season-big">
-                26
-            </div>
+    </div>
+
+
+    <div class="scroll-hint">
+
+        <span class="scroll-line"></span>
+
+        Scroll to explore
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CURRENT SEASON INTRO
+===================================================== -->
+
+<section class="section season-intro">
+
+    <div class="section-inner">
+
+        <div class="section-header reveal">
 
             <div>
 
-                <div class="season-name">
-                    2026 / 2027
+                <div class="section-number">
+                    01 / 2026 — 2027
                 </div>
 
-                <a
-                    class="season-link"
-                    href="Season 26-27/Saisonstatistiken 26-27.html"
-                >
-                    Explore season
-                    <span>→</span>
-                </a>
+                <h2 class="section-title">
+                    The season<br>
+                    so far.
+                </h2>
 
             </div>
+
+
+            <p class="section-description">
+
+                Four matchdays have been played.
+                Eleven managers are competing across
+                a 34-matchday season.
+
+                Scroll through the data instead of opening
+                four separate graphs.
+
+            </p>
 
         </div>
 
 
-        <div class="season-side">
+        <div class="season-facts">
 
-            <div class="stat-row">
+            <div class="fact reveal">
 
-                <div class="stat-label">
-                    Managers
-                </div>
-
-                <div class="stat-value">
+                <div class="fact-number">
                     11
                 </div>
 
-            </div>
-
-
-            <div class="stat-row">
-
-                <div class="stat-label">
-                    Matchdays
-                </div>
-
-                <div class="stat-value">
-                    34
+                <div class="fact-label">
+                    Managers
                 </div>
 
             </div>
 
 
-            <div class="stat-row">
+            <div class="fact reveal">
 
-                <div class="stat-label">
-                    Current matchday
-                </div>
-
-                <div class="stat-value">
+                <div class="fact-number">
                     4
                 </div>
 
+                <div class="fact-label">
+                    Matchdays played
+                </div>
+
             </div>
 
 
-            <div class="stat-row">
+            <div class="fact reveal">
 
-                <div class="stat-label">
-                    Seasons recorded
+                <div class="fact-number">
+                    34
                 </div>
 
-                <div class="stat-value">
-                    5
+                <div class="fact-label">
+                    Matchdays in season
                 </div>
 
             </div>
@@ -1065,532 +2262,792 @@ footer{
 
     </div>
 
-</div>
-```
-
 </section>
 
+
 <!-- =====================================================
-     STATISTICS
+     SCROLL STORY
 ===================================================== -->
 
-<section class="section data-section" id="stats">
+<section class="story" id="story">
 
-```
-<div class="section-inner">
 
-    <div class="section-header reveal">
+    <div class="story-header">
 
-        <div>
-
-            <div class="section-number">
-                02 / STATISTICS
-            </div>
-
-            <h2 class="section-title">
-                More than<br>
-                just points.
-            </h2>
-
+        <div class="section-number">
+            02 / THE SEASON
         </div>
 
-        <p class="section-description">
-            Dive into the statistics behind the league.
-            From final standings to matchday performance
-            and historical tables.
+        <h2>
+            One story.<br>
+            Four views.
+        </h2>
+
+        <p>
+            The visualization changes as you move through
+            the season. Each section represents a different
+            statistic, so the same graph is never repeated.
         </p>
 
     </div>
 
 
-    <div class="data-layout">
+    <div class="story-layout">
 
-        <a
-            class="data-card reveal"
-            href="Endplatzierungen.html"
-        >
 
-            <div class="data-card-top">
+        <!-- =================================================
+             SCROLLING TEXT
+        ================================================= -->
 
-                <div class="data-card-number">
-                    01
+        <div class="story-steps">
+
+
+            <!-- STEP 1 -->
+
+            <article
+                class="story-step active"
+                data-stage="0"
+            >
+
+                <div class="step-content">
+
+                    <div class="step-number">
+                        01 / ACCUMULATED
+                    </div>
+
+                    <h3>
+                        The race<br>
+                        starts here.
+                    </h3>
+
+                    <p>
+                        The accumulated points graph shows
+                        how the season has developed after
+                        each matchday.
+
+                        The x-axis already represents the
+                        complete 34-matchday season, while
+                        future matchdays remain empty.
+                    </p>
+
+                    <div class="step-tag">
+                        34 matchdays
+                    </div>
+
                 </div>
 
-                <div class="card-arrow">
-                    ↗
+            </article>
+
+
+            <!-- STEP 2 -->
+
+            <article
+                class="story-step"
+                data-stage="1"
+            >
+
+                <div class="step-content">
+
+                    <div class="step-number">
+                        02 / MATCHDAY POINTS
+                    </div>
+
+                    <h3>
+                        Every week<br>
+                        is different.
+                    </h3>
+
+                    <p>
+                        Accumulated points tell you where
+                        everyone is.
+
+                        This view shows what actually happened
+                        on each individual matchday.
+                    </p>
+
+                    <div class="step-tag">
+                        Points per matchday
+                    </div>
+
                 </div>
 
-            </div>
-
-            <div>
-
-                <h3>
-                    Final standings
-                </h3>
-
-                <p>
-                    See how every manager finished each
-                    completed season.
-                </p>
-
-            </div>
-
-        </a>
+            </article>
 
 
-        <a
-            class="data-card reveal delay-1"
-            href="Season 26-27/Saisonstatistiken 26-27.html"
-        >
+            <!-- STEP 3 -->
 
-            <div class="data-card-top">
+            <article
+                class="story-step"
+                data-stage="2"
+            >
 
-                <div class="data-card-number">
-                    02
+                <div class="step-content">
+
+                    <div class="step-number">
+                        03 / LEAGUE POSITION
+                    </div>
+
+                    <h3>
+                        Position<br>
+                        changes.
+                    </h3>
+
+                    <p>
+                        Points and position are not the same
+                        thing.
+
+                        This view follows where every manager
+                        sits in the league after each matchday.
+                    </p>
+
+                    <div class="step-tag">
+                        1 = first place
+                    </div>
+
                 </div>
 
-                <div class="card-arrow">
-                    ↗
+            </article>
+
+
+            <!-- STEP 4 -->
+
+            <article
+                class="story-step"
+                data-stage="3"
+            >
+
+                <div class="step-content">
+
+                    <div class="step-number">
+                        04 / MATCHDAY RANK
+                    </div>
+
+                    <h3>
+                        Who had<br>
+                        the big week?
+                    </h3>
+
+                    <p>
+                        The final view isolates each individual
+                        matchday and ranks the managers by the
+                        points they earned that week.
+                    </p>
+
+                    <div class="step-tag">
+                        Matchday ranking
+                    </div>
+
                 </div>
 
-            </div>
-
-            <div>
-
-                <h3>
-                    Season analytics
-                </h3>
-
-                <p>
-                    Points development, league position,
-                    matchday performance and interactive
-                    player comparisons.
-                </p>
-
-            </div>
-
-        </a>
+            </article>
 
 
-        <a
-            class="data-card reveal"
-            href="Ewige Tabellen/Ewige Tabelle 2027.html"
-        >
+            <!-- STEP 5 -->
 
-            <div class="data-card-top">
+            <article
+                class="story-step"
+                data-stage="4"
+            >
 
-                <div class="data-card-number">
-                    03
+                <div class="step-content">
+
+                    <div class="step-number">
+                        05 / CURRENT TABLE
+                    </div>
+
+                    <h3>
+                        Where they<br>
+                        stand now.
+                    </h3>
+
+                    <p>
+                        The four views come together in the
+                        current league table.
+                    </p>
+
+                    <div class="step-tag">
+                        After matchday 4
+                    </div>
+
                 </div>
 
-                <div class="card-arrow">
-                    ↗
-                </div>
+            </article>
 
-            </div>
-
-            <div>
-
-                <h3>
-                    All-time table
-                </h3>
-
-                <p>
-                    Combine the history of the league into
-                    one continuously evolving table.
-                </p>
-
-            </div>
-
-        </a>
-
-
-        <a
-            class="data-card reveal delay-1"
-            href="Winning Teams/winning-teams.html"
-        >
-
-            <div class="data-card-top">
-
-                <div class="data-card-number">
-                    04
-                </div>
-
-                <div class="card-arrow">
-                    ↗
-                </div>
-
-            </div>
-
-            <div>
-
-                <h3>
-                    Winning teams
-                </h3>
-
-                <p>
-                    Look back at the teams that defined
-                    each championship season.
-                </p>
-
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-```
-
-</section>
-
-<!-- =====================================================
-     HISTORY
-===================================================== -->
-
-<section class="section history" id="history">
-
-```
-<div class="section-inner">
-
-    <div class="section-header reveal">
-
-        <div>
-
-            <div class="section-number">
-                03 / HISTORY
-            </div>
-
-            <h2 class="section-title">
-                Five seasons.<br>
-                One history.
-            </h2>
 
         </div>
 
-        <p class="section-description">
-            Explore previous campaigns and see how the league
-            evolved from season to season.
-        </p>
+
+        <!-- =================================================
+             STICKY VISUALIZATION
+        ================================================= -->
+
+        <div class="story-visual">
+
+            <div class="chart-panel">
+
+                <div class="chart-top">
+
+                    <div>
+
+                        <h3
+                            class="chart-title"
+                            id="chartTitle"
+                        >
+                            Accumulated points
+                        </h3>
+
+                        <div
+                            class="chart-subtitle"
+                            id="chartSubtitle"
+                        >
+                            Season 26 / 27
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="chart-stage-label"
+                        id="chartStage"
+                    >
+                        01 / 05
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="canvas-wrap"
+                    id="canvasWrap"
+                >
+
+                    <canvas id="seasonChart"></canvas>
+
+                </div>
+
+
+                <div
+                    class="story-table"
+                    id="storyTable"
+                ></div>
+
+            </div>
+
+        </div>
 
     </div>
-
-
-    <div class="history-list">
-
-        <a
-            class="history-item reveal"
-            href="Season 26-27/Saisonstatistiken 26-27.html"
-        >
-
-            <div class="history-year">
-                2026 / 27
-            </div>
-
-            <div>
-                <div class="history-title">
-                    Current season
-                </div>
-
-                <div class="history-meta">
-                    Interactive statistics
-                </div>
-            </div>
-
-            <div class="history-arrow">
-                →
-            </div>
-
-        </a>
-
-
-        <a
-            class="history-item reveal"
-            href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html"
-        >
-
-            <div class="history-year">
-                2025 / 26
-            </div>
-
-            <div>
-                <div class="history-title">
-                    Season 25/26
-                </div>
-
-                <div class="history-meta">
-                    Points · Tables · Rankings
-                </div>
-            </div>
-
-            <div class="history-arrow">
-                →
-            </div>
-
-        </a>
-
-
-        <a
-            class="history-item reveal"
-            href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html"
-        >
-
-            <div class="history-year">
-                2024 / 25
-            </div>
-
-            <div>
-                <div class="history-title">
-                    Season 24/25
-                </div>
-
-                <div class="history-meta">
-                    Points · Tables · Rankings
-                </div>
-            </div>
-
-            <div class="history-arrow">
-                →
-            </div>
-
-        </a>
-
-
-        <a
-            class="history-item reveal"
-            href="Season 23-24/Punkteentwicklung 23-24.PNG"
-        >
-
-            <div class="history-year">
-                2023 / 24
-            </div>
-
-            <div>
-                <div class="history-title">
-                    Season 23/24
-                </div>
-
-                <div class="history-meta">
-                    Historical statistics
-                </div>
-            </div>
-
-            <div class="history-arrow">
-                →
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-```
 
 </section>
+
+
+<!-- =====================================================
+     RANGE EXPLORER
+===================================================== -->
+
+<section class="section range-section">
+
+    <div class="section-inner">
+
+        <div class="section-header reveal">
+
+            <div>
+
+                <div class="section-number">
+                    03 / MATCHDAY RANGE
+                </div>
+
+                <h2 class="section-title">
+                    Pick the<br>
+                    period.
+                </h2>
+
+            </div>
+
+            <p class="section-description">
+
+                The homepage gives you the story.
+                For deeper analysis, use this range selector
+                to compare any played part of the season.
+
+            </p>
+
+        </div>
+
+
+        <div class="range-box reveal">
+
+            <div class="range-top">
+
+                <div class="range-title">
+                    Matchday range
+                </div>
+
+                <div
+                    class="range-value"
+                    id="rangeLabel"
+                >
+                    1 – 4
+                </div>
+
+            </div>
+
+
+            <div class="range-slider">
+
+                <div class="range-track"></div>
+
+                <div
+                    class="range-fill"
+                    id="rangeFill"
+                ></div>
+
+                <input
+                    id="rangeMin"
+                    type="range"
+                    min="1"
+                    max="4"
+                    value="1"
+                >
+
+                <input
+                    id="rangeMax"
+                    type="range"
+                    min="1"
+                    max="4"
+                    value="4"
+                >
+
+            </div>
+
+
+            <div
+                class="range-table"
+                id="rangeTable"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     ARCHIVE
+===================================================== -->
+
+<section class="section archive-section">
+
+    <div class="section-inner">
+
+        <div class="section-header reveal">
+
+            <div>
+
+                <div class="section-number">
+                    04 / SEASON ARCHIVE
+                </div>
+
+                <h2 class="section-title">
+                    Nothing<br>
+                    gets lost.
+                </h2>
+
+            </div>
+
+            <p class="section-description">
+
+                Previous seasons keep their original statistics.
+                Each season has its own collection of points,
+                matchday, table and placement views.
+
+            </p>
+
+        </div>
+
+
+        <div class="archive-cards">
+
+
+            <!-- 25/26 -->
+
+            <div class="archive-card reveal">
+
+                <div class="archive-card-year">
+                    2025 / 26
+                </div>
+
+                <h3>
+                    Season 25 / 26
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html">
+                        Accumulated points →
+                    </a>
+
+                    <a href="Season 25-26/Punkte pro Spieltag 25-26.html">
+                        Points per matchday →
+                    </a>
+
+                    <a href="Season 25-26/Tabelle Spieltag 25-26.html">
+                        League table →
+                    </a>
+
+                    <a href="Season 25-26/Tagesplatzplatzierung 25-26.html">
+                        Matchday placement →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 -->
+
+            <div class="archive-card reveal">
+
+                <div class="archive-card-year">
+                    2024 / 25
+                </div>
+
+                <h3>
+                    Season 24 / 25
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html">
+                        Accumulated points →
+                    </a>
+
+                    <a href="Season 24-25/PunkteProSpieltag 24-25.html">
+                        Points per matchday →
+                    </a>
+
+                    <a href="Season 24-25/Tabelle Spieltag 24-25.html">
+                        League table →
+                    </a>
+
+                    <a href="Season 24-25/Tagesplatzierung 24-25.html">
+                        Matchday placement →
+                    </a>
+
+                    <a href="Season 24-25/Hin und Rueckrunde/Hin- und Rückrundentabelle 24-25.html">
+                        First / second half →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- 23/24 -->
+
+            <div class="archive-card reveal">
+
+                <div class="archive-card-year">
+                    2023 / 24
+                </div>
+
+                <h3>
+                    Season 23 / 24
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Season 23-24/Punkteentwicklung 23-24.PNG">
+                        Points development →
+                    </a>
+
+                    <a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">
+                        League position →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- CURRENT -->
+
+            <div class="archive-card current reveal">
+
+                <div class="archive-card-year">
+                    Current
+                </div>
+
+                <h3>
+                    Season 26 / 27
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Season 26-27/Saisonstatistiken 26-27.html">
+                        Complete interactive statistics →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</section>
+
 
 <!-- =====================================================
      ALL TIME
 ===================================================== -->
 
-<section class="section all-time" id="alltime">
+<section class="section alltime">
 
-```
-<div class="section-inner">
+    <div class="section-inner">
 
-    <div class="section-header reveal">
+        <div class="section-header reveal">
 
-        <div>
+            <div>
 
-            <div class="section-number">
-                04 / ALL TIME
+                <div class="section-number">
+                    05 / ETERNAL TABLE
+                </div>
+
+                <h2 class="section-title">
+                    The long<br>
+                    game.
+                </h2>
+
             </div>
 
-            <h2 class="section-title">
-                The bigger<br>
-                picture.
-            </h2>
+            <p class="section-description">
+
+                Historical all-time tables are kept separately
+                so they can be compared across different
+                points in the league's history.
+
+            </p>
 
         </div>
 
-        <p class="section-description">
-            The all-time table brings multiple seasons together
-            and shows the long-term standings of the league.
-        </p>
+
+        <div class="alltime-grid">
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2027
+                </h3>
+
+                <p>
+                    Current all-time table.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2027.html"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2026
+                </h3>
+
+                <p>
+                    Historical all-time table after 2025/26.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2026.html"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2025
+                </h3>
+
+                <p>
+                    Historical all-time table after 2024/25.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2025.html"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2024
+                </h3>
+
+                <p>
+                    Historical table from the earlier seasons.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2024.PNG"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2023
+                </h3>
+
+                <p>
+                    Historical all-time table.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2023.png"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+            <div class="alltime-card reveal">
+
+                <h3>
+                    Ewige Tabelle 2022
+                </h3>
+
+                <p>
+                    Earliest archived all-time table.
+                </p>
+
+                <a
+                    class="open-link"
+                    href="Ewige Tabellen/Ewige Tabelle 2022.PNG"
+                >
+                    Open table →
+                </a>
+
+            </div>
+
+
+        </div>
 
     </div>
-
-
-    <div class="table-preview reveal">
-
-        <div class="table-row header">
-            <div>Rank</div>
-            <div>Manager</div>
-            <div style="text-align:right">Points</div>
-            <div></div>
-        </div>
-
-
-        <div class="table-row">
-            <div class="table-position">01</div>
-            <div class="table-player">Current leader</div>
-            <div class="table-points">—</div>
-            <div class="table-arrow">→</div>
-        </div>
-
-
-        <div class="table-row">
-            <div class="table-position">02</div>
-            <div class="table-player">View full table</div>
-            <div class="table-points">→</div>
-            <div class="table-arrow"></div>
-        </div>
-
-
-        <div class="table-row">
-            <div class="table-position">03</div>
-            <div class="table-player">Historical ranking</div>
-            <div class="table-points">→</div>
-            <div class="table-arrow"></div>
-        </div>
-
-    </div>
-
-
-    <a
-        class="season-link reveal"
-        href="Ewige Tabellen/Ewige Tabelle 2027.html"
-    >
-        Open all-time table
-        <span>→</span>
-    </a>
-
-</div>
-```
 
 </section>
+
 
 <!-- =====================================================
-     WINNERS
+     OTHER ARCHIVE
 ===================================================== -->
 
-<section class="section winners" id="winners">
+<section class="section archive-section">
 
-```
-<div class="section-inner">
+    <div class="section-inner">
 
-    <div class="section-header reveal">
+        <div class="section-header reveal">
 
-        <div>
+            <div>
 
-            <div class="section-number">
-                05 / WINNERS
+                <div class="section-number">
+                    06 / OVERVIEW
+                </div>
+
+                <h2 class="section-title">
+                    The complete<br>
+                    archive.
+                </h2>
+
             </div>
 
-            <h2 class="section-title">
-                The champions.
-            </h2>
+            <p class="section-description">
+
+                Additional historical overviews that do not belong
+                to a single season.
+
+            </p>
 
         </div>
 
-        <p class="section-description">
-            The winning teams from previous seasons,
-            collected in one place.
-        </p>
+
+        <div class="archive-cards">
+
+
+            <div class="archive-card reveal">
+
+                <div class="archive-card-year">
+                    Final standings
+                </div>
+
+                <h3>
+                    Endplatzierungen
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Endplatzierungen.html">
+                        Open final standings →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <div class="archive-card reveal">
+
+                <div class="archive-card-year">
+                    Championships
+                </div>
+
+                <h3>
+                    Winning Teams
+                </h3>
+
+                <div class="archive-card-links">
+
+                    <a href="Winning Teams/winning-teams.html">
+                        Open winning teams →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+        </div>
 
     </div>
-
-
-    <div class="winners-grid">
-
-        <a
-            class="winner reveal"
-            href="Winning Teams/winning-teams.html"
-        >
-
-            <div class="winner-season">
-                2025 / 26
-            </div>
-
-            <h3>
-                Winning team
-            </h3>
-
-            <div class="winner-footer">
-
-                <div class="winner-label">
-                    Championship
-                </div>
-
-                <div class="winner-arrow">
-                    ↗
-                </div>
-
-            </div>
-
-        </a>
-
-
-        <a
-            class="winner reveal delay-1"
-            href="Winning Teams/winning-teams.html"
-        >
-
-            <div class="winner-season">
-                2024 / 25
-            </div>
-
-            <h3>
-                Winning team
-            </h3>
-
-            <div class="winner-footer">
-
-                <div class="winner-label">
-                    Championship
-                </div>
-
-                <div class="winner-arrow">
-                    ↗
-                </div>
-
-            </div>
-
-        </a>
-
-
-        <a
-            class="winner reveal delay-2"
-            href="Winning Teams/winning-teams.html"
-        >
-
-            <div class="winner-season">
-                All seasons
-            </div>
-
-            <h3>
-                View archive
-            </h3>
-
-            <div class="winner-footer">
-
-                <div class="winner-label">
-                    Complete history
-                </div>
-
-                <div class="winner-arrow">
-                    ↗
-                </div>
-
-            </div>
-
-        </a>
-
-    </div>
-
-</div>
-```
 
 </section>
+
 
 <!-- =====================================================
      FINAL
@@ -1598,115 +3055,1212 @@ footer{
 
 <section class="final">
 
-```
-<div class="final-inner">
+    <div>
 
-    <div class="final-small reveal">
-        Kicker Manager Statistics
+        <div class="final-small reveal">
+            Kicker Manager Statistics
+        </div>
+
+        <h2 class="reveal">
+            LET THE<br>
+            NUMBERS TALK.
+        </h2>
+
+        <a
+            class="final-link reveal"
+            href="Season 26-27/Saisonstatistiken 26-27.html"
+        >
+            Open complete 26 / 27 statistics
+        </a>
+
     </div>
-
-    <h2 class="reveal delay-1">
-        LET THE<br>
-        NUMBERS TALK.
-    </h2>
-
-    <a
-        class="final-link reveal delay-2"
-        href="Season 26-27/Saisonstatistiken 26-27.html"
-    >
-        Enter Season 26/27
-    </a>
-
-</div>
-```
 
 </section>
 
+
 <footer>
 
-```
-<div>
-    Kicker Manager Statistics
-</div>
+    <div>
+        Kicker Manager Statistics
+    </div>
 
-<div>
-    Season 26 / 27
-</div>
-```
+    <div>
+        2026 / 2027
+    </div>
 
 </footer>
+
 
 <script>
 
 /* =========================================================
-   SCROLL PROGRESS
+   CURRENT SEASON DATA
 ========================================================= */
 
-const progress = document.getElementById('scrollProgress');
+const playerPoints = {
 
-function updateProgress(){
+    Markus:[83,193,291,380],
 
-    const scrollTop = window.scrollY;
+    Erwin:[58,86,124,154],
 
-    const height =
-        document.documentElement.scrollHeight -
-        window.innerHeight;
+    Phil:[59,77,116,186],
 
-    const percentage =
-        height > 0
-        ? (scrollTop / height) * 100
-        : 0;
+    Didi:[68,141,212,272],
 
-    progress.style.width = percentage + '%';
+    Steffo:[59,106,177,250],
 
-}
+    Basti:[62,93,131,194],
 
-window.addEventListener(
-    'scroll',
-    updateProgress,
-    {passive:true}
+    Eirik:[69,75,108,170],
+
+    Emil:[51,75,75,145],
+
+    Kempka:[49,84,129,170],
+
+    Espen:[64,124,213,285],
+
+    Alex:[42,90,141,184]
+
+};
+
+
+const players =
+    Object.keys(playerPoints);
+
+
+const colors = [
+
+    '#E41A1C',
+    '#377EB8',
+    '#4DAF4A',
+    '#984EA3',
+    '#FF7F00',
+    '#A65628',
+    '#E7298A',
+    '#999999',
+    '#66C2A5',
+    '#B8860B',
+    '#4363D8'
+
+];
+
+
+const TOTAL_MATCHDAYS = 34;
+
+const PLAYED_MATCHDAYS = Math.max(
+    ...players.map(
+        p => playerPoints[p].length
+    )
 );
-
-updateProgress();
 
 
 /* =========================================================
-   REVEAL ELEMENTS
+   CALCULATE MATCHDAY POINTS
 ========================================================= */
 
-const revealObserver =
+const matchdayPoints = {};
+
+players.forEach(player => {
+
+    matchdayPoints[player] =
+        playerPoints[player].map(
+            (points,index) => {
+
+                if(index === 0){
+                    return points;
+                }
+
+                return points -
+                    playerPoints[player][index - 1];
+
+            }
+        );
+
+});
+
+
+/* =========================================================
+   CALCULATE LEAGUE POSITION
+========================================================= */
+
+const leaguePositions = {};
+
+players.forEach(
+    player => leaguePositions[player] = []
+);
+
+
+for(let md = 0; md < PLAYED_MATCHDAYS; md++){
+
+    const ranked =
+        players
+        .map(player => ({
+            player,
+            points:
+                playerPoints[player][md]
+        }))
+        .sort(
+            (a,b) =>
+                b.points - a.points
+        );
+
+
+    ranked.forEach(
+        (item,index) => {
+
+            leaguePositions[item.player][md] =
+                index + 1;
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CALCULATE MATCHDAY RANK
+========================================================= */
+
+const matchdayRanks = {};
+
+players.forEach(
+    player => matchdayRanks[player] = []
+);
+
+
+for(let md = 0; md < PLAYED_MATCHDAYS; md++){
+
+    const ranked =
+        players
+        .map(player => ({
+            player,
+            points:
+                matchdayPoints[player][md]
+        }))
+        .sort(
+            (a,b) =>
+                b.points - a.points
+        );
+
+
+    ranked.forEach(
+        (item,index) => {
+
+            matchdayRanks[item.player][md] =
+                index + 1;
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+const ctx =
+    document
+    .getElementById('seasonChart')
+    .getContext('2d');
+
+
+let currentStage = 0;
+
+
+const chartTitle =
+    document.getElementById('chartTitle');
+
+const chartSubtitle =
+    document.getElementById('chartSubtitle');
+
+const chartStage =
+    document.getElementById('chartStage');
+
+const canvasWrap =
+    document.getElementById('canvasWrap');
+
+const storyTable =
+    document.getElementById('storyTable');
+
+
+function makeLabels(){
+
+    return Array.from(
+        {length:TOTAL_MATCHDAYS},
+        (_,index) => index + 1
+    );
+
+}
+
+
+function datasetColor(
+    player,
+    index
+){
+
+    return colors[index];
+
+}
+
+
+function cumulativeData(player){
+
+    return Array.from(
+        {length:TOTAL_MATCHDAYS},
+        (_,index) =>
+            playerPoints[player][index] ?? null
+    );
+
+}
+
+
+function matchdayData(player){
+
+    return Array.from(
+        {length:TOTAL_MATCHDAYS},
+        (_,index) =>
+            matchdayPoints[player]?.[index] ?? null
+    );
+
+}
+
+
+function leagueData(player){
+
+    return Array.from(
+        {length:TOTAL_MATCHDAYS},
+        (_,index) =>
+            leaguePositions[player]?.[index] ?? null
+    );
+
+}
+
+
+function rankData(player){
+
+    return Array.from(
+        {length:TOTAL_MATCHDAYS},
+        (_,index) =>
+            matchdayRanks[player]?.[index] ?? null
+    );
+
+}
+
+
+function createDatasets(
+    dataFunction
+){
+
+    return players.map(
+        (player,index) => ({
+
+            label:player,
+
+            data:dataFunction(player),
+
+            borderColor:
+                datasetColor(player,index),
+
+            backgroundColor:
+                datasetColor(player,index),
+
+            pointBackgroundColor:
+                datasetColor(player,index),
+
+            pointBorderColor:
+                datasetColor(player,index),
+
+            borderWidth:
+                window.innerWidth <= 640
+                ? 1.5
+                : 2,
+
+            pointRadius:
+                window.innerWidth <= 640
+                ? 2
+                : 3,
+
+            pointHoverRadius:5,
+
+            spanGaps:false,
+
+            tension:.25
+
+        })
+    );
+
+}
+
+
+const chart = new Chart(
+    ctx,
+    {
+
+        type:'line',
+
+        data:{
+
+            labels:makeLabels(),
+
+            datasets:
+                createDatasets(
+                    cumulativeData
+                )
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            animation:{
+                duration:500
+            },
+
+            interaction:{
+                mode:'index',
+                intersect:false
+            },
+
+            plugins:{
+
+                legend:{
+
+                    position:'bottom',
+
+                    labels:{
+
+                        color:'#8b9199',
+
+                        usePointStyle:true,
+
+                        pointStyle:'circle',
+
+                        boxWidth:7,
+                        boxHeight:7,
+
+                        padding:
+                            window.innerWidth <= 640
+                            ? 7
+                            : 12,
+
+                        font:{
+                            size:
+                                window.innerWidth <= 640
+                                ? 8
+                                : 10
+                        }
+
+                    }
+
+                },
+
+                tooltip:{
+
+                    backgroundColor:'#111419',
+
+                    borderColor:'#30343a',
+
+                    borderWidth:1,
+
+                    titleColor:'#fff',
+
+                    bodyColor:'#c5c9ce',
+
+                    padding:10,
+
+                    usePointStyle:true,
+
+                    callbacks:{
+
+                        label(context){
+
+                            return (
+                                ' ' +
+                                context.dataset.label +
+                                ': ' +
+                                context.raw
+                            );
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    ticks:{
+
+                        color:'#656b73',
+
+                        autoSkip:false,
+
+                        maxTicksLimit:
+                            window.innerWidth <= 640
+                            ? 10
+                            : 34,
+
+                        font:{
+                            size:
+                                window.innerWidth <= 640
+                                ? 8
+                                : 9
+                        }
+
+                    },
+
+                    grid:{
+                        color:'rgba(255,255,255,.045)'
+                    }
+
+                },
+
+                y:{
+
+                    beginAtZero:false,
+
+                    reverse:false,
+
+                    ticks:{
+                        color:'#656b73',
+
+                        font:{
+                            size:
+                                window.innerWidth <= 640
+                                ? 8
+                                : 9
+                        }
+
+                    },
+
+                    grid:{
+                        color:'rgba(255,255,255,.045)'
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   UPDATE CHART
+========================================================= */
+
+function updateChart(stage){
+
+    currentStage = stage;
+
+
+    storyTable.classList.remove(
+        'visible'
+    );
+
+
+    canvasWrap.style.display =
+        'block';
+
+
+    let title = '';
+    let subtitle = '';
+    let datasets = [];
+    let reverseY = false;
+
+
+    if(stage === 0){
+
+        title =
+            'Accumulated points';
+
+        subtitle =
+            'Season 26 / 27 · 34 matchdays';
+
+        datasets =
+            createDatasets(
+                cumulativeData
+            );
+
+    }
+
+
+    if(stage === 1){
+
+        title =
+            'Points per matchday';
+
+        subtitle =
+            'Points gained each week';
+
+        datasets =
+            createDatasets(
+                matchdayData
+            );
+
+    }
+
+
+    if(stage === 2){
+
+        title =
+            'League position';
+
+        subtitle =
+            'Lower position = higher place';
+
+        datasets =
+            createDatasets(
+                leagueData
+            );
+
+        reverseY = true;
+
+    }
+
+
+    if(stage === 3){
+
+        title =
+            'Matchday ranking';
+
+        subtitle =
+            'Ranking by points earned that week';
+
+        datasets =
+            createDatasets(
+                rankData
+            );
+
+        reverseY = true;
+
+    }
+
+
+    if(stage === 4){
+
+        title =
+            'Current table';
+
+        subtitle =
+            'After matchday ' +
+            PLAYED_MATCHDAYS;
+
+        canvasWrap.style.display =
+            'none';
+
+        buildCurrentTable();
+
+        storyTable.classList.add(
+            'visible'
+        );
+
+    }
+
+
+    chartTitle.textContent =
+        title;
+
+    chartSubtitle.textContent =
+        subtitle;
+
+    chartStage.textContent =
+        String(stage + 1).padStart(2,'0') +
+        ' / 05';
+
+
+    if(stage !== 4){
+
+        chart.data.datasets =
+            datasets;
+
+        chart.options.scales.y.reverse =
+            reverseY;
+
+        chart.update();
+
+    }
+
+}
+
+
+/* =========================================================
+   CURRENT TABLE
+========================================================= */
+
+function buildCurrentTable(){
+
+    const rows =
+        players
+        .map(
+            (player,index) => ({
+
+                player,
+
+                points:
+                    playerPoints[player][
+                        PLAYED_MATCHDAYS - 1
+                    ],
+
+                color:
+                    colors[index]
+
+            })
+        )
+        .sort(
+            (a,b) =>
+                b.points - a.points
+        );
+
+
+    storyTable.innerHTML = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Rank
+                    </th>
+
+                    <th>
+                        Manager
+                    </th>
+
+                    <th style="text-align:right">
+                        Points
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows.map(
+                    (row,index) => `
+
+                    <tr>
+
+                        <td class="rank">
+                            ${index + 1}
+                        </td>
+
+                        <td>
+
+                            <span
+                                style="
+                                    display:inline-block;
+                                    width:8px;
+                                    height:8px;
+                                    border-radius:50%;
+                                    background:${row.color};
+                                    margin-right:7px;
+                                "
+                            ></span>
+
+                            ${row.player}
+
+                        </td>
+
+                        <td class="points">
+                            ${row.points}
+                        </td>
+
+                    </tr>
+
+                `
+                ).join('')}
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+/* =========================================================
+   SCROLL STORY OBSERVER
+========================================================= */
+
+const storySteps =
+    document.querySelectorAll(
+        '.story-step'
+    );
+
+
+const storyObserver =
     new IntersectionObserver(
+
         entries => {
 
             entries.forEach(entry => {
 
-                if(entry.isIntersecting){
+                if(
+                    entry.isIntersecting
+                ){
 
-                    entry.target.classList.add('visible');
-
-                    revealObserver.unobserve(
-                        entry.target
+                    storySteps.forEach(
+                        step =>
+                            step.classList.remove(
+                                'active'
+                            )
                     );
+
+
+                    entry.target.classList.add(
+                        'active'
+                    );
+
+
+                    const stage =
+                        Number(
+                            entry.target.dataset.stage
+                        );
+
+
+                    updateChart(stage);
 
                 }
 
             });
 
         },
+
         {
-            threshold:.12,
-            rootMargin:'0px 0px -50px 0px'
+
+            threshold:.55,
+
+            rootMargin:
+                '-10% 0px -25% 0px'
+
         }
+
+    );
+
+
+storySteps.forEach(
+    step =>
+        storyObserver.observe(step)
+);
+
+
+/* =========================================================
+   RANGE TABLE
+========================================================= */
+
+const rangeMin =
+    document.getElementById(
+        'rangeMin'
+    );
+
+const rangeMax =
+    document.getElementById(
+        'rangeMax'
+    );
+
+const rangeLabel =
+    document.getElementById(
+        'rangeLabel'
+    );
+
+const rangeFill =
+    document.getElementById(
+        'rangeFill'
+    );
+
+const rangeTable =
+    document.getElementById(
+        'rangeTable'
+    );
+
+
+function updateRange(){
+
+    let start =
+        Number(rangeMin.value);
+
+    let end =
+        Number(rangeMax.value);
+
+
+    if(start > end){
+
+        [
+            start,
+            end
+        ] = [
+            end,
+            start
+        ];
+
+        rangeMin.value =
+            start;
+
+        rangeMax.value =
+            end;
+
+    }
+
+
+    rangeLabel.textContent =
+        start +
+        ' – ' +
+        end;
+
+
+    const total =
+        PLAYED_MATCHDAYS - 1;
+
+
+    const left =
+        total === 0
+        ? 0
+        : ((start - 1) / total) * 100;
+
+
+    const right =
+        total === 0
+        ? 0
+        : ((PLAYED_MATCHDAYS - end) / total) * 100;
+
+
+    rangeFill.style.left =
+        left + '%';
+
+    rangeFill.style.right =
+        right + '%';
+
+
+    const rows =
+        players
+        .map(
+            (player,index) => {
+
+                const endPoints =
+                    playerPoints[player][
+                        end - 1
+                    ];
+
+                const before =
+                    start > 1
+                    ? playerPoints[player][
+                        start - 2
+                    ]
+                    : 0;
+
+                return {
+
+                    player,
+
+                    points:
+                        endPoints,
+
+                    gain:
+                        endPoints - before,
+
+                    color:
+                        colors[index]
+
+                };
+
+            }
+        )
+        .sort(
+            (a,b) =>
+                b.points - a.points
+        );
+
+
+    rangeTable.innerHTML = `
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Rank
+                    </th>
+
+                    <th>
+                        Manager
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                    <th>
+                        Points in range
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows.map(
+                    (row,index) => `
+
+                    <tr>
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+
+                            <span
+                                style="
+                                    display:inline-block;
+                                    width:8px;
+                                    height:8px;
+                                    border-radius:50%;
+                                    background:${row.color};
+                                    margin-right:7px;
+                                "
+                            ></span>
+
+                            ${row.player}
+
+                        </td>
+
+                        <td>
+                            ${row.points}
+                        </td>
+
+                        <td>
+                            ${row.gain}
+                        </td>
+
+                    </tr>
+
+                `
+                ).join('')}
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+rangeMin.addEventListener(
+    'input',
+    updateRange
+);
+
+rangeMax.addEventListener(
+    'input',
+    updateRange
+);
+
+updateRange();
+
+
+/* =========================================================
+   ARCHIVE MENU
+========================================================= */
+
+const archive =
+    document.getElementById(
+        'archive'
+    );
+
+const openArchive =
+    document.getElementById(
+        'openArchive'
+    );
+
+const closeArchive =
+    document.getElementById(
+        'closeArchive'
+    );
+
+
+function openArchiveMenu(){
+
+    archive.classList.add(
+        'open'
+    );
+
+    archive.setAttribute(
+        'aria-hidden',
+        'false'
+    );
+
+    document.body.style.overflow =
+        'hidden';
+
+}
+
+
+function closeArchiveMenu(){
+
+    archive.classList.remove(
+        'open'
+    );
+
+    archive.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+    document.body.style.overflow =
+        '';
+
+}
+
+
+openArchive.addEventListener(
+    'click',
+    openArchiveMenu
+);
+
+closeArchive.addEventListener(
+    'click',
+    closeArchiveMenu
+);
+
+
+archive
+    .querySelectorAll('a')
+    .forEach(link => {
+
+        link.addEventListener(
+            'click',
+            closeArchiveMenu
+        );
+
+    });
+
+
+document.addEventListener(
+    'keydown',
+    event => {
+
+        if(
+            event.key === 'Escape'
+        ){
+
+            closeArchiveMenu();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   SCROLL PROGRESS
+========================================================= */
+
+const scrollProgress =
+    document.getElementById(
+        'scrollProgress'
+    );
+
+
+function updateScrollProgress(){
+
+    const scrollTop =
+        window.scrollY;
+
+    const max =
+        document.documentElement.scrollHeight -
+        window.innerHeight;
+
+
+    const percentage =
+        max > 0
+        ? (
+            scrollTop / max
+        ) * 100
+        : 0;
+
+
+    scrollProgress.style.width =
+        percentage + '%';
+
+}
+
+
+window.addEventListener(
+    'scroll',
+    updateScrollProgress,
+    {passive:true}
+);
+
+updateScrollProgress();
+
+
+/* =========================================================
+   REVEAL ANIMATIONS
+========================================================= */
+
+const revealObserver =
+    new IntersectionObserver(
+
+        entries => {
+
+            entries.forEach(
+                entry => {
+
+                    if(
+                        entry.isIntersecting
+                    ){
+
+                        entry.target.classList.add(
+                            'visible'
+                        );
+
+                        revealObserver.unobserve(
+                            entry.target
+                        );
+
+                    }
+
+                }
+            );
+
+        },
+
+        {
+            threshold:.12
+        }
+
     );
 
 
 document
-    .querySelectorAll('.reveal')
-    .forEach(element => {
-
-        revealObserver.observe(element);
-
-    });
+    .querySelectorAll(
+        '.reveal'
+    )
+    .forEach(
+        element =>
+            revealObserver.observe(
+                element
+            )
+    );
 
 
 /* =========================================================
@@ -1714,68 +4268,111 @@ document
 ========================================================= */
 
 const heroGrid =
-    document.querySelector('.hero-grid');
+    document.querySelector(
+        '.hero-grid'
+    );
 
 const heroContent =
-    document.querySelector('.hero-content');
-
-const heroSeason =
-    document.querySelector('.hero-season');
+    document.querySelector(
+        '.hero-content'
+    );
 
 
 window.addEventListener(
+
     'scroll',
+
     () => {
 
-        const y = window.scrollY;
+        if(
+            window.innerWidth <= 640
+        ){
 
-        if(y < window.innerHeight){
+            return;
 
-            const amount = y * .18;
+        }
+
+
+        const y =
+            window.scrollY;
+
+
+        if(
+            y < window.innerHeight
+        ){
 
             heroGrid.style.transform =
-                `translateY(${amount}px)`;
+                `translateY(${y * .12}px)`;
 
             heroContent.style.transform =
-                `translateY(${y * .08}px)`;
-
-            heroSeason.style.transform =
-                `translateY(${y * .12}px)`;
+                `translateY(${y * .05}px)`;
 
         }
 
     },
+
     {passive:true}
+
 );
 
 
 /* =========================================================
-   NAV BACKGROUND
+   RESIZE
 ========================================================= */
 
-const nav =
-    document.querySelector('.nav');
-
-
 window.addEventListener(
-    'scroll',
+    'resize',
     () => {
 
-        if(window.scrollY > 50){
+        chart.options.plugins.legend.labels.padding =
+            window.innerWidth <= 640
+            ? 7
+            : 12;
 
-            nav.style.background =
-                'rgba(8,10,13,.88)';
+        chart.options.plugins.legend.labels.font.size =
+            window.innerWidth <= 640
+            ? 8
+            : 10;
 
-        }else{
+        chart.options.scales.x.ticks.maxTicksLimit =
+            window.innerWidth <= 640
+            ? 10
+            : 34;
 
-            nav.style.background =
-                'rgba(8,10,13,.65)';
+        chart.options.scales.x.ticks.font.size =
+            window.innerWidth <= 640
+            ? 8
+            : 9;
 
-        }
+        chart.options.scales.y.ticks.font.size =
+            window.innerWidth <= 640
+            ? 8
+            : 9;
 
-    },
-    {passive:true}
+
+        chart.data.datasets.forEach(
+            dataset => {
+
+                dataset.pointRadius =
+                    window.innerWidth <= 640
+                    ? 2
+                    : 3;
+
+            }
+        );
+
+
+        chart.update('none');
+
+    }
 );
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+updateChart(0);
 
 </script>
 
