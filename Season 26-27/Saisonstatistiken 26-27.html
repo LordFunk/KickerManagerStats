@@ -189,17 +189,19 @@ allCharts.forEach(chart=>{
 chart.data.datasets.forEach(dataset=>{
 const idx=players.indexOf(dataset.label);
 if(idx===-1)return;
+
 const selected=selectedPlayers.has(dataset.label);
 const none=selectedPlayers.size===0;
 const col=colors[idx];
+
 if(none||selected){
 dataset.borderColor=col;
 dataset.backgroundColor=col;
 dataset.pointBackgroundColor=col;
 dataset.pointBorderColor=col;
 dataset.borderWidth=selected?3:2;
-dataset.pointRadius=selected?6:4;
-dataset.pointHoverRadius=selected?7:5;
+dataset.pointRadius=selected?6:(isMobile()?2:4);
+dataset.pointHoverRadius=selected?7:(isMobile()?4:6);
 }else{
 dataset.borderColor='lightgrey';
 dataset.backgroundColor='lightgrey';
@@ -223,6 +225,7 @@ applyFade();
 Chart.Tooltip.positioners.side=function(elements){
 const chart=this.chart;
 if(!elements.length)return false;
+
 const x=elements[0].element.x;
 const area=chart.chartArea;
 const spacing=(area.right-area.left)/(chart.data.labels.length-1);
@@ -230,11 +233,16 @@ const offset=spacing*2+12;
 const mdIndex=elements[0].index;
 const left=mdIndex>=17;
 const tw=this.width||160;
-return{x:left?x-offset-tw:x+offset,y:(area.top+area.bottom)/2};
+
+return{
+x:left?x-offset-tw:x+offset,
+y:(area.top+area.bottom)/2
+};
 };
 
 function makeChart(id,title,data,reverseY=false,extraDatasets=[]){
 const mobile=isMobile();
+
 const chart=new Chart(document.getElementById(id),{
 type:'line',
 data:{
@@ -256,7 +264,8 @@ spanGaps:false,
 order:0
 })),
 ...extraDatasets
-]},
+]
+},
 options:{
 responsive:true,
 maintainAspectRatio:false,
@@ -264,7 +273,14 @@ interaction:{mode:'index',intersect:false},
 plugins:{
 legend:{
 position:'bottom',
-labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:mobile?8:14,font:{size:mobile?10:12}},
+labels:{
+usePointStyle:true,
+pointStyle:'circle',
+boxWidth:8,
+boxHeight:8,
+padding:mobile?8:14,
+font:{size:mobile?10:12}
+},
 onClick:legendClickHandler
 },
 title:{
@@ -313,6 +329,7 @@ grid:{color:'#f0f2f5'}
 }
 }
 });
+
 allCharts.push(chart);
 return chart;
 }
@@ -330,8 +347,10 @@ div.className='chart-container'+(interactive?' interactive':'');
 if(interactive){
 const inner=document.createElement('div');
 inner.className='chart-inner';
+
 const canvas=document.createElement('canvas');
 canvas.id=id;
+
 inner.appendChild(canvas);
 div.appendChild(inner);
 }else{
@@ -339,6 +358,7 @@ const canvas=document.createElement('canvas');
 canvas.id=id;
 div.appendChild(canvas);
 }
+
 document.body.appendChild(div);
 }
 
@@ -347,6 +367,7 @@ addChartContainer('c1',true);
 
 const controls=document.createElement('div');
 controls.className='interactive-controls';
+
 controls.innerHTML=`
 <div class="controls-top">
 <div class="range-label">Spieltage: <strong id="rangeMinLabel">1</strong> – <strong id="rangeMaxLabel">${played}</strong></div>
@@ -359,6 +380,7 @@ controls.innerHTML=`
 <input id="rangeMax" type="range" min="1" max="${played}" value="${played}">
 </div>
 <div class="slider-ticks"><span>1</span><span>${played}</span></div>`;
+
 document.body.appendChild(controls);
 
 const rangeTable=document.createElement('div');
@@ -396,31 +418,31 @@ order:1
 
 let c1;
 
-function buildC1Data(start,end){
-return Object.fromEntries(players.map(p=>[
-p,
-Array.from({length:end-start+1},(_,i)=>playerPoints[p][start+i-1]??null)
-]));
-}
+function createC1(start=1,end=TOTAL_MDS){
+const c1Labels=Array.from({length:end-start+1},(_,i)=>start+i);
 
-function createC1(start=1,end=played){
+const data=Object.fromEntries(players.map(p=>[
+p,
+c1Labels.map(md=>playerPoints[p][md-1]??null)
+]));
+
 if(c1){
-const data=buildC1Data(start,end);
-c1.data.labels=Array.from({length:end-start+1},(_,i)=>start+i);
+c1.data.labels=c1Labels;
+
 c1.data.datasets.forEach(ds=>{
-if(players.includes(ds.label))ds.data=data[ds.label];
+if(players.includes(ds.label)){
+ds.data=data[ds.label];
+}
 });
-c1.options.scales.x.ticks.callback=(value,index)=>start+index;
+
 c1.update();
 return;
 }
 
-const data=buildC1Data(start,end);
-
 c1=new Chart(document.getElementById('c1'),{
 type:'line',
 data:{
-labels:Array.from({length:end-start+1},(_,i)=>start+i),
+labels:c1Labels,
 datasets:players.map((p,i)=>({
 label:p,
 data:data[p],
@@ -465,6 +487,7 @@ tooltip:{
 enabled:false,
 external:function(context){
 const tooltipModel=context.tooltip;
+
 if(!tooltipModel||tooltipModel.opacity===0){
 hideInteractiveTooltip();
 return;
@@ -473,13 +496,24 @@ return;
 const index=tooltipModel.dataPoints?.[0]?.dataIndex;
 if(index===undefined)return;
 
-const mdNumber=start+index;
+const mdNumber=c1Labels[index];
+
+if(mdNumber>played){
+hideInteractiveTooltip();
+return;
+}
+
 const values=players
-.map((p,i)=>({name:p,value:playerPoints[p][mdNumber-1],color:colors[i]}))
+.map((p,i)=>({
+name:p,
+value:playerPoints[p][mdNumber-1],
+color:colors[i]
+}))
 .filter(x=>x.value!==undefined)
 .sort((a,b)=>b.value-a.value);
 
 let html=`<div class="tooltip-title">Spieltag ${mdNumber}</div>`;
+
 html+=values.map(x=>`
 <div class="tooltip-row">
 <span class="tooltip-dot" style="background:${x.color}"></span>
@@ -493,7 +527,11 @@ showInteractiveTooltip(html,mdNumber,tooltipModel.chart,tooltipModel);
 scales:{
 x:{
 title:{display:!isMobile(),text:'Spieltag'},
-ticks:{maxTicksLimit:isMobile()?10:34,font:{size:isMobile()?9:11}},
+ticks:{
+maxTicksLimit:isMobile()?10:34,
+font:{size:isMobile()?9:11},
+autoSkip:false
+},
 grid:{color:'#f0f2f5'}
 },
 y:{
@@ -564,6 +602,7 @@ ds.pointRadius=3;
 ds.pointHoverRadius=4;
 }
 });
+
 c1.update();
 }
 
@@ -597,6 +636,7 @@ dataset.pointRadius=3;
 dataset.pointHoverRadius=4;
 }
 });
+
 chart.update();
 });
 
@@ -680,9 +720,10 @@ makeChart('c2','Punkte je Spieltag',md,false,[avgDataset]);
 makeChart('c3','Tabellenplatzentwicklung',league,true);
 makeChart('c4','Spieltagsplatzierung',rank,true);
 
-createC1();
+/* Initial accumulated graph always shows the complete 1–34 axis */
+createC1(1,TOTAL_MDS);
+
 updateRangeTable(1,played);
-updateRange();
 
 const tablesSection=document.createElement('div');
 tablesSection.className='section-label';
@@ -797,25 +838,23 @@ tablesWrapper.appendChild(hinTable('Hinrunde',hin));
 tablesWrapper.appendChild(rueckTable('Rückrunde',rueck));
 
 window.addEventListener('resize',()=>{
-if(c1){
-const start=+document.getElementById('rangeMin').value;
-const end=+document.getElementById('rangeMax').value;
+if(!c1)return;
 
-c1.data.datasets.forEach((ds,i)=>{
 const mobile=isMobile();
 
+c1.data.datasets.forEach(ds=>{
 ds.pointRadius=selectedPlayers.has(ds.label)?6:(mobile?2:4);
 ds.pointHoverRadius=selectedPlayers.has(ds.label)?7:(mobile?4:6);
 });
 
-c1.options.scales.x.ticks.maxTicksLimit=isMobile()?10:34;
-c1.options.scales.x.title.display=!isMobile();
-c1.options.scales.x.ticks.font.size=isMobile()?9:11;
-c1.options.scales.y.ticks.font.size=isMobile()?9:11;
+c1.options.scales.x.ticks.maxTicksLimit=mobile?10:34;
+c1.options.scales.x.ticks.autoSkip=false;
+c1.options.scales.x.title.display=!mobile;
+c1.options.scales.x.ticks.font.size=mobile?9:11;
+c1.options.scales.y.ticks.font.size=mobile?9:11;
 
 c1.update();
 updateC1Fade();
-}
 });
 </script>
 
