@@ -630,13 +630,10 @@ label.textContent=t
 svgEl.appendChild(label)
 })
 
-// x axis ticks
-let xStep=1
-if(n>20)xStep=4
-else if(n>12)xStep=2
-else xStep=1
+// x axis ticks — every matchday gets its own gridline + label
+const xLabelSize=n>26?'9':(n>16?'10':'11')
 
-for(let md=start;md<=end;md+=xStep){
+for(let md=start;md<=end;md++){
 const x=xOf(md)
 svgEl.appendChild(svgEl_('line',{
 x1:x,x2:x,y1:plotTop,y2:plotBottom,
@@ -644,18 +641,9 @@ stroke:'var(--border)','stroke-width':0.5,opacity:0.4
 }))
 const label=svgEl_('text',{
 x:x,y:plotBottom+18,'text-anchor':'middle',
-fill:'var(--text-soft)','font-size':'11'
+fill:'var(--text-soft)','font-size':xLabelSize
 })
 label.textContent=md
-svgEl.appendChild(label)
-}
-if((end-start)%xStep!==0){
-const x=xOf(end)
-const label=svgEl_('text',{
-x:x,y:plotBottom+18,'text-anchor':'middle',
-fill:'var(--text-soft)','font-size':'11'
-})
-label.textContent=end
 svgEl.appendChild(label)
 }
 
@@ -714,6 +702,8 @@ svgEl.appendChild(crosshair)
 const hitLayer=svgEl_('g',{})
 svgEl.appendChild(hitLayer)
 
+const TOOLTIP_GAP=76 // ~2cm gap between the cursor/point and the tooltip
+
 for(let i=0;i<n;i++){
 const md=start+i
 const x=xOf(md)
@@ -722,13 +712,14 @@ const rect=svgEl_('rect',{
 x:x-bandW/2,y:plotTop,width:bandW,height:plotH,
 fill:'transparent'
 })
-rect.addEventListener('mouseenter',()=>showTooltip(md,x))
+rect.addEventListener('mouseenter',(evt)=>showTooltip(md,x,evt))
+rect.addEventListener('mousemove',(evt)=>showTooltip(md,x,evt))
 rect.addEventListener('mouseleave',hideTooltip)
-rect.addEventListener('touchstart',()=>showTooltip(md,x),{passive:true})
+rect.addEventListener('touchstart',(evt)=>showTooltip(md,x,evt),{passive:true})
 hitLayer.appendChild(rect)
 }
 
-function showTooltip(md,x){
+function showTooltip(md,x,evt){
 crosshair.setAttribute('x1',x)
 crosshair.setAttribute('x2',x)
 crosshair.setAttribute('opacity',1)
@@ -748,11 +739,46 @@ tooltipEl.innerHTML=html
 tooltipEl.classList.add('visible')
 
 const rectBounds=chartWrap.getBoundingClientRect()
+
+// position near the actual cursor (or touch point) instead of pinned to the top of the chart
+let localX,localY
+if(evt && evt.touches && evt.touches.length){
+localX=evt.touches[0].clientX-rectBounds.left
+localY=evt.touches[0].clientY-rectBounds.top
+}else if(evt && typeof evt.clientX==='number'){
+localX=evt.clientX-rectBounds.left
+localY=evt.clientY-rectBounds.top
+}else{
 const scaleX=rectBounds.width/W
 const scaleY=rectBounds.height/H
-const px=x*scaleX
-tooltipEl.style.left=Math.min(Math.max(px,60),rectBounds.width-60)+'px'
-tooltipEl.style.top=Math.max(plotTop*scaleY-6,10)+'px'
+localX=x*scaleX
+localY=plotTop*scaleY
+}
+
+// measure the tooltip so we can flip it below the cursor if there isn't room above
+const tw=tooltipEl.offsetWidth||140
+const th=tooltipEl.offsetHeight||60
+
+const spaceAbove=localY-TOOLTIP_GAP
+let top,anchorBelow
+
+if(spaceAbove-th>=0){
+// enough room above the cursor — anchor the tooltip's bottom edge there
+top=spaceAbove
+anchorBelow=false
+}else{
+// not enough room above — show it below the cursor instead
+top=Math.min(localY+TOOLTIP_GAP,rectBounds.height-th-4)
+anchorBelow=true
+}
+
+tooltipEl.style.transform=anchorBelow?'translate(-50%,0)':'translate(-50%,-100%)'
+
+const left=Math.min(Math.max(localX,tw/2+4),rectBounds.width-tw/2-4)
+top=Math.max(top,4)
+
+tooltipEl.style.left=left+'px'
+tooltipEl.style.top=top+'px'
 }
 
 function hideTooltip(){
