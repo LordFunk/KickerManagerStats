@@ -2718,17 +2718,28 @@ const c4=
 ========================= */
 
 [c3,c4].forEach(chart=>{
+
     chart.options.scales.y.min=0.5;
     chart.options.scales.y.max=11.5;
 
-    chart.options.scales.y.ticks.stepSize=1;
-    chart.options.scales.y.ticks.precision=0;
-
-    chart.options.scales.y.ticks.callback=function(value){
-        if(value >= 1 && value <= 11){
-            return value;
+    chart.options.scales.y.ticks={
+        stepSize:1,
+        precision:0,
+        autoSkip:false,
+        padding:4,
+        callback:function(value){
+            if(value>=1 && value<=11){
+                return value;
+            }
+            return '';
         }
-        return '';
+    };
+
+    chart.options.layout={
+        padding:{
+            top:8,
+            bottom:8
+        }
     };
 
     chart.update();
