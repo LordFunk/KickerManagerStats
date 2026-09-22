@@ -606,11 +606,6 @@ footer{
         border-radius:10px;
     }
 
-    /*
-     * The rank charts contain 11 separate rank levels.
-     * They need substantially more vertical room on phones
-     * so Chart.js can display every level from 1 to 11.
-     */
     .chart-container.rank-chart{
         height:460px;
         min-height:460px;
@@ -683,11 +678,6 @@ footer{
 
 }
 
-/*
- * Landscape phones have less vertical space.
- * Keep the rank charts tall enough for all 11 ranks,
- * but slightly shorter than portrait mode.
- */
 @media(max-width:900px) and (orientation:landscape){
 
     .chart-container.rank-chart{
@@ -698,10 +688,6 @@ footer{
 
 }
 
-/*
- * Very small portrait screens.
- * Still keep enough room for all 11 rank levels.
- */
 @media(max-width:400px){
 
     .chart-container.rank-chart{
@@ -711,11 +697,6 @@ footer{
 
 }
 
-/*
- * Desktop rank charts also get enough room that
- * rank 1 and rank 11 are never pressed against
- * the chart boundaries.
- */
 @media(min-width:701px){
 
     .chart-container.rank-chart{
@@ -768,7 +749,6 @@ footer{
 
 <main>
 
-
 <!-- =========================
      ACCUMULATED POINTS
 ========================= -->
@@ -800,7 +780,7 @@ footer{
             Spieltage:
             <strong id="rangeMinLabel">1</strong>
             –
-            <strong id="rangeMaxLabel">4</strong>
+            <strong id="rangeMaxLabel">34</strong>
         </div>
 
         <button
@@ -844,7 +824,7 @@ footer{
     <div class="slider-ticks">
 
         <span>1</span>
-        <span id="sliderMaxTick">4</span>
+        <span id="sliderMaxTick">34</span>
 
     </div>
 
@@ -927,7 +907,6 @@ footer{
 >
 </div>
 
-
 </main>
 
 
@@ -943,20 +922,89 @@ footer{
 ========================= */
 
 const playerPoints={
-     'Markus': [59, 141, 206, 239, 298, 365, 401, 427, 472, 513, 525, 554, 607, 646, 662, 722, 788, 844, 908, 950, 1017, 1049, 1101, 1165, 1219, 1286, 1333, 1380, 1447, 1490, 1547, 1626, 1673, 1761],
-      'Erwin': [51, 132, 190, 261, 316, 356, 405, 435, 504, 547, 609, 657, 707, 744, 787, 853, 898, 963, 1044, 1090, 1174, 1219, 1281, 1335, 1360, 1426, 1463, 1519, 1579, 1623, 1684, 1765, 1815, 1903],
-      'Phil': [61, 131, 157, 232, 289, 372, 373, 409, 443, 502, 551, 655, 715, 792, 808, 872, 960, 999, 1069, 1108, 1177, 1227, 1265, 1329, 1373, 1421, 1444, 1482, 1547, 1599, 1630, 1650, 1699, 1788],
-      'Didi': [40, 60, 92, 110, 178, 190, 223, 245, 255, 290, 325, 355, 382, 412, 426, 469, 504, 536, 587, 618, 662, 702, 728, 764, 807, 850, 884, 933, 983, 1032, 1074, 1124, 1167, 1212],
-      'Steffo': [49, 105, 169, 223, 260, 307, 327, 373, 408, 473, 529, 579, 642, 664, 696, 724, 761, 792, 832, 872, 931, 947, 973, 1012, 1036, 1070, 1109, 1166, 1221, 1252, 1306, 1342, 1384, 1438],
-      'Basti': [52, 98, 121, 135, 206, 247, 293, 322, 357, 403, 421, 468, 524, 570, 613, 682, 725, 752, 798, 830, 893, 948, 994, 1044, 1098, 1140, 1181, 1241, 1293, 1325, 1339, 1401, 1438, 1512],
-      'Eirik': [66, 108, 164, 192, 250, 295, 337, 387, 432, 463, 519, 556, 594, 618, 649, 688, 726, 787, 835, 884, 932, 966, 1044, 1091, 1120, 1161, 1231, 1300, 1346, 1378, 1406, 1443, 1517, 1581],
-      'Emil': [67, 154, 208, 265, 327, 375, 421, 464, 539, 592, 652, 686, 724, 783, 818, 885, 954, 1017, 1079, 1116, 1171, 1226, 1269, 1320, 1366, 1417, 1460, 1523, 1566, 1603, 1660, 1747, 1806, 1873],
-      'Kempka': [47, 91, 164, 256, 309, 374, 403, 437, 467, 497, 519, 566, 639, 703, 742, 815, 880, 934, 988, 1022, 1072, 1130, 1201, 1227, 1268, 1325, 1347, 1386, 1432, 1480, 1536, 1583, 1672, 1750],
-      'Espen': [92, 189, 252, 313, 366, 440, 505, 573, 676, 748, 814, 882, 918, 991, 1014, 1093, 1170, 1219, 1287, 1320, 1367, 1438, 1491, 1545, 1612, 1688, 1728, 1767, 1806, 1858, 1885, 1929, 1989, 2042],
-    'Alex':[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+
+    'Markus':[
+        59,141,206,239,298,365,401,427,472,513,
+        525,554,607,646,662,722,788,844,908,950,
+        1017,1049,1101,1165,1219,1286,1333,1380,1447,1490,
+        1547,1626,1673,1761
+    ],
+
+    'Erwin':[
+        51,132,190,261,316,356,405,435,504,547,
+        609,657,707,744,787,853,898,963,1044,1090,
+        1174,1219,1281,1335,1360,1426,1463,1519,1579,1623,
+        1684,1765,1815,1903
+    ],
+
+    'Phil':[
+        61,131,157,232,289,372,373,409,443,502,
+        551,655,715,792,808,872,960,999,1069,1108,
+        1177,1227,1265,1329,1373,1421,1444,1482,1547,1599,
+        1630,1650,1699,1788
+    ],
+
+    'Didi':[
+        40,60,92,110,178,190,223,245,255,290,
+        325,355,382,412,426,469,504,536,587,618,
+        662,702,728,764,807,850,884,933,983,1032,
+        1074,1124,1167,1212
+    ],
+
+    'Steffo':[
+        49,105,169,223,260,307,327,373,408,473,
+        529,579,642,664,696,724,761,792,832,872,
+        931,947,973,1012,1036,1070,1109,1166,1221,1252,
+        1306,1342,1384,1438
+    ],
+
+    'Basti':[
+        52,98,121,135,206,247,293,322,357,403,
+        421,468,524,570,613,682,725,752,798,830,
+        893,948,994,1044,1098,1140,1181,1241,1293,1325,
+        1339,1401,1438,1512
+    ],
+
+    'Eirik':[
+        66,108,164,192,250,295,337,387,432,463,
+        519,556,594,618,649,688,726,787,835,884,
+        932,966,1044,1091,1120,1161,1231,1300,1346,1378,
+        1406,1443,1517,1581
+    ],
+
+    'Emil':[
+        67,154,208,265,327,375,421,464,539,592,
+        652,686,724,783,818,885,954,1017,1079,1116,
+        1171,1226,1269,1320,1366,1417,1460,1523,1566,1603,
+        1660,1747,1806,1873
+    ],
+
+    'Kempka':[
+        47,91,164,256,309,374,403,437,467,497,
+        519,566,639,703,742,815,880,934,988,1022,
+        1072,1130,1201,1227,1268,1325,1347,1386,1432,1480,
+        1536,1583,1672,1750
+    ],
+
+    'Espen':[
+        92,189,252,313,366,440,505,573,676,748,
+        814,882,918,991,1014,1093,1170,1219,1287,1320,
+        1367,1438,1491,1545,1612,1688,1728,1767,1806,1858,
+        1885,1929,1989,2042
+    ],
+
+    'Alex':[
+        null,null,null,null,null,null,null,null,null,null,
+        null,null,null,null,null,null,null,null,null,null,
+        null,null,null,null,null,null,null,null,null,null,
+        null,null,null,null
+    ]
+
 };
 
+
 const players=Object.keys(playerPoints);
+
 
 const colors=[
     '#E41A1C',
@@ -972,16 +1020,30 @@ const colors=[
     '#FFFFFF'
 ];
 
+
 const colorMap=Object.fromEntries(
-    players.map((p,i)=>[p,colors[i]])
+    players.map(
+        (p,i)=>[p,colors[i]]
+    )
 );
 
+
 const TOTAL_MDS=34;
+
 
 const labels=Array.from(
     {length:TOTAL_MDS},
     (_,i)=>i+1
 );
+
+
+/*
+ * Number of matchdays in the season.
+ *
+ * Do NOT use this for the slider.
+ * The slider always represents all 34
+ * possible matchdays.
+ */
 
 const played=Math.max(
     ...players.map(
@@ -1038,6 +1100,7 @@ function leaguePos(data){
         p=>out[p]=[]
     );
 
+
     for(let i=0;i<TOTAL_MDS;i++){
 
         if(i>=played){
@@ -1048,6 +1111,7 @@ function leaguePos(data){
 
             continue;
         }
+
 
         const ranked=
             players
@@ -1064,10 +1128,12 @@ function leaguePos(data){
                 (a,b)=>b.pts-a.pts
             );
 
+
         ranked.forEach(
             (x,r)=>
                 out[x.p].push(r+1)
         );
+
 
         players
         .filter(
@@ -1078,6 +1144,7 @@ function leaguePos(data){
         );
 
     }
+
 
     return out;
 
@@ -1092,6 +1159,7 @@ function mdRank(data){
         p=>out[p]=[]
     );
 
+
     for(let i=0;i<TOTAL_MDS;i++){
 
         if(i>=played){
@@ -1102,6 +1170,7 @@ function mdRank(data){
 
             continue;
         }
+
 
         const ranked=
             players
@@ -1123,10 +1192,12 @@ function mdRank(data){
                 (a,b)=>b.pts-a.pts
             );
 
+
         ranked.forEach(
             (x,r)=>
                 out[x.p].push(r+1)
         );
+
 
         players
         .filter(
@@ -1137,6 +1208,7 @@ function mdRank(data){
         );
 
     }
+
 
     return out;
 
@@ -1172,6 +1244,7 @@ const md=
 const league=
     leaguePos(playerPoints);
 
+
 const rank=
     mdRank(playerPoints);
 
@@ -1184,6 +1257,7 @@ const avgMd=
             if(i>=played)
                 return null;
 
+
             const vals=
                 players
                 .map(
@@ -1194,6 +1268,7 @@ const avgMd=
                         v!==null &&
                         v!==undefined
                 );
+
 
             return vals.length
                 ?
@@ -1239,11 +1314,13 @@ function segmentPts(
         return 0;
     }
 
+
     const end =
         Math.min(
             endIdx,
             arr.length - 1
         );
+
 
     return arr[end] -
         (
@@ -1253,6 +1330,7 @@ function segmentPts(
             :
             0
         );
+
 }
 
 
@@ -1277,12 +1355,14 @@ players.forEach(p=>{
             hinEnd-1
         );
 
+
     rueckPtsMap[p]=
         segmentPts(
             playerPoints[p],
             rueckStart,
             rueckEnd
         );
+
 
     hinEquivPtsMap[p]=
         segmentPts(
@@ -1350,30 +1430,38 @@ function applyChartTheme(chart){
     if(!chart)
         return;
 
+
     if(chart.options.plugins.legend.labels)
         chart.options.plugins.legend.labels.color='#888';
 
+
     if(chart.options.plugins.title)
         chart.options.plugins.title.color='#f5f5f5';
+
 
     if(chart.options.scales.x){
 
         chart.options.scales.x.ticks.color='#777';
 
+
         if(chart.options.scales.x.title)
             chart.options.scales.x.title.color='#777';
+
 
         chart.options.scales.x.grid.color=
             'rgba(255,255,255,.06)';
 
     }
 
+
     if(chart.options.scales.y){
 
         chart.options.scales.y.ticks.color='#777';
 
+
         if(chart.options.scales.y.title)
             chart.options.scales.y.title.color='#777';
+
 
         chart.options.scales.y.grid.color=
             'rgba(255,255,255,.06)';
@@ -1399,19 +1487,24 @@ function applyFade(){
                         dataset.label
                     );
 
+
                 if(idx===-1)
                     return;
+
 
                 const selected=
                     selectedPlayers.has(
                         dataset.label
                     );
 
+
                 const none=
                     selectedPlayers.size===0;
 
+
                 const col=
                     colors[idx];
+
 
                 if(none||selected){
 
@@ -1420,12 +1513,14 @@ function applyFade(){
                     dataset.pointBackgroundColor=col;
                     dataset.pointBorderColor=col;
 
+
                     dataset.borderWidth=
                         selected
                         ?
                         3
                         :
                         2;
+
 
                     dataset.pointRadius=
                         selected
@@ -1439,6 +1534,7 @@ function applyFade(){
                             :
                             4
                         );
+
 
                     dataset.pointHoverRadius=
                         selected
@@ -1470,6 +1566,7 @@ function applyFade(){
             }
         );
 
+
         chart.update();
 
     });
@@ -1488,11 +1585,13 @@ function legendClickHandler(
 
     const p=item.text;
 
+
     selectedPlayers.has(p)
         ?
         selectedPlayers.delete(p)
         :
         selectedPlayers.add(p);
+
 
     applyFade();
 
@@ -1512,6 +1611,7 @@ function makeChart(
 ){
 
     const mobile=isMobile();
+
 
     const chart=
         new Chart(
@@ -1701,12 +1801,14 @@ function makeChart(
                                                 context.dataset.label
                                             );
 
+
                                         const col=
                                             idx===-1
                                             ?
                                             '#888'
                                             :
                                             colors[idx];
+
 
                                         return{
 
@@ -1800,6 +1902,7 @@ function makeChart(
             }
         );
 
+
     applyChartTheme(chart);
 
     allCharts.push(chart);
@@ -1816,8 +1919,10 @@ function makeChart(
 let interactiveTooltip=
     document.createElement('div');
 
+
 interactiveTooltip.className=
     'tooltip-custom';
+
 
 document.body.appendChild(
     interactiveTooltip
@@ -1833,31 +1938,40 @@ function showInteractiveTooltip(
 
     interactiveTooltip.innerHTML=html;
 
+
     interactiveTooltip.classList.add(
         'visible'
     );
 
+
     const canvas=
         chart.canvas;
 
+
     const rect=
         canvas.getBoundingClientRect();
+
 
     const x=
         rect.left+
         model.caretX;
 
+
     const y=
         rect.top+
         model.caretY;
 
+
     const tw=
         interactiveTooltip.offsetWidth;
+
 
     const th=
         interactiveTooltip.offsetHeight;
 
+
     const gap=76;
+
 
     let left=
         mdNumber<=17
@@ -1866,8 +1980,10 @@ function showInteractiveTooltip(
         :
         x-gap-tw;
 
+
     let top=
         y-th/2;
+
 
     left=
         Math.max(
@@ -1878,6 +1994,7 @@ function showInteractiveTooltip(
             )
         );
 
+
     top=
         Math.max(
             4,
@@ -1887,8 +2004,10 @@ function showInteractiveTooltip(
             )
         );
 
+
     interactiveTooltip.style.left=
         left+'px';
+
 
     interactiveTooltip.style.top=
         top+'px';
@@ -1901,7 +2020,6 @@ function hideInteractiveTooltip(){
     interactiveTooltip.classList.remove(
         'visible'
     );
-
 
 }
 
@@ -1949,6 +2067,7 @@ function createC1(
         c1.data.labels=
             c1Labels;
 
+
         c1.data.datasets.forEach(
             ds=>{
 
@@ -1965,6 +2084,7 @@ function createC1(
 
             }
         );
+
 
         c1.update();
 
@@ -2125,6 +2245,7 @@ function createC1(
                                 const tooltipModel=
                                     context.tooltip;
 
+
                                 if(
                                     !tooltipModel ||
                                     tooltipModel.opacity===0
@@ -2141,6 +2262,7 @@ function createC1(
                                     tooltipModel
                                     .dataPoints?.[0]
                                     ?.dataIndex;
+
 
                                 if(
                                     index===undefined
@@ -2181,7 +2303,8 @@ function createC1(
                                     )
                                     .filter(
                                         x=>
-                                            x.value!==undefined
+                                            x.value!==undefined &&
+                                            x.value!==null
                                     )
                                     .sort(
                                         (a,b)=>
@@ -2319,6 +2442,7 @@ function updateC1Fade(){
     if(!c1)
         return;
 
+
     c1.data.datasets.forEach(
         (ds,i)=>{
 
@@ -2327,8 +2451,10 @@ function updateC1Fade(){
                     ds.label
                 );
 
+
             const none=
                 selectedPlayers.size===0;
+
 
             const col=
                 colors[i];
@@ -2344,12 +2470,14 @@ function updateC1Fade(){
 
                 ds.pointBorderColor=col;
 
+
                 ds.borderWidth=
                     selected
                     ?
                     3
                     :
                     2;
+
 
                 ds.pointRadius=
                     selected
@@ -2363,6 +2491,7 @@ function updateC1Fade(){
                         :
                         4
                     );
+
 
                 ds.pointHoverRadius=
                     selected
@@ -2397,6 +2526,7 @@ function updateC1Fade(){
 
         }
     );
+
 
     c1.update();
 
@@ -2439,7 +2569,9 @@ function updateRangeTable(
             })
         )
         .filter(
-            x=>x.pts!==undefined
+            x=>
+                x.pts!==undefined &&
+                x.pts!==null
         )
         .sort(
             (a,b)=>b.pts-a.pts
@@ -2541,107 +2673,71 @@ function updateRangeTable(
 
 function updateRange(){
 
-    let start=
+    let start =
         +document.getElementById(
             'rangeMin'
         ).value;
 
-    let end=
+
+    let end =
         +document.getElementById(
             'rangeMax'
         ).value;
 
 
-    function updateRange(){
-
-    let start =
-        +document.getElementById('rangeMin').value;
-
-    let end =
-        +document.getElementById('rangeMax').value;
+    /*
+     * Prevent the handles from crossing.
+     */
 
     if(start > end){
 
-        if(document.activeElement.id === 'rangeMin'){
+        if(
+            document.activeElement &&
+            document.activeElement.id === 'rangeMin'
+        ){
 
-            start = end;
+            start=end;
 
             document.getElementById(
                 'rangeMin'
-            ).value = start;
+            ).value=start;
 
         }else{
 
-            end = start;
+            end=start;
 
             document.getElementById(
                 'rangeMax'
-            ).value = end;
+            ).value=end;
 
         }
 
     }
 
-    document.getElementById(
-        'rangeMinLabel'
-    ).textContent = start;
 
-    document.getElementById(
-        'rangeMaxLabel'
-    ).textContent = end;
-
-    const denominator = TOTAL_MDS - 1;
-
-    document.getElementById(
-        'sliderRange'
-    ).style.left =
-        (
-            (start - 1)
-            /
-            denominator
-            *
-            100
-        ) + '%';
-
-    document.getElementById(
-        'sliderRange'
-    ).style.right =
-        (
-            (TOTAL_MDS - end)
-            /
-            denominator
-            *
-            100
-        ) + '%';
-
-    createC1(
-        start,
-        end
-    );
-
-    updateRangeTable(
-        start,
-        end
-    );
-
-    updateC1Fade();
-    }
-
+    /*
+     * Update displayed values.
+     */
 
     document.getElementById(
         'rangeMinLabel'
     ).textContent=start;
+
 
     document.getElementById(
         'rangeMaxLabel'
     ).textContent=end;
 
 
+    /*
+     * IMPORTANT:
+     *
+     * The slider always spans all 34
+     * matchdays, regardless of played.
+     */
+
     const denominator=
-        Math.max(
-            1,
-            played-1
-        );
+        TOTAL_MDS-1;
 
 
     document.getElementById(
@@ -2660,7 +2756,7 @@ function updateRange(){
         'sliderRange'
     ).style.right=
         (
-            (played-end)
+            (TOTAL_MDS-end)
             /
             denominator
             *
@@ -2668,20 +2764,34 @@ function updateRange(){
         )+'%';
 
 
+    /*
+     * Update accumulated graph.
+     */
+
     createC1(
         start,
         end
     );
+
+
+    /*
+     * Update table.
+     */
 
     updateRangeTable(
         start,
         end
     );
 
+
     updateC1Fade();
 
 }
 
+
+/*
+ * Slider events
+ */
 
 document.getElementById(
     'rangeMin'
@@ -2699,6 +2809,10 @@ document.getElementById(
 );
 
 
+/* =========================
+   RESET
+========================= */
+
 document.getElementById(
     'resetRange'
 ).onclick=()=>{
@@ -2707,23 +2821,26 @@ document.getElementById(
         'rangeMin'
     ).value=1;
 
+
     document.getElementById(
         'rangeMax'
-    ).value=played;
+    ).value=TOTAL_MDS;
 
 
     document.getElementById(
         'rangeMinLabel'
     ).textContent=1;
 
+
     document.getElementById(
         'rangeMaxLabel'
-    ).textContent=played;
+    ).textContent=TOTAL_MDS;
 
 
     document.getElementById(
         'sliderRange'
     ).style.left='0%';
+
 
     document.getElementById(
         'sliderRange'
@@ -2735,10 +2852,12 @@ document.getElementById(
         TOTAL_MDS
     );
 
+
     updateRangeTable(
         1,
-        played
+        TOTAL_MDS
     );
+
 
     updateC1Fade();
 
@@ -2834,32 +2953,27 @@ const c4=
    INTEGER RANK AXES
 ========================= */
 
-/*
- * The chart scale runs from 0.5 to 11.5.
- * This gives rank 1 and rank 11 physical space
- * inside the chart so their lines and points cannot
- * be clipped.
- *
- * The callback hides 0.5 and 11.5, so the user sees
- * only the actual positions 1 through 11.
- *
- * autoSkip:false ensures all 11 positions are shown,
- * including on mobile.
- */
-
 [c3,c4].forEach(chart=>{
 
     chart.options.scales.y.min=0.5;
+
     chart.options.scales.y.max=11.5;
 
     chart.options.scales.y.reverse=true;
 
+
     chart.options.scales.y.ticks={
+
         color:'#777',
+
         stepSize:1,
+
         precision:0,
+
         autoSkip:false,
+
         includeBounds:false,
+
         padding:5,
 
         font:{
@@ -2882,21 +2996,25 @@ const c4=
             }
 
             return '';
+
         }
 
     };
 
+
     chart.options.scales.y.grid={
+
         color:'rgba(255,255,255,.06)',
+
         drawTicks:true
+
     };
 
-    /*
-     * Prevent Chart.js from clipping line segments
-     * and points at the chart boundaries.
-     */
+
     chart.options.elements.line.clip=false;
+
     chart.options.elements.point.clip=false;
+
 
     chart.update();
 
@@ -2913,10 +3031,49 @@ createC1(
 );
 
 
+/*
+ * IMPORTANT:
+ * Initial table also uses all 34 matchdays.
+ */
+
 updateRangeTable(
     1,
-    played
+    TOTAL_MDS
 );
+
+
+/*
+ * Make sure the slider starts at 1–34.
+ */
+
+document.getElementById(
+    'rangeMin'
+).value=1;
+
+
+document.getElementById(
+    'rangeMax'
+).value=TOTAL_MDS;
+
+
+document.getElementById(
+    'rangeMinLabel'
+).textContent=1;
+
+
+document.getElementById(
+    'rangeMaxLabel'
+).textContent=TOTAL_MDS;
+
+
+document.getElementById(
+    'sliderRange'
+).style.left='0%';
+
+
+document.getElementById(
+    'sliderRange'
+).style.right='0%';
 
 
 /* =========================
@@ -2960,6 +3117,7 @@ function hinTable(
         document.createElement(
             'div'
         );
+
 
     w.className=
         'table-block';
@@ -3007,6 +3165,7 @@ function hinTable(
 
             const first=
                 i===0;
+
 
             html+=`
 
@@ -3057,6 +3216,7 @@ function hinTable(
 
     w.innerHTML=html;
 
+
     return w;
 
 }
@@ -3071,6 +3231,7 @@ function rueckTable(
         document.createElement(
             'div'
         );
+
 
     w.className=
         'table-block';
@@ -3142,6 +3303,7 @@ function rueckTable(
             const first=
                 i===0;
 
+
             let diffCell;
 
 
@@ -3155,23 +3317,28 @@ function rueckTable(
                 const diff=
                     d.diff;
 
+
                 let cls;
+
                 let str;
 
 
                 if(diff>0){
 
                     cls='diff-pos';
+
                     str='+'+diff;
 
                 }else if(diff<0){
 
                     cls='diff-neg';
+
                     str=''+diff;
 
                 }else{
 
                     cls='diff-zero';
+
                     str='±0';
 
                 }
@@ -3261,6 +3428,7 @@ function rueckTable(
 
     w.innerHTML=html;
 
+
     return w;
 
 }
@@ -3343,11 +3511,14 @@ window.addEventListener(
             :
             34;
 
+
         c1.options.scales.x.ticks.autoSkip=
             false;
 
+
         c1.options.scales.x.title.display=
             !mobile;
+
 
         c1.options.scales.x.ticks.font.size=
             mobile
@@ -3355,6 +3526,7 @@ window.addEventListener(
             9
             :
             11;
+
 
         c1.options.scales.y.ticks.font.size=
             mobile
@@ -3366,22 +3538,26 @@ window.addEventListener(
 
         c1.update();
 
-        /*
-         * Reapply the rank-chart settings after
-         * resizing. This is important because Chart.js
-         * recalculates the chart dimensions on phones.
-         */
+
         [c3,c4].forEach(chart=>{
 
             chart.options.scales.y.min=0.5;
+
             chart.options.scales.y.max=11.5;
+
             chart.options.scales.y.reverse=true;
 
+
             chart.options.scales.y.ticks.stepSize=1;
+
             chart.options.scales.y.ticks.precision=0;
+
             chart.options.scales.y.ticks.autoSkip=false;
+
             chart.options.scales.y.ticks.includeBounds=false;
+
             chart.options.scales.y.ticks.padding=5;
+
 
             chart.options.scales.y.ticks.font.size=
                 mobile
@@ -3389,6 +3565,7 @@ window.addEventListener(
                 9
                 :
                 11;
+
 
             chart.options.scales.y.ticks.callback=
                 function(value){
@@ -3398,18 +3575,25 @@ window.addEventListener(
                         value>=1 &&
                         value<=11
                     ){
+
                         return value;
+
                     }
 
                     return '';
+
                 };
 
+
             chart.options.elements.line.clip=false;
+
             chart.options.elements.point.clip=false;
+
 
             chart.update();
 
         });
+
 
         updateC1Fade();
 
