@@ -6,7 +6,34 @@
 
 <title>Kicker Manager Stats</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+:root{
+    --bg:#070707;
+    --bg2:#0c0c0d;
+    --card:#111112;
+    --card2:#151516;
+
+    --red:#e30613;
+    --red2:#ff2633;
+    --red-soft:rgba(227,6,19,.13);
+
+    --white:#f5f5f5;
+    --text:#dedede;
+    --muted:#77777d;
+    --muted2:#4f5055;
+
+    --border:rgba(255,255,255,.08);
+
+    --max:1200px;
+}
+
 
 /* =========================================================
    RESET
@@ -22,8 +49,12 @@ html{
 
 body{
     margin:0;
-    background:#08090c;
-    color:#f4f5f7;
+    padding:0;
+
+    background:var(--bg);
+
+    color:var(--text);
+
     font-family:
         Inter,
         -apple-system,
@@ -32,6 +63,7 @@ body{
         Roboto,
         Arial,
         sans-serif;
+
     overflow-x:hidden;
 }
 
@@ -40,7 +72,8 @@ a{
     text-decoration:none;
 }
 
-button{
+button,
+input{
     font:inherit;
 }
 
@@ -51,42 +84,51 @@ button{
 
 body::before{
     content:"";
+
     position:fixed;
     inset:0;
+
     pointer-events:none;
-    z-index:-2;
 
     background:
         radial-gradient(
             circle at 75% 10%,
-            rgba(46,113,255,.14),
-            transparent 32%
-        ),
-        radial-gradient(
-            circle at 15% 45%,
-            rgba(91,71,255,.08),
+            rgba(227,6,19,.075),
             transparent 30%
         ),
         radial-gradient(
-            circle at 80% 80%,
-            rgba(0,180,255,.06),
-            transparent 32%
+            circle at 15% 50%,
+            rgba(255,255,255,.025),
+            transparent 30%
         );
+
+    z-index:-2;
 }
 
 body::after{
     content:"";
+
     position:fixed;
     inset:0;
+
     pointer-events:none;
-    z-index:-1;
+
     opacity:.025;
 
     background-image:
-        linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+        linear-gradient(
+            rgba(255,255,255,.5) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.5) 1px,
+            transparent 1px
+        );
 
-    background-size:60px 60px;
+    background-size:70px 70px;
+
+    z-index:-1;
 }
 
 
@@ -96,25 +138,33 @@ body::after{
 
 .topbar{
     position:fixed;
+
     top:0;
     left:0;
     right:0;
-    z-index:100;
 
-    height:72px;
+    height:70px;
 
-    display:flex;
-    align-items:center;
+    z-index:1000;
 
-    background:rgba(8,9,12,.68);
+    background:
+        rgba(7,7,7,.78);
+
     backdrop-filter:blur(18px);
     -webkit-backdrop-filter:blur(18px);
 
-    border-bottom:1px solid rgba(255,255,255,.07);
+    border-bottom:
+        1px solid rgba(255,255,255,.07);
 }
 
 .topbar-inner{
-    width:min(1280px,calc(100% - 48px));
+    width:min(
+        var(--max),
+        calc(100% - 40px)
+    );
+
+    height:100%;
+
     margin:auto;
 
     display:flex;
@@ -127,37 +177,51 @@ body::after{
 .logo{
     display:flex;
     align-items:center;
-    gap:11px;
+    gap:10px;
+
+    flex-shrink:0;
 
     font-size:14px;
     font-weight:750;
-    letter-spacing:.1px;
 }
 
-.logo-box{
+.logo-mark{
     width:32px;
     height:32px;
 
     display:grid;
     place-items:center;
 
-    border-radius:9px;
+    border-radius:8px;
 
-    background:#1769ff;
+    background:var(--red);
+
+    color:#fff;
 
     font-size:13px;
-    font-weight:850;
+    font-weight:900;
 
     box-shadow:
-        0 0 25px rgba(23,105,255,.28);
+        0 0 25px rgba(227,6,19,.18);
 }
+
+.logo-text{
+    color:#fff;
+}
+
+.logo-text span{
+    color:var(--red);
+}
+
 
 .nav{
     display:flex;
     align-items:center;
-    gap:5px;
+
+    gap:3px;
 
     overflow-x:auto;
+
     scrollbar-width:none;
 }
 
@@ -166,25 +230,28 @@ body::after{
 }
 
 .nav a{
+    padding:8px 10px;
+
+    border-radius:7px;
+
+    color:#777;
+
     white-space:nowrap;
 
-    padding:8px 11px;
-
-    border-radius:8px;
-
-    color:#888d97;
-
-    font-size:12px;
-    font-weight:650;
+    font-size:11px;
+    font-weight:700;
 
     transition:
         color .2s ease,
         background .2s ease;
 }
 
-.nav a:hover{
+.nav a:hover,
+.nav a.active{
     color:#fff;
-    background:rgba(255,255,255,.06);
+
+    background:
+        rgba(255,255,255,.065);
 }
 
 
@@ -192,12 +259,12 @@ body::after{
    GENERAL
 ========================================================= */
 
-.page{
-    width:100%;
-}
-
 .container{
-    width:min(1180px,calc(100% - 48px));
+    width:min(
+        var(--max),
+        calc(100% - 40px)
+    );
+
     margin:0 auto;
 }
 
@@ -213,83 +280,170 @@ body::after{
     align-items:center;
 
     position:relative;
+
+    padding-top:70px;
 }
 
 .hero-inner{
-    width:min(1180px,calc(100% - 48px));
-    margin:0 auto;
+    width:min(
+        var(--max),
+        calc(100% - 40px)
+    );
 
-    padding-top:72px;
+    margin:auto;
 }
 
-.hero-small{
+.hero-kicker{
     display:flex;
     align-items:center;
+
     gap:10px;
 
-    color:#7f8793;
+    color:#6f6f74;
 
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:.13em;
+    font-size:11px;
+    font-weight:800;
+
     text-transform:uppercase;
+
+    letter-spacing:.16em;
 }
 
-.hero-small::before{
+.hero-kicker::before{
     content:"";
+
     width:28px;
     height:1px;
-    background:#1769ff;
+
+    background:var(--red);
 }
 
 .hero h1{
-    margin:24px 0 0;
+    margin:22px 0 0;
 
-    max-width:900px;
+    max-width:1000px;
 
     font-size:
-        clamp(52px,9vw,118px);
+        clamp(55px,9vw,120px);
 
-    line-height:.9;
+    line-height:.88;
 
     letter-spacing:-.065em;
 
-    font-weight:850;
+    font-weight:900;
+
+    color:#f2f2f2;
 }
 
 .hero h1 span{
-    color:#1769ff;
+    color:var(--red);
 }
 
 .hero-bottom{
-    margin-top:46px;
+    margin-top:55px;
 
     display:flex;
     align-items:center;
-    justify-content:space-between;
 
-    gap:30px;
+    gap:16px;
+
+    color:#57585d;
+
+    font-size:11px;
+    font-weight:700;
 }
 
-.hero-scroll{
-    display:flex;
-    align-items:center;
-    gap:12px;
-
-    color:#737984;
-
-    font-size:12px;
-    font-weight:650;
-}
-
-.scroll-line{
+.hero-line{
     width:42px;
     height:1px;
-    background:#555b66;
+
+    background:#3d3d40;
 }
 
-.hero-current{
-    color:#6f7580;
+.hero-season{
+    margin-left:auto;
+
+    color:#4e4f53;
+
+    font-size:11px;
+}
+
+
+/* =========================================================
+   CURRENT SEASON INTRO
+========================================================= */
+
+.current-intro{
+    min-height:55svh;
+
+    display:flex;
+    align-items:flex-end;
+
+    padding:
+        110px
+        0
+        70px;
+
+    position:relative;
+}
+
+.current-intro-number{
+    position:absolute;
+
+    right:-20px;
+    bottom:-30px;
+
+    color:
+        rgba(255,255,255,.025);
+
+    font-size:
+        clamp(180px,30vw,430px);
+
+    line-height:.7;
+
+    font-weight:900;
+
+    letter-spacing:-.1em;
+
+    pointer-events:none;
+}
+
+.current-intro-content{
+    position:relative;
+
+    z-index:2;
+}
+
+.small-label{
+    margin-bottom:12px;
+
+    color:var(--red);
+
+    font-size:10px;
+    font-weight:850;
+
+    text-transform:uppercase;
+
+    letter-spacing:.17em;
+}
+
+.current-title{
+    margin:0;
+
+    font-size:
+        clamp(50px,7vw,90px);
+
+    line-height:.9;
+
+    letter-spacing:-.06em;
+
+    font-weight:900;
+}
+
+.current-subtitle{
+    margin-top:16px;
+
+    color:#66676c;
 
     font-size:12px;
     font-weight:650;
@@ -297,343 +451,684 @@ body::after{
 
 
 /* =========================================================
-   SECTION STRUCTURE
+   CURRENT STATS
 ========================================================= */
 
-.season-section{
-    min-height:100svh;
-
-    display:flex;
-    align-items:center;
-
-    padding:120px 0;
-
-    position:relative;
+.stats-section{
+    padding:
+        50px
+        0
+        150px;
 }
 
-.section-number{
-    position:absolute;
-
-    top:105px;
-    left:0;
-
-    color:rgba(255,255,255,.055);
-
-    font-size:clamp(100px,17vw,230px);
-
-    line-height:.8;
-
-    font-weight:900;
-
-    letter-spacing:-.08em;
-
-    pointer-events:none;
-}
-
-.section-content{
-    width:100%;
-
-    position:relative;
-    z-index:2;
-}
-
-.section-top{
+.stats-heading{
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
 
     gap:30px;
 
-    margin-bottom:42px;
+    margin-bottom:25px;
 }
 
-.season-label{
-    margin-bottom:10px;
-
-    color:#1769ff;
-
-    font-size:11px;
-    font-weight:800;
-
-    text-transform:uppercase;
-    letter-spacing:.14em;
-}
-
-.season-title{
+.stats-heading h2{
     margin:0;
 
-    font-size:
-        clamp(42px,6vw,72px);
+    font-size:20px;
+    font-weight:800;
 
-    line-height:.95;
-
-    letter-spacing:-.055em;
-
-    font-weight:820;
+    letter-spacing:-.03em;
 }
 
-.season-meta{
-    color:#656b75;
+.stats-heading span{
+    color:#505157;
 
-    font-size:12px;
-    font-weight:650;
+    font-size:10px;
+    font-weight:750;
 
-    white-space:nowrap;
+    text-transform:uppercase;
+
+    letter-spacing:.12em;
 }
 
 
 /* =========================================================
-   STAT GRID
+   CHART CARD
 ========================================================= */
 
-.stat-grid{
-    display:grid;
+.chart-card{
+    margin-bottom:14px;
 
-    grid-template-columns:
-        repeat(12,minmax(0,1fr));
-
-    gap:12px;
-}
-
-.stat-card{
-    position:relative;
-
-    min-height:190px;
-
-    padding:25px;
-
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+    padding:
+        20px
+        20px
+        16px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.065),
-            rgba(255,255,255,.025)
+            rgba(255,255,255,.045),
+            rgba(255,255,255,.018)
         );
 
-    border:1px solid rgba(255,255,255,.08);
+    border:
+        1px solid var(--border);
 
-    border-radius:18px;
+    border-radius:16px;
 
-    overflow:hidden;
+    position:relative;
 
     transition:
-        transform .3s ease,
-        border-color .3s ease,
-        background .3s ease;
+        border-color .25s ease,
+        background .25s ease;
 }
 
-.stat-card::before{
-    content:"";
+.chart-card:hover{
+    border-color:
+        rgba(255,255,255,.13);
 
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.055),
+            rgba(255,255,255,.022)
+        );
+}
+
+.chart-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:12px;
+}
+
+.chart-title{
+    color:#d8d8d8;
+
+    font-size:14px;
+    font-weight:750;
+}
+
+.chart-number{
+    color:#45464a;
+
+    font-size:10px;
+    font-weight:800;
+}
+
+.chart-wrap{
+    width:100%;
+
+    height:420px;
+
+    position:relative;
+}
+
+.chart-card.compact .chart-wrap{
+    height:360px;
+}
+
+
+/* =========================================================
+   CHART.JS DARK MODE
+========================================================= */
+
+.chart-legend{
+    margin-top:10px;
+}
+
+
+/* =========================================================
+   RANGE CONTROL
+========================================================= */
+
+.range-card{
+    margin:
+        0
+        0
+        25px;
+
+    padding:
+        18px
+        20px
+        15px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid var(--border);
+
+    border-radius:14px;
+}
+
+.range-top{
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    gap:20px;
+
+    margin-bottom:12px;
+}
+
+.range-title{
+    color:#aaaab0;
+
+    font-size:11px;
+    font-weight:700;
+}
+
+.range-title strong{
+    color:#fff;
+}
+
+.reset-button{
+    border:
+        1px solid rgba(255,255,255,.1);
+
+    background:
+        rgba(255,255,255,.04);
+
+    color:#aaa;
+
+    border-radius:7px;
+
+    padding:
+        6px
+        10px;
+
+    font-size:10px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+}
+
+.reset-button:hover{
+    background:var(--red);
+
+    color:#fff;
+
+    border-color:var(--red);
+}
+
+.slider{
+    position:relative;
+
+    height:24px;
+}
+
+.slider-track,
+.slider-selected{
     position:absolute;
 
-    width:150px;
-    height:150px;
+    top:10px;
 
-    right:-70px;
-    bottom:-80px;
+    height:4px;
+
+    border-radius:4px;
+}
+
+.slider-track{
+    left:0;
+    right:0;
+
+    background:#29292b;
+}
+
+.slider-selected{
+    background:var(--red);
+}
+
+.slider input{
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:100%;
+    height:24px;
+
+    margin:0;
+
+    background:none;
+
+    appearance:none;
+
+    pointer-events:none;
+}
+
+.slider input::-webkit-slider-thumb{
+    appearance:none;
+
+    width:16px;
+    height:16px;
 
     border-radius:50%;
 
-    background:rgba(23,105,255,.09);
+    background:var(--red);
 
-    filter:blur(2px);
+    border:
+        2px solid #080808;
+
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,.2);
+
+    cursor:pointer;
+
+    pointer-events:auto;
 }
 
-.stat-card:hover{
-    transform:translateY(-4px);
+.slider input::-moz-range-thumb{
+    width:16px;
+    height:16px;
 
-    border-color:rgba(23,105,255,.45);
+    border-radius:50%;
+
+    background:var(--red);
+
+    border:
+        2px solid #080808;
+
+    cursor:pointer;
+
+    pointer-events:auto;
+}
+
+.slider-ticks{
+    display:flex;
+
+    justify-content:space-between;
+
+    color:#45464a;
+
+    font-size:9px;
+
+    margin-top:2px;
+}
+
+
+/* =========================================================
+   RANGE TABLE
+========================================================= */
+
+.range-table{
+    overflow-x:auto;
+
+    margin-bottom:20px;
+}
+
+.table-title{
+    margin-bottom:9px;
+
+    color:#77787d;
+
+    font-size:10px;
+    font-weight:750;
+
+    text-transform:uppercase;
+
+    letter-spacing:.1em;
+}
+
+table{
+    width:100%;
+
+    border-collapse:collapse;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.09),
-            rgba(255,255,255,.035)
-        );
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid var(--border);
+
+    border-radius:12px;
+
+    overflow:hidden;
 }
 
-.stat-card.large{
-    grid-column:span 7;
-}
+th{
+    padding:10px;
 
-.stat-card.medium{
-    grid-column:span 5;
-}
+    color:#56575c;
 
-.stat-card.third{
-    grid-column:span 4;
-}
+    background:
+        rgba(255,255,255,.025);
 
-.stat-card.half{
-    grid-column:span 6;
-}
+    border-bottom:
+        1px solid var(--border);
 
-.stat-card.full{
-    grid-column:span 12;
-}
+    font-size:9px;
+    font-weight:750;
 
-.stat-number{
-    color:#515762;
-
-    font-size:11px;
-    font-weight:800;
+    text-transform:uppercase;
 
     letter-spacing:.08em;
 }
 
-.stat-title{
-    position:relative;
-    z-index:2;
+td{
+    padding:9px 10px;
 
-    margin-top:auto;
+    color:#b7b7bb;
 
-    font-size:20px;
-    line-height:1.15;
+    border-bottom:
+        1px solid rgba(255,255,255,.045);
 
-    font-weight:720;
+    font-size:11px;
 
-    letter-spacing:-.025em;
+    text-align:center;
 }
 
-.stat-arrow{
-    position:absolute;
+tr:last-child td{
+    border-bottom:0;
+}
 
-    right:22px;
-    bottom:20px;
+.player-cell{
+    display:flex;
 
-    width:30px;
-    height:30px;
+    align-items:center;
 
-    display:grid;
-    place-items:center;
+    justify-content:flex-start;
 
-    border:1px solid rgba(255,255,255,.09);
+    gap:7px;
+}
+
+.player-dot{
+    width:7px;
+    height:7px;
+
     border-radius:50%;
 
-    color:#888e98;
-
-    font-size:13px;
-
-    transition:
-        color .2s ease,
-        background .2s ease,
-        border-color .2s ease;
+    flex:0 0 7px;
 }
 
-.stat-card:hover .stat-arrow{
-    color:#fff;
+.rank-badge{
+    display:inline-flex;
 
-    background:#1769ff;
+    width:21px;
+    height:21px;
 
-    border-color:#1769ff;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#242427;
+
+    color:#aaa;
+
+    font-size:9px;
+    font-weight:800;
+}
+
+.rank-badge.gold{
+    background:
+        linear-gradient(
+            135deg,
+            #b88716,
+            #f2c94c
+        );
+
+    color:#111;
+}
+
+.rank-1 td{
+    background:
+        rgba(227,6,19,.035);
 }
 
 
 /* =========================================================
-   CURRENT SEASON
+   HIN / RÜCKRUNDE
 ========================================================= */
 
-.current-section{
+.half-tables{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:14px;
+
+    margin-top:40px;
+}
+
+.table-card{
+    min-width:0;
+
+    padding:20px;
+
+    background:
+        rgba(255,255,255,.025);
+
+    border:
+        1px solid var(--border);
+
+    border-radius:15px;
+}
+
+.table-card-title{
+    margin-bottom:15px;
+
+    color:#ddd;
+
+    font-size:13px;
+    font-weight:750;
+}
+
+.table-card-title span{
+    color:#515258;
+
+    font-size:9px;
+
+    font-weight:650;
+}
+
+
+/* =========================================================
+   TRANSITION TO OLD SEASONS
+========================================================= */
+
+.history-transition{
+    min-height:70svh;
+
+    display:flex;
+    align-items:center;
+
+    position:relative;
+
+    padding:
+        130px
+        0;
+}
+
+.transition-number{
+    position:absolute;
+
+    right:-20px;
+    top:50%;
+
+    transform:
+        translateY(-50%);
+
+    color:
+        rgba(255,255,255,.025);
+
+    font-size:
+        clamp(180px,30vw,430px);
+
+    font-weight:900;
+
+    line-height:.7;
+
+    letter-spacing:-.1em;
+}
+
+.transition-content{
+    position:relative;
+
+    z-index:2;
+}
+
+.transition-title{
+    margin:0;
+
+    font-size:
+        clamp(48px,7vw,82px);
+
+    line-height:.9;
+
+    letter-spacing:-.06em;
+
+    font-weight:900;
+}
+
+.transition-title span{
+    color:var(--red);
+}
+
+.transition-text{
+    margin-top:18px;
+
+    color:#57585d;
+
+    font-size:12px;
+}
+
+
+/* =========================================================
+   OLD SEASONS
+========================================================= */
+
+.old-season{
     min-height:100svh;
 
     display:flex;
     align-items:center;
 
-    position:relative;
-
-    padding:120px 0;
+    padding:
+        120px
+        0;
 }
 
-.current-section::before{
-    content:"";
-
-    position:absolute;
-
-    width:520px;
-    height:520px;
-
-    right:-220px;
-    top:50%;
-
-    transform:translateY(-50%);
-
-    border-radius:50%;
-
-    background:rgba(23,105,255,.08);
-
-    filter:blur(70px);
-
-    pointer-events:none;
+.old-season-content{
+    width:100%;
 }
 
-.current-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
+.old-season-top{
+    display:flex;
 
-    padding:7px 10px;
+    justify-content:space-between;
+    align-items:flex-end;
 
-    margin-bottom:16px;
+    gap:30px;
 
-    border:1px solid rgba(23,105,255,.25);
+    margin-bottom:35px;
+}
 
-    border-radius:999px;
+.old-season-name{
+    margin:0;
 
-    background:rgba(23,105,255,.08);
+    font-size:
+        clamp(45px,6vw,72px);
 
-    color:#4f91ff;
+    line-height:.9;
+
+    letter-spacing:-.06em;
+
+    font-weight:900;
+}
+
+.old-season-count{
+    color:#4d4e52;
 
     font-size:10px;
-    font-weight:800;
+    font-weight:750;
 
     text-transform:uppercase;
+
     letter-spacing:.1em;
 }
 
-.current-dot{
-    width:6px;
-    height:6px;
+.old-stat-grid{
+    display:grid;
 
-    border-radius:50%;
+    grid-template-columns:
+        repeat(12,minmax(0,1fr));
 
-    background:#3d8bff;
-
-    box-shadow:0 0 12px #3d8bff;
+    gap:10px;
 }
 
-.current-link{
-    margin-top:30px;
+.old-stat{
+    min-height:150px;
 
-    display:inline-flex;
-    align-items:center;
-    gap:13px;
+    padding:20px;
 
-    padding:13px 17px;
+    display:flex;
 
-    border-radius:11px;
+    flex-direction:column;
 
-    background:#1769ff;
+    justify-content:space-between;
 
-    color:#fff;
+    background:
+        rgba(255,255,255,.025);
 
-    font-size:13px;
-    font-weight:720;
+    border:
+        1px solid var(--border);
 
-    box-shadow:
-        0 10px 30px rgba(23,105,255,.2);
+    border-radius:14px;
 
     transition:
-        transform .2s ease,
-        background .2s ease;
+        transform .25s ease,
+        border-color .25s ease,
+        background .25s ease;
 }
 
-.current-link:hover{
-    transform:translateY(-2px);
-    background:#2c78ff;
+.old-stat:nth-child(1),
+.old-stat:nth-child(2){
+    grid-column:span 6;
+}
+
+.old-stat:nth-child(n+3){
+    grid-column:span 4;
+}
+
+.old-stat:hover{
+    transform:translateY(-3px);
+
+    border-color:
+        rgba(227,6,19,.35);
+
+    background:
+        rgba(227,6,19,.035);
+}
+
+.old-stat-number{
+    color:#46474b;
+
+    font-size:9px;
+    font-weight:800;
+}
+
+.old-stat-title{
+    color:#c6c6c9;
+
+    font-size:16px;
+    font-weight:720;
+
+    letter-spacing:-.02em;
+}
+
+.old-stat-arrow{
+    margin-top:15px;
+
+    color:var(--red);
+
+    font-size:13px;
 }
 
 
@@ -641,111 +1136,135 @@ body::after{
    ALL TIME
 ========================================================= */
 
-.alltime-section{
+.alltime{
     min-height:100svh;
 
     display:flex;
     align-items:center;
 
-    padding:120px 0;
+    padding:
+        120px
+        0;
 }
 
-.alltime-layout{
+.alltime-title{
+    margin:0 0 35px;
+
+    font-size:
+        clamp(48px,7vw,84px);
+
+    line-height:.9;
+
+    letter-spacing:-.06em;
+
+    font-weight:900;
+}
+
+.alltime-grid{
     display:grid;
 
     grid-template-columns:
-        minmax(0,1fr)
-        minmax(0,1fr);
+        repeat(2,minmax(0,1fr));
 
-    gap:14px;
+    gap:12px;
 }
 
 .alltime-card{
-    min-height:300px;
+    min-height:280px;
 
-    padding:30px;
+    padding:25px;
 
     display:flex;
     flex-direction:column;
     justify-content:space-between;
 
-    border-radius:20px;
+    border:
+        1px solid var(--border);
 
-    border:1px solid rgba(255,255,255,.08);
+    border-radius:17px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(255,255,255,.065),
-            rgba(255,255,255,.025)
+            rgba(255,255,255,.045),
+            rgba(255,255,255,.018)
         );
 
     transition:
-        transform .3s ease,
-        border-color .3s ease;
+        transform .25s ease,
+        border-color .25s ease;
 }
 
 .alltime-card:hover{
     transform:translateY(-4px);
-    border-color:rgba(23,105,255,.4);
+
+    border-color:
+        rgba(227,6,19,.4);
 }
 
 .alltime-year{
-    color:#1769ff;
+    color:var(--red);
 
-    font-size:12px;
-    font-weight:800;
+    font-size:10px;
+    font-weight:850;
 
     letter-spacing:.12em;
 }
 
-.alltime-title{
-    margin-top:12px;
+.alltime-name{
+    margin-top:10px;
 
-    font-size:30px;
+    color:#e5e5e5;
 
-    font-weight:780;
+    font-size:27px;
+    font-weight:800;
 
     letter-spacing:-.04em;
 }
 
-.alltime-open{
+.open-link{
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
     align-self:flex-start;
 
-    padding:10px 14px;
+    padding:
+        9px
+        12px;
 
-    border-radius:9px;
+    border-radius:8px;
 
-    background:rgba(255,255,255,.07);
+    background:
+        rgba(255,255,255,.06);
 
-    color:#d7d9dd;
+    color:#aaa;
 
-    font-size:12px;
-    font-weight:700;
+    font-size:10px;
+    font-weight:750;
 
-    transition:
-        background .2s ease,
-        color .2s ease;
+    transition:.2s ease;
 }
 
-.alltime-open:hover{
-    background:#1769ff;
+.open-link:hover{
+    background:var(--red);
+
     color:#fff;
 }
 
-.previous-years{
-    margin-top:50px;
-}
+.previous-title{
+    margin-top:45px;
+    margin-bottom:14px;
 
-.previous-heading{
-    margin-bottom:18px;
+    color:#4f5055;
 
-    color:#646b75;
-
-    font-size:11px;
+    font-size:10px;
     font-weight:800;
 
     text-transform:uppercase;
+
     letter-spacing:.12em;
 }
 
@@ -759,48 +1278,53 @@ body::after{
 }
 
 .previous-link{
-    min-height:76px;
+    min-height:70px;
 
-    padding:15px;
+    padding:13px;
 
     display:flex;
     align-items:flex-end;
 
-    border:1px solid rgba(255,255,255,.07);
+    border:
+        1px solid var(--border);
 
-    border-radius:12px;
+    border-radius:10px;
 
-    background:rgba(255,255,255,.025);
+    background:
+        rgba(255,255,255,.018);
 
-    color:#b9bdc5;
+    color:#898a8f;
 
-    font-size:13px;
+    font-size:10px;
     font-weight:700;
 
-    transition:
-        background .2s ease,
-        border-color .2s ease,
-        color .2s ease;
+    transition:.2s ease;
 }
 
 .previous-link:hover{
-    background:rgba(23,105,255,.1);
-    border-color:rgba(23,105,255,.35);
     color:#fff;
+
+    border-color:
+        rgba(227,6,19,.35);
+
+    background:
+        rgba(227,6,19,.06);
 }
 
 
 /* =========================================================
-   FINAL LINKS
+   FINAL
 ========================================================= */
 
-.final-section{
-    min-height:80svh;
+.final{
+    min-height:75svh;
 
     display:flex;
     align-items:center;
 
-    padding:120px 0;
+    padding:
+        120px
+        0;
 }
 
 .final-grid{
@@ -809,75 +1333,74 @@ body::after{
     grid-template-columns:
         repeat(2,minmax(0,1fr));
 
-    gap:14px;
+    gap:12px;
 }
 
 .final-card{
     min-height:300px;
 
-    padding:30px;
+    padding:28px;
 
     display:flex;
     flex-direction:column;
     justify-content:space-between;
 
-    border-radius:20px;
+    border:
+        1px solid var(--border);
 
-    border:1px solid rgba(255,255,255,.08);
+    border-radius:17px;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.065),
-            rgba(255,255,255,.025)
-        );
+        rgba(255,255,255,.025);
 
     transition:
-        transform .3s ease,
-        border-color .3s ease;
+        transform .25s ease,
+        border-color .25s ease;
 }
 
 .final-card:hover{
     transform:translateY(-4px);
-    border-color:rgba(23,105,255,.4);
+
+    border-color:
+        rgba(227,6,19,.4);
 }
 
-.final-card-label{
-    color:#656b75;
+.final-label{
+    color:#505157;
 
-    font-size:11px;
+    font-size:10px;
     font-weight:800;
+
+    text-transform:uppercase;
 
     letter-spacing:.1em;
-    text-transform:uppercase;
 }
 
-.final-card-title{
-    margin-top:auto;
+.final-name{
+    color:#eee;
 
-    font-size:32px;
-
-    font-weight:800;
+    font-size:30px;
+    font-weight:850;
 
     letter-spacing:-.04em;
 }
 
-.final-card-arrow{
-    margin-top:25px;
-
-    width:42px;
-    height:42px;
+.final-arrow{
+    width:38px;
+    height:38px;
 
     display:grid;
     place-items:center;
 
+    margin-top:20px;
+
     border-radius:50%;
 
-    background:#1769ff;
+    background:var(--red);
 
     color:#fff;
 
-    font-size:16px;
+    font-size:14px;
 }
 
 
@@ -886,36 +1409,45 @@ body::after{
 ========================================================= */
 
 footer{
-    padding:40px 0 60px;
+    padding:
+        35px
+        0
+        55px;
 
-    border-top:1px solid rgba(255,255,255,.06);
+    border-top:
+        1px solid rgba(255,255,255,.05);
 
-    color:#505660;
+    color:#3f4044;
 
-    font-size:11px;
-    font-weight:650;
+    font-size:9px;
+    font-weight:700;
 
     text-align:center;
+
+    letter-spacing:.08em;
 }
 
 
 /* =========================================================
-   SCROLL REVEAL
+   REVEAL
 ========================================================= */
 
 .reveal{
     opacity:0;
 
-    transform:translateY(35px);
+    transform:
+        translateY(35px);
 
     transition:
-        opacity .8s ease,
-        transform .8s cubic-bezier(.22,1,.36,1);
+        opacity .75s ease,
+        transform .75s cubic-bezier(.22,1,.36,1);
 }
 
 .reveal.visible{
     opacity:1;
-    transform:translateY(0);
+
+    transform:
+        translateY(0);
 }
 
 
@@ -923,26 +1455,31 @@ footer{
    RESPONSIVE
 ========================================================= */
 
-@media(max-width:900px){
+@media(max-width:850px){
 
     .topbar-inner{
-        width:calc(100% - 28px);
+        width:calc(100% - 24px);
     }
 
     .nav{
-        max-width:55vw;
+        max-width:54vw;
     }
 
     .container,
     .hero-inner{
-        width:calc(100% - 28px);
+        width:calc(100% - 24px);
     }
 
-    .stat-card.large,
-    .stat-card.medium,
-    .stat-card.third,
-    .stat-card.half{
-        grid-column:span 6;
+    .chart-wrap{
+        height:350px;
+    }
+
+    .chart-card.compact .chart-wrap{
+        height:310px;
+    }
+
+    .half-tables{
+        grid-template-columns:1fr;
     }
 
     .previous-grid{
@@ -956,14 +1493,14 @@ footer{
 @media(max-width:650px){
 
     .topbar{
-        height:62px;
+        height:60px;
     }
 
     .logo{
-        font-size:12px;
+        font-size:11px;
     }
 
-    .logo-box{
+    .logo-mark{
         width:29px;
         height:29px;
     }
@@ -973,87 +1510,142 @@ footer{
     }
 
     .hero{
-        min-height:100svh;
+        padding-top:60px;
     }
 
     .hero-inner{
-        padding-top:62px;
+        padding-top:0;
     }
 
     .hero h1{
         font-size:
-            clamp(48px,15vw,78px);
+            clamp(50px,15vw,76px);
     }
 
     .hero-bottom{
-        margin-top:32px;
+        margin-top:35px;
     }
 
-    .hero-current{
+    .hero-season{
         display:none;
     }
 
-    .season-section,
-    .current-section,
-    .alltime-section,
-    .final-section{
+    .current-intro{
+        min-height:55svh;
+
+        padding:
+            90px
+            0
+            45px;
+    }
+
+    .current-title{
+        font-size:54px;
+    }
+
+    .stats-section{
+        padding:
+            35px
+            0
+            100px;
+    }
+
+    .stats-heading{
+        align-items:flex-start;
+
+        flex-direction:column;
+
+        gap:7px;
+    }
+
+    .chart-card{
+        padding:
+            13px
+            10px
+            10px;
+    }
+
+    .chart-header{
+        padding:
+            2px
+            4px;
+    }
+
+    .chart-title{
+        font-size:12px;
+    }
+
+    .chart-wrap,
+    .chart-card.compact .chart-wrap{
+        height:300px;
+    }
+
+    .range-card{
+        padding:
+            14px
+            12px
+            11px;
+    }
+
+    .range-top{
+        gap:10px;
+    }
+
+    .half-tables{
+        margin-top:25px;
+    }
+
+    .history-transition,
+    .old-season,
+    .alltime,
+    .final{
         min-height:auto;
 
         padding:
-            110px 0
-            90px;
+            100px
+            0;
     }
 
-    .section-number{
-        top:90px;
-
-        font-size:120px;
+    .transition-title{
+        font-size:52px;
     }
 
-    .section-top{
-        margin-bottom:28px;
-
+    .old-season-top{
         align-items:flex-start;
+
         flex-direction:column;
 
         gap:10px;
     }
 
-    .season-title{
-        font-size:48px;
+    .old-season-name{
+        font-size:50px;
     }
 
-    .season-meta{
-        font-size:11px;
-    }
-
-    .stat-grid{
+    .old-stat-grid{
         grid-template-columns:1fr;
     }
 
-    .stat-card.large,
-    .stat-card.medium,
-    .stat-card.third,
-    .stat-card.half,
-    .stat-card.full{
+    .old-stat:nth-child(1),
+    .old-stat:nth-child(2),
+    .old-stat:nth-child(n+3){
         grid-column:span 1;
     }
 
-    .stat-card{
-        min-height:155px;
-        padding:21px;
+    .old-stat{
+        min-height:125px;
     }
 
-    .stat-title{
-        font-size:18px;
+    .alltime-title{
+        font-size:52px;
     }
 
-    .alltime-layout{
+    .alltime-grid{
         grid-template-columns:1fr;
     }
 
     .alltime-card{
-        min-height:240px;
+        min-height:230px;
     }
 
     .previous-grid{
@@ -1065,10 +1657,6 @@ footer{
         grid-template-columns:1fr;
     }
 
-    .final-card{
-        min-height:240px;
-    }
-
 }
 
 
@@ -1076,15 +1664,16 @@ footer{
 
     .container,
     .hero-inner{
-        width:calc(100% - 22px);
+        width:calc(100% - 18px);
     }
 
     .hero h1{
         font-size:48px;
     }
 
-    .season-title{
-        font-size:43px;
+    .current-title,
+    .old-season-name{
+        font-size:46px;
     }
 
     .previous-grid{
@@ -1124,29 +1713,35 @@ footer{
 
 
 <!-- =======================================================
-     TOP NAV
+     NAVIGATION
 ======================================================= -->
 
 <header class="topbar">
 
     <div class="topbar-inner">
 
-        <a href="#top" class="logo">
+        <a
+            href="#top"
+            class="logo"
+        >
 
-            <div class="logo-box">
+            <div class="logo-mark">
                 K
             </div>
 
-            <span>
-                Kicker Manager Stats
-            </span>
+            <div class="logo-text">
+                Kicker <span>Manager</span> Stats
+            </div>
 
         </a>
 
 
         <nav class="nav">
 
-            <a href="#season-26-27">
+            <a
+                href="#current"
+                class="active"
+            >
                 26/27
             </a>
 
@@ -1163,7 +1758,11 @@ footer{
             </a>
 
             <a href="#ewige-tabellen">
-                Ewige Tabellen
+                Ewige Tabelle
+            </a>
+
+            <a href="#history">
+                History
             </a>
 
         </nav>
@@ -1174,7 +1773,7 @@ footer{
 
 
 
-<div class="page" id="top">
+<div id="top">
 
 
 <!-- =======================================================
@@ -1185,30 +1784,28 @@ footer{
 
     <div class="hero-inner">
 
-        <div class="hero-small">
-            Manager Group
+        <div class="hero-kicker">
+            Kicker Manager Stats
         </div>
 
+
         <h1>
-            Kicker<br>
-            <span>Manager</span><br>
-            Stats
+            The season<br>
+            <span>in numbers.</span>
         </h1>
 
 
         <div class="hero-bottom">
 
-            <div class="hero-scroll">
+            <span class="hero-line"></span>
 
-                <span class="scroll-line"></span>
-
+            <span>
                 Scroll to explore
+            </span>
 
-            </div>
-
-            <div class="hero-current">
+            <span class="hero-season">
                 2023 — 2027
-            </div>
+            </span>
 
         </div>
 
@@ -1219,50 +1816,34 @@ footer{
 
 
 <!-- =======================================================
-     SEASON 26/27
+     CURRENT SEASON INTRO
 ======================================================= -->
 
 <section
-    class="current-section"
-    id="season-26-27"
+    class="current-intro"
+    id="current"
 >
 
-    <div class="section-number">
-        01
+    <div class="current-intro-number">
+        26
     </div>
+
 
     <div class="container">
 
-        <div class="section-content reveal">
+        <div class="current-intro-content reveal">
 
-            <div class="current-badge">
-
-                <span class="current-dot"></span>
-
+            <div class="small-label">
                 Current Season
-
             </div>
 
-
-            <div class="season-label">
-                Season
-            </div>
-
-            <h2 class="season-title">
+            <h2 class="current-title">
                 26 / 27
             </h2>
 
-
-            <a
-                class="current-link"
-                href="Season 26-27/Saisonstatistiken 26-27.html"
-            >
-
-                Saisonstatistiken 26/27
-
-                <span>→</span>
-
-            </a>
+            <div class="current-subtitle">
+                Saisonstatistiken
+            </div>
 
         </div>
 
@@ -1273,121 +1854,392 @@ footer{
 
 
 <!-- =======================================================
-     SEASON 25/26
+     CURRENT SEASON STATS
 ======================================================= -->
 
-<section
-    class="season-section"
-    id="season-25-26"
->
+<section class="stats-section">
 
-    <div class="section-number">
-        02
+    <div class="container">
+
+
+        <div class="stats-heading reveal">
+
+            <h2>
+                Saisonstatistiken 26/27
+            </h2>
+
+            <span>
+                Current season
+            </span>
+
+        </div>
+
+
+        <!-- =================================================
+             GRAPH 1
+        ================================================== -->
+
+        <div class="chart-card reveal">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Saisonpunkte 26-27
+                </div>
+
+                <div class="chart-number">
+                    01
+                </div>
+
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="c1"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RANGE
+        ================================================== -->
+
+        <div class="range-card reveal">
+
+            <div class="range-top">
+
+                <div class="range-title">
+
+                    Spieltage:
+
+                    <strong id="rangeMinLabel">
+                        1
+                    </strong>
+
+                    –
+
+                    <strong id="rangeMaxLabel">
+                        34
+                    </strong>
+
+                </div>
+
+
+                <button
+                    class="reset-button"
+                    id="resetRange"
+                >
+                    Reset
+                </button>
+
+            </div>
+
+
+            <div class="slider">
+
+                <div class="slider-track"></div>
+
+                <div
+                    class="slider-selected"
+                    id="sliderSelected"
+                ></div>
+
+                <input
+                    id="rangeMin"
+                    type="range"
+                    min="1"
+                    max="34"
+                    value="1"
+                >
+
+                <input
+                    id="rangeMax"
+                    type="range"
+                    min="1"
+                    max="34"
+                    value="34"
+                >
+
+            </div>
+
+
+            <div class="slider-ticks">
+
+                <span>
+                    1
+                </span>
+
+                <span>
+                    34
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- RANGE TABLE -->
+
+        <div
+            class="range-table reveal"
+            id="rangeTable"
+        ></div>
+
+
+        <!-- =================================================
+             GRAPH 2
+        ================================================== -->
+
+        <div class="chart-card reveal">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Punkte je Spieltag
+                </div>
+
+                <div class="chart-number">
+                    02
+                </div>
+
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="c2"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             GRAPH 3
+        ================================================== -->
+
+        <div class="chart-card reveal">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Tabellenplatzentwicklung
+                </div>
+
+                <div class="chart-number">
+                    03
+                </div>
+
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="c3"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             GRAPH 4
+        ================================================== -->
+
+        <div class="chart-card reveal">
+
+            <div class="chart-header">
+
+                <div class="chart-title">
+                    Spieltagsplatzierung
+                </div>
+
+                <div class="chart-number">
+                    04
+                </div>
+
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="c4"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             HIN / RÜCKRUNDE
+        ================================================== -->
+
+        <div class="half-tables reveal">
+
+            <div
+                class="table-card"
+                id="hinTable"
+            ></div>
+
+            <div
+                class="table-card"
+                id="rueckTable"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =======================================================
+     TRANSITION
+======================================================= -->
+
+<section class="history-transition">
+
+    <div class="transition-number">
+        25
     </div>
 
     <div class="container">
 
-        <div class="section-content">
+        <div class="transition-content reveal">
 
-            <div class="section-top reveal">
+            <div class="small-label">
+                Previous seasons
+            </div>
 
-                <div>
+            <h2 class="transition-title">
+                Before<br>
+                <span>26 / 27.</span>
+            </h2>
 
-                    <div class="season-label">
-                        Season
-                    </div>
+            <div class="transition-text">
+                Season statistics
+            </div>
 
-                    <h2 class="season-title">
-                        25 / 26
-                    </h2>
+        </div>
 
-                </div>
+    </div>
 
-                <div class="season-meta">
+</section>
+
+
+
+<!-- =======================================================
+     25/26
+======================================================= -->
+
+<section
+    class="old-season"
+    id="season-25-26"
+>
+
+    <div class="container">
+
+        <div class="old-season-content">
+
+            <div class="old-season-top reveal">
+
+                <h2 class="old-season-name">
+                    25 / 26
+                </h2>
+
+                <div class="old-season-count">
                     4 statistics
                 </div>
 
             </div>
 
 
-            <div class="stat-grid">
+            <div class="old-stat-grid">
 
 
                 <a
-                    class="stat-card large reveal"
+                    class="old-stat reveal"
                     href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         01
                     </div>
 
-                    <div class="stat-title">
-                        Fieberkurve Saisonpunkte
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Fieberkurve Saisonpunkte
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card medium reveal"
+                    class="old-stat reveal"
                     href="Season 25-26/Punkte pro Spieltag 25-26.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         02
                     </div>
 
-                    <div class="stat-title">
-                        Punkte pro Spieltag
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Punkte pro Spieltag
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card half reveal"
+                    class="old-stat reveal"
                     href="Season 25-26/Tabelle Spieltag 25-26.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         03
                     </div>
 
-                    <div class="stat-title">
-                        Tabelle Spieltag
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Tabelle Spieltag
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card half reveal"
+                    class="old-stat reveal"
                     href="Season 25-26/Tagesplatzplatzierung 25-26.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         04
                     </div>
 
-                    <div class="stat-title">
-                        Tagesplatzierung
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Tagesplatzierung
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
@@ -1404,141 +2256,149 @@ footer{
 
 
 <!-- =======================================================
-     SEASON 24/25
+     24/25
 ======================================================= -->
 
 <section
-    class="season-section"
+    class="old-season"
     id="season-24-25"
 >
 
-    <div class="section-number">
-        03
-    </div>
-
     <div class="container">
 
-        <div class="section-content">
+        <div class="old-season-content">
 
-            <div class="section-top reveal">
+            <div class="old-season-top reveal">
 
-                <div>
+                <h2 class="old-season-name">
+                    24 / 25
+                </h2>
 
-                    <div class="season-label">
-                        Season
-                    </div>
-
-                    <h2 class="season-title">
-                        24 / 25
-                    </h2>
-
-                </div>
-
-                <div class="season-meta">
+                <div class="old-season-count">
                     5 statistics
                 </div>
 
             </div>
 
 
-            <div class="stat-grid">
+            <div class="old-stat-grid">
 
 
                 <a
-                    class="stat-card large reveal"
+                    class="old-stat reveal"
                     href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         01
                     </div>
 
-                    <div class="stat-title">
-                        Fieberkurve Saisonpunkte
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Fieberkurve Saisonpunkte
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card medium reveal"
+                    class="old-stat reveal"
                     href="Season 24-25/PunkteProSpieltag 24-25.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         02
                     </div>
 
-                    <div class="stat-title">
-                        Punkte pro Spieltag
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Punkte pro Spieltag
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card third reveal"
+                    class="old-stat reveal"
                     href="Season 24-25/Tabelle Spieltag 24-25.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         03
                     </div>
 
-                    <div class="stat-title">
-                        Tabelle Spieltag
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Tabelle Spieltag
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card third reveal"
+                    class="old-stat reveal"
                     href="Season 24-25/Tagesplatzierung 24-25.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         04
                     </div>
 
-                    <div class="stat-title">
-                        Tagesplatzierung
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Tagesplatzierung
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card third reveal"
+                    class="old-stat reveal"
                     href="Season 24-25/Hin und Rueckrunde/Hin- und Rückrundentabelle 24-25.html"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         05
                     </div>
 
-                    <div class="stat-title">
-                        Hin- und Rückrundentabelle
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Hin- und Rückrundentabelle
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
@@ -1555,81 +2415,77 @@ footer{
 
 
 <!-- =======================================================
-     SEASON 23/24
+     23/24
 ======================================================= -->
 
 <section
-    class="season-section"
+    class="old-season"
     id="season-23-24"
 >
 
-    <div class="section-number">
-        04
-    </div>
-
     <div class="container">
 
-        <div class="section-content">
+        <div class="old-season-content">
 
-            <div class="section-top reveal">
+            <div class="old-season-top reveal">
 
-                <div>
+                <h2 class="old-season-name">
+                    23 / 24
+                </h2>
 
-                    <div class="season-label">
-                        Season
-                    </div>
-
-                    <h2 class="season-title">
-                        23 / 24
-                    </h2>
-
-                </div>
-
-                <div class="season-meta">
+                <div class="old-season-count">
                     2 statistics
                 </div>
 
             </div>
 
 
-            <div class="stat-grid">
+            <div class="old-stat-grid">
 
 
                 <a
-                    class="stat-card half reveal"
+                    class="old-stat reveal"
                     href="Season 23-24/Punkteentwicklung 23-24.PNG"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         01
                     </div>
 
-                    <div class="stat-title">
-                        Punkteentwicklung
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Punkteentwicklung
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
 
 
                 <a
-                    class="stat-card half reveal"
+                    class="old-stat reveal"
                     href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG"
                 >
 
-                    <div class="stat-number">
+                    <div class="old-stat-number">
                         02
                     </div>
 
-                    <div class="stat-title">
-                        Tabellenplatz je Spieltag
-                    </div>
+                    <div>
 
-                    <div class="stat-arrow">
-                        →
+                        <div class="old-stat-title">
+                            Tabellenplatz je Spieltag
+                        </div>
+
+                        <div class="old-stat-arrow">
+                            →
+                        </div>
+
                     </div>
 
                 </a>
@@ -1650,114 +2506,106 @@ footer{
 ======================================================= -->
 
 <section
-    class="alltime-section"
+    class="alltime"
     id="ewige-tabellen"
 >
 
     <div class="container">
 
-        <div class="section-content">
+        <div class="reveal">
 
-            <div class="section-top reveal">
+            <div class="small-label">
+                History
+            </div>
+
+            <h2 class="alltime-title">
+                Ewige<br>
+                Tabellen
+            </h2>
+
+        </div>
+
+
+        <div class="alltime-grid">
+
+
+            <a
+                class="alltime-card reveal"
+                href="Ewige Tabellen/Ewige Tabelle 2027.html"
+            >
 
                 <div>
 
-                    <div class="season-label">
-                        History
+                    <div class="alltime-year">
+                        CURRENT
                     </div>
 
-                    <h2 class="season-title">
-                        Ewige Tabellen
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="alltime-layout">
-
-
-                <a
-                    class="alltime-card reveal"
-                    href="Ewige Tabellen/Ewige Tabelle 2027.html"
-                >
-
-                    <div>
-
-                        <div class="alltime-year">
-                            CURRENT
-                        </div>
-
-                        <div class="alltime-title">
-                            Ewige Tabelle 2027
-                        </div>
-
-                    </div>
-
-                    <div class="alltime-open">
-                        Open →
-                    </div>
-
-                </a>
-
-
-                <div class="alltime-card reveal">
-
-                    <div>
-
-                        <div class="alltime-year">
-                            PREVIOUS
-                        </div>
-
-                        <div class="alltime-title">
-                            Previous all time tables
-                        </div>
-
-                    </div>
-
-
-                    <div class="previous-grid">
-
-                        <a
-                            class="previous-link"
-                            href="Ewige Tabellen/Ewige Tabelle 2026.html"
-                        >
-                            Ewige Tabelle 2026
-                        </a>
-
-                        <a
-                            class="previous-link"
-                            href="Ewige Tabellen/Ewige Tabelle 2025.html"
-                        >
-                            Ewige Tabelle 2025
-                        </a>
-
-                        <a
-                            class="previous-link"
-                            href="Ewige Tabellen/Ewige Tabelle 2024.PNG"
-                        >
-                            Ewige Tabelle 2024
-                        </a>
-
-                        <a
-                            class="previous-link"
-                            href="Ewige Tabellen/Ewige Tabelle 2023.png"
-                        >
-                            Ewige Tabelle 2023
-                        </a>
-
-                        <a
-                            class="previous-link"
-                            href="Ewige Tabellen/Ewige Tabelle 2022.PNG"
-                        >
-                            Ewige Tabelle 2022
-                        </a>
-
+                    <div class="alltime-name">
+                        Ewige Tabelle 2027
                     </div>
 
                 </div>
 
+                <div class="open-link">
+                    Open →
+                </div>
+
+            </a>
+
+
+            <div class="alltime-card reveal">
+
+                <div>
+
+                    <div class="alltime-year">
+                        PREVIOUS
+                    </div>
+
+                    <div class="alltime-name">
+                        Previous
+                    </div>
+
+                </div>
+
+
+                <div class="previous-grid">
+
+                    <a
+                        class="previous-link"
+                        href="Ewige Tabellen/Ewige Tabelle 2026.html"
+                    >
+                        Ewige Tabelle 2026
+                    </a>
+
+                    <a
+                        class="previous-link"
+                        href="Ewige Tabellen/Ewige Tabelle 2025.html"
+                    >
+                        Ewige Tabelle 2025
+                    </a>
+
+                    <a
+                        class="previous-link"
+                        href="Ewige Tabellen/Ewige Tabelle 2024.PNG"
+                    >
+                        Ewige Tabelle 2024
+                    </a>
+
+                    <a
+                        class="previous-link"
+                        href="Ewige Tabellen/Ewige Tabelle 2023.png"
+                    >
+                        Ewige Tabelle 2023
+                    </a>
+
+                    <a
+                        class="previous-link"
+                        href="Ewige Tabellen/Ewige Tabelle 2022.PNG"
+                    >
+                        Ewige Tabelle 2022
+                    </a>
+
+                </div>
 
             </div>
 
@@ -1773,81 +2621,63 @@ footer{
      ENDPLATZIERUNGEN / WINNING TEAMS
 ======================================================= -->
 
-<section class="final-section">
+<section
+    class="final"
+    id="history"
+>
 
     <div class="container">
 
-        <div class="section-content">
+        <div class="final-grid">
 
-            <div class="section-top reveal">
+
+            <a
+                class="final-card reveal"
+                href="Endplatzierungen.html"
+            >
+
+                <div class="final-label">
+                    League history
+                </div>
 
                 <div>
 
-                    <div class="season-label">
-                        Overview
+                    <div class="final-name">
+                        Endplatzierungen
                     </div>
 
-                    <h2 class="season-title">
-                        History
-                    </h2>
+                    <div class="final-arrow">
+                        →
+                    </div>
 
                 </div>
 
-            </div>
+            </a>
 
 
-            <div class="final-grid">
+            <a
+                class="final-card reveal"
+                href="Winning Teams/winning-teams.html"
+            >
 
+                <div class="final-label">
+                    Champions
+                </div>
 
-                <a
-                    class="final-card reveal"
-                    href="Endplatzierungen.html"
-                >
+                <div>
 
-                    <div class="final-card-label">
-                        League history
+                    <div class="final-name">
+                        Winning Teams
                     </div>
 
-                    <div>
-
-                        <div class="final-card-title">
-                            Endplatzierungen
-                        </div>
-
-                        <div class="final-card-arrow">
-                            →
-                        </div>
-
+                    <div class="final-arrow">
+                        →
                     </div>
 
-                </a>
+                </div>
 
+            </a>
 
-                <a
-                    class="final-card reveal"
-                    href="Winning Teams/winning-teams.html"
-                >
-
-                    <div class="final-card-label">
-                        Champions
-                    </div>
-
-                    <div>
-
-                        <div class="final-card-title">
-                            Winning Teams
-                        </div>
-
-                        <div class="final-card-arrow">
-                            →
-                        </div>
-
-                    </div>
-
-                </a>
-
-
-            </div>
 
         </div>
 
@@ -1857,15 +2687,9 @@ footer{
 
 
 
-<!-- =======================================================
-     FOOTER
-======================================================= -->
-
 <footer>
 
-    <div class="container">
-        Kicker Manager Stats
-    </div>
+    KICKER MANAGER STATS
 
 </footer>
 
@@ -1877,11 +2701,1420 @@ footer{
 <script>
 
 /* =========================================================
+   DATA
+========================================================= */
+
+const playerPoints = {
+
+    Markus:[83,193,291,380],
+
+    Erwin:[58,86,124,154],
+
+    Phil:[59,77,116,186],
+
+    Didi:[68,141,212,272],
+
+    Steffo:[59,106,177,250],
+
+    Basti:[62,93,131,194],
+
+    Eirik:[69,75,108,170],
+
+    Emil:[51,75,75,145],
+
+    Kempka:[49,84,129,170],
+
+    Espen:[64,124,213,285],
+
+    Alex:[42,90,141,184]
+
+};
+
+
+const players =
+    Object.keys(playerPoints);
+
+
+const colors = [
+
+    '#E41A1C',
+    '#377EB8',
+    '#4DAF4A',
+    '#984EA3',
+    '#FF7F00',
+    '#A65628',
+    '#F781BF',
+    '#999999',
+    '#66C2A5',
+    '#FFD92F',
+    '#eeeeee'
+
+];
+
+
+const TOTAL_MDS = 34;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function isMobile(){
+
+    return window.innerWidth <= 650;
+
+}
+
+
+function mdPoints(arr){
+
+    return Array.from(
+        {length:TOTAL_MDS},
+        (_,i) =>
+            i < arr.length
+                ? (i ? arr[i]-arr[i-1] : arr[0])
+                : null
+    );
+
+}
+
+
+function leaguePositions(data){
+
+    const output = {};
+
+    players.forEach(
+        p => output[p] = []
+    );
+
+
+    for(let i=0;i<TOTAL_MDS;i++){
+
+        const ranked =
+            players
+                .filter(
+                    p => i < data[p].length
+                )
+                .map(
+                    p => ({
+                        p,
+                        pts:data[p][i]
+                    })
+                )
+                .sort(
+                    (a,b) => b.pts-a.pts
+                );
+
+
+        const positions = {};
+
+        ranked.forEach(
+            (x,index) => {
+                positions[x.p] = index+1;
+            }
+        );
+
+
+        players.forEach(
+            p => {
+
+                output[p].push(
+                    i < data[p].length
+                        ? positions[p]
+                        : null
+                );
+
+            }
+        );
+
+    }
+
+    return output;
+
+}
+
+
+function matchdayRanks(data){
+
+    const output = {};
+
+    players.forEach(
+        p => output[p] = []
+    );
+
+
+    for(let i=0;i<TOTAL_MDS;i++){
+
+        const ranked =
+            players
+                .filter(
+                    p => i < data[p].length
+                )
+                .map(
+                    p => ({
+                        p,
+                        pts:
+                            i
+                                ? data[p][i]-data[p][i-1]
+                                : data[p][0]
+                    })
+                )
+                .sort(
+                    (a,b) => b.pts-a.pts
+                );
+
+
+        ranked.forEach(
+            (x,index) => {
+
+                output[x.p].push(
+                    index+1
+                );
+
+            }
+        );
+
+
+        players
+            .filter(
+                p => i >= data[p].length
+            )
+            .forEach(
+                p => output[p].push(null)
+            );
+
+    }
+
+
+    return output;
+
+}
+
+
+const md =
+    Object.fromEntries(
+        players.map(
+            p => [
+                p,
+                mdPoints(playerPoints[p])
+            ]
+        )
+    );
+
+
+const league =
+    leaguePositions(playerPoints);
+
+
+const ranks =
+    matchdayRanks(playerPoints);
+
+
+/* =========================================================
+   CHART DEFAULTS
+========================================================= */
+
+Chart.defaults.font.family =
+    "Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif";
+
+Chart.defaults.color =
+    "#77777d";
+
+
+const chartOptions = {
+
+    responsive:true,
+
+    maintainAspectRatio:false,
+
+    interaction:{
+        mode:"index",
+        intersect:false
+    },
+
+    plugins:{
+
+        legend:{
+            position:"bottom",
+
+            labels:{
+                usePointStyle:true,
+                pointStyle:"circle",
+
+                boxWidth:7,
+                boxHeight:7,
+
+                padding:
+                    isMobile()
+                        ? 8
+                        : 13,
+
+                color:"#888",
+
+                font:{
+                    size:
+                        isMobile()
+                            ? 9
+                            : 10
+                }
+            }
+        },
+
+        tooltip:{
+
+            backgroundColor:"#151516",
+
+            borderColor:
+                "rgba(255,255,255,.1)",
+
+            borderWidth:1,
+
+            titleColor:"#fff",
+
+            bodyColor:"#bbb",
+
+            padding:10,
+
+            usePointStyle:true,
+
+            callbacks:{
+
+                labelColor(context){
+
+                    const index =
+                        players.indexOf(
+                            context.dataset.label
+                        );
+
+                    const color =
+                        index >= 0
+                            ? colors[index]
+                            : "#999";
+
+                    return {
+
+                        borderColor:color,
+
+                        backgroundColor:color,
+
+                        borderWidth:2
+
+                    };
+
+                }
+
+            }
+
+        }
+
+    },
+
+    scales:{
+
+        x:{
+
+            grid:{
+                color:
+                    "rgba(255,255,255,.045)"
+            },
+
+            ticks:{
+
+                color:"#555",
+
+                maxTicksLimit:
+                    isMobile()
+                        ? 10
+                        : 34,
+
+                font:{
+                    size:9
+                }
+
+            }
+
+        },
+
+        y:{
+
+            grid:{
+                color:
+                    "rgba(255,255,255,.045)"
+            },
+
+            ticks:{
+
+                color:"#555",
+
+                font:{
+                    size:9
+                }
+
+            }
+
+        }
+
+    }
+
+};
+
+
+/* =========================================================
+   CHART 1
+   ACCUMULATED POINTS
+========================================================= */
+
+let c1;
+
+
+function createC1(start=1,end=TOTAL_MDS){
+
+    const labels =
+        Array.from(
+            {
+                length:
+                    end-start+1
+            },
+            (_,i) => start+i
+        );
+
+
+    const datasets =
+        players.map(
+            (p,i) => ({
+
+                label:p,
+
+                data:
+                    labels.map(
+                        md =>
+                            playerPoints[p][md-1]
+                                ?? null
+                    ),
+
+                borderColor:
+                    colors[i],
+
+                backgroundColor:
+                    colors[i],
+
+                pointBackgroundColor:
+                    colors[i],
+
+                pointBorderColor:
+                    colors[i],
+
+                pointStyle:"circle",
+
+                pointRadius:
+                    isMobile()
+                        ? 2
+                        : 3,
+
+                pointHoverRadius:
+                    isMobile()
+                        ? 4
+                        : 5,
+
+                borderWidth:
+                    isMobile()
+                        ? 1.5
+                        : 2,
+
+                spanGaps:false
+
+            })
+        );
+
+
+    if(c1){
+
+        c1.data.labels =
+            labels;
+
+        c1.data.datasets =
+            datasets;
+
+        c1.update();
+
+        return;
+
+    }
+
+
+    c1 =
+        new Chart(
+            document
+                .getElementById("c1"),
+            {
+
+                type:"line",
+
+                data:{
+                    labels,
+                    datasets
+                },
+
+                options:{
+
+                    ...chartOptions,
+
+                    scales:{
+
+                        ...chartOptions.scales,
+
+                        x:{
+
+                            ...chartOptions.scales.x,
+
+                            ticks:{
+
+                                ...chartOptions.scales.x.ticks,
+
+                                autoSkip:false
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+}
+
+
+createC1(1,34);
+
+
+/* =========================================================
+   CHART 2
+   POINTS PER MATCHDAY
+========================================================= */
+
+const avgMd =
+    Array.from(
+        {length:TOTAL_MDS},
+        (_,i) => {
+
+            const values =
+                players
+                    .map(
+                        p => md[p][i]
+                    )
+                    .filter(
+                        x => x !== null
+                    );
+
+
+            if(!values.length){
+                return null;
+            }
+
+
+            return Math.round(
+                values.reduce(
+                    (a,b) => a+b,
+                    0
+                )
+                /
+                values.length
+                *
+                10
+            ) / 10;
+
+        }
+    );
+
+
+new Chart(
+    document.getElementById("c2"),
+    {
+
+        type:"line",
+
+        data:{
+
+            labels:
+                Array.from(
+                    {length:TOTAL_MDS},
+                    (_,i) => i+1
+                ),
+
+            datasets:[
+
+                ...players.map(
+                    (p,i) => ({
+
+                        label:p,
+
+                        data:md[p],
+
+                        borderColor:
+                            colors[i],
+
+                        backgroundColor:
+                            colors[i],
+
+                        pointBackgroundColor:
+                            colors[i],
+
+                        pointStyle:"circle",
+
+                        pointRadius:
+                            isMobile()
+                                ? 2
+                                : 3,
+
+                        pointHoverRadius:5,
+
+                        borderWidth:
+                            isMobile()
+                                ? 1.5
+                                : 2,
+
+                        spanGaps:false
+
+                    })
+                ),
+
+
+                {
+
+                    label:"Ø Punkte",
+
+                    data:avgMd,
+
+                    borderColor:"#777",
+
+                    backgroundColor:"#777",
+
+                    borderDash:[6,5],
+
+                    pointRadius:2,
+
+                    borderWidth:1.5,
+
+                    spanGaps:false
+
+                }
+
+            ]
+
+        },
+
+        options:chartOptions
+
+    }
+);
+
+
+/* =========================================================
+   CHART 3
+   LEAGUE POSITION
+========================================================= */
+
+new Chart(
+    document.getElementById("c3"),
+    {
+
+        type:"line",
+
+        data:{
+
+            labels:
+                Array.from(
+                    {length:TOTAL_MDS},
+                    (_,i) => i+1
+                ),
+
+            datasets:
+                players.map(
+                    (p,i) => ({
+
+                        label:p,
+
+                        data:league[p],
+
+                        borderColor:
+                            colors[i],
+
+                        backgroundColor:
+                            colors[i],
+
+                        pointBackgroundColor:
+                            colors[i],
+
+                        pointStyle:"circle",
+
+                        pointRadius:
+                            isMobile()
+                                ? 2
+                                : 3,
+
+                        pointHoverRadius:5,
+
+                        borderWidth:
+                            isMobile()
+                                ? 1.5
+                                : 2,
+
+                        spanGaps:false
+
+                    })
+                )
+
+        },
+
+        options:{
+
+            ...chartOptions,
+
+            scales:{
+
+                ...chartOptions.scales,
+
+                y:{
+
+                    ...chartOptions.scales.y,
+
+                    reverse:true,
+
+                    min:1,
+
+                    max:players.length,
+
+                    ticks:{
+
+                        ...chartOptions.scales.y.ticks,
+
+                        stepSize:1
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   CHART 4
+   MATCHDAY RANK
+========================================================= */
+
+new Chart(
+    document.getElementById("c4"),
+    {
+
+        type:"line",
+
+        data:{
+
+            labels:
+                Array.from(
+                    {length:TOTAL_MDS},
+                    (_,i) => i+1
+                ),
+
+            datasets:
+                players.map(
+                    (p,i) => ({
+
+                        label:p,
+
+                        data:ranks[p],
+
+                        borderColor:
+                            colors[i],
+
+                        backgroundColor:
+                            colors[i],
+
+                        pointBackgroundColor:
+                            colors[i],
+
+                        pointStyle:"circle",
+
+                        pointRadius:
+                            isMobile()
+                                ? 2
+                                : 3,
+
+                        pointHoverRadius:5,
+
+                        borderWidth:
+                            isMobile()
+                                ? 1.5
+                                : 2,
+
+                        spanGaps:false
+
+                    })
+                )
+
+        },
+
+        options:{
+
+            ...chartOptions,
+
+            scales:{
+
+                ...chartOptions.scales,
+
+                y:{
+
+                    ...chartOptions.scales.y,
+
+                    reverse:true,
+
+                    min:1,
+
+                    max:players.length,
+
+                    ticks:{
+
+                        ...chartOptions.scales.y.ticks,
+
+                        stepSize:1
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   RANGE TABLE
+========================================================= */
+
+function updateRangeTable(start,end){
+
+    const rows =
+        players
+            .map(
+                (p,i) => ({
+
+                    name:p,
+
+                    pts:
+                        playerPoints[p][end-1],
+
+                    gain:
+                        playerPoints[p][end-1]
+                        -
+                        (
+                            start > 1
+                                ? playerPoints[p][start-2]
+                                : 0
+                        ),
+
+                    color:
+                        colors[i]
+
+                })
+            )
+            .filter(
+                x => x.pts !== undefined
+            )
+            .sort(
+                (a,b) =>
+                    b.pts-a.pts
+            );
+
+
+    document.getElementById(
+        "rangeTable"
+    ).innerHTML = `
+
+        <div class="table-title">
+            Tabelle Spieltag ${start}–${end}
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Rang</th>
+                    <th>Spieler</th>
+                    <th>Gesamt</th>
+                    <th>Punkte im Bereich</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                ${rows.map(
+                    (r,i) => `
+
+                    <tr class="${i===0 ? "rank-1" : ""}">
+
+                        <td>
+
+                            <span class="${
+                                i===0
+                                    ? "rank-badge gold"
+                                    : "rank-badge"
+                            }">
+
+                                ${i+1}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="player-cell">
+
+                                <span
+                                    class="player-dot"
+                                    style="
+                                        background:${r.color}
+                                    "
+                                ></span>
+
+                                <span>
+                                    ${r.name}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            ${r.pts}
+                        </td>
+
+
+                        <td>
+                            ${r.gain}
+                        </td>
+
+                    </tr>
+
+                `
+                ).join("")}
+
+            </tbody>
+
+        </table>
+
+    `;
+
+}
+
+
+updateRangeTable(1,4);
+
+
+/* =========================================================
+   RANGE SLIDER
+========================================================= */
+
+const rangeMin =
+    document.getElementById(
+        "rangeMin"
+    );
+
+const rangeMax =
+    document.getElementById(
+        "rangeMax"
+    );
+
+
+function updateRange(){
+
+    let start =
+        Number(rangeMin.value);
+
+    let end =
+        Number(rangeMax.value);
+
+
+    if(start > end){
+
+        [
+            start,
+            end
+        ] =
+        [
+            end,
+            start
+        ];
+
+        rangeMin.value =
+            start;
+
+        rangeMax.value =
+            end;
+
+    }
+
+
+    document.getElementById(
+        "rangeMinLabel"
+    ).textContent =
+        start;
+
+
+    document.getElementById(
+        "rangeMaxLabel"
+    ).textContent =
+        end;
+
+
+    const left =
+        (
+            (start-1)
+            /
+            (TOTAL_MDS-1)
+        ) * 100;
+
+
+    const right =
+        (
+            (TOTAL_MDS-end)
+            /
+            (TOTAL_MDS-1)
+        ) * 100;
+
+
+    const selected =
+        document.getElementById(
+            "sliderSelected"
+        );
+
+
+    selected.style.left =
+        left + "%";
+
+
+    selected.style.right =
+        right + "%";
+
+
+    createC1(
+        start,
+        end
+    );
+
+
+    updateRangeTable(
+        start,
+        end
+    );
+
+}
+
+
+rangeMin.addEventListener(
+    "input",
+    updateRange
+);
+
+
+rangeMax.addEventListener(
+    "input",
+    updateRange
+);
+
+
+document
+    .getElementById("resetRange")
+    .addEventListener(
+        "click",
+        () => {
+
+            rangeMin.value = 1;
+
+            rangeMax.value =
+                TOTAL_MDS;
+
+            updateRange();
+
+        }
+    );
+
+
+/* Initial graph is always 1–34 */
+
+createC1(
+    1,
+    TOTAL_MDS
+);
+
+updateRangeTable(
+    1,
+    4
+);
+
+
+/* =========================================================
+   HIN / RÜCKRUNDE TABLES
+========================================================= */
+
+const played =
+    Math.max(
+        ...players.map(
+            p => playerPoints[p].length
+        )
+    );
+
+
+const hinEnd =
+    Math.min(
+        17,
+        played
+    );
+
+
+const rueckPlayed =
+    Math.max(
+        0,
+        played-hinEnd
+    );
+
+
+function segmentPoints(
+    arr,
+    start,
+    end
+){
+
+    if(
+        start >
+        arr.length-1
+    ){
+        return 0;
+    }
+
+
+    const actualEnd =
+        Math.min(
+            end,
+            arr.length-1
+        );
+
+
+    return (
+        arr[actualEnd]
+        -
+        (
+            start > 0
+                ? arr[start-1]
+                : 0
+        )
+    );
+
+}
+
+
+const hin =
+    players
+        .map(
+            p => ({
+
+                name:p,
+
+                pts:
+                    segmentPoints(
+                        playerPoints[p],
+                        0,
+                        hinEnd-1
+                    )
+
+            })
+        )
+        .sort(
+            (a,b) =>
+                b.pts-a.pts
+        );
+
+
+const rueck =
+    players
+        .map(
+            p => {
+
+                const pts =
+                    segmentPoints(
+                        playerPoints[p],
+                        17,
+                        played-1
+                    );
+
+
+                const equivalent =
+                    segmentPoints(
+                        playerPoints[p],
+                        0,
+                        rueckPlayed-1
+                    );
+
+
+                return {
+
+                    name:p,
+
+                    pts,
+
+                    diff:
+                        pts-equivalent
+
+                };
+
+            }
+        )
+        .sort(
+            (a,b) =>
+                b.pts-a.pts
+        );
+
+
+function playerCell(
+    name
+){
+
+    const index =
+        players.indexOf(name);
+
+
+    return `
+
+        <div class="player-cell">
+
+            <span
+                class="player-dot"
+                style="
+                    background:
+                        ${colors[index]}
+                "
+            ></span>
+
+            <span>
+                ${name}
+            </span>
+
+        </div>
+
+    `;
+
+}
+
+
+document.getElementById(
+    "hinTable"
+).innerHTML = `
+
+    <div class="table-card-title">
+
+        Hinrunde
+
+        <span>
+            Spieltag 1–${hinEnd}
+        </span>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Rang</th>
+                <th>Spieler</th>
+                <th>Punkte</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${hin.map(
+                (r,i) => `
+
+                <tr
+                    class="${i===0 ? "rank-1" : ""}"
+                >
+
+                    <td>
+
+                        <span
+                            class="${
+                                i===0
+                                    ? "rank-badge gold"
+                                    : "rank-badge"
+                            }"
+                        >
+                            ${i+1}
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${playerCell(r.name)}
+                    </td>
+
+                    <td>
+                        ${r.pts}
+                    </td>
+
+                </tr>
+
+            `
+            ).join("")}
+
+        </tbody>
+
+    </table>
+
+`;
+
+
+document.getElementById(
+    "rueckTable"
+).innerHTML = `
+
+    <div class="table-card-title">
+
+        Rückrunde
+
+        <span>
+            Spieltag ${
+                played > hinEnd
+                    ? hinEnd+1
+                    : "—"
+            }–${played}
+        </span>
+
+    </div>
+
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>Rang</th>
+                <th>Spieler</th>
+                <th>Punkte</th>
+                <th>Diff*</th>
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            ${rueck.map(
+                (r,i) => {
+
+                    let diff =
+                        "—";
+
+                    if(
+                        played >
+                        hinEnd
+                    ){
+
+                        if(r.diff > 0){
+                            diff =
+                                "+" +
+                                r.diff;
+                        }
+                        else if(
+                            r.diff < 0
+                        ){
+                            diff =
+                                r.diff;
+                        }
+                        else{
+                            diff =
+                                "±0";
+                        }
+
+                    }
+
+
+                    return `
+
+                        <tr
+                            class="${
+                                i===0
+                                    ? "rank-1"
+                                    : ""
+                            }"
+                        >
+
+                            <td>
+
+                                <span
+                                    class="${
+                                        i===0
+                                            ? "rank-badge gold"
+                                            : "rank-badge"
+                                    }"
+                                >
+                                    ${i+1}
+                                </span>
+
+                            </td>
+
+                            <td>
+                                ${playerCell(r.name)}
+                            </td>
+
+                            <td>
+                                ${r.pts}
+                            </td>
+
+                            <td>
+                                ${diff}
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            ).join("")}
+
+        </tbody>
+
+    </table>
+
+`;
+
+
+/* =========================================================
    SCROLL REVEAL
 ========================================================= */
 
-const revealElements =
-    document.querySelectorAll(".reveal");
+const reveal =
+    document.querySelectorAll(
+        ".reveal"
+    );
 
 
 const revealObserver =
@@ -1889,153 +4122,147 @@ const revealObserver =
 
         entries => {
 
-            entries.forEach(entry => {
+            entries.forEach(
+                entry => {
 
-                if(entry.isIntersecting){
+                    if(
+                        entry.isIntersecting
+                    ){
 
-                    entry.target.classList.add("visible");
-
-                    revealObserver.unobserve(
                         entry.target
-                    );
+                            .classList
+                            .add("visible");
+
+                        revealObserver
+                            .unobserve(
+                                entry.target
+                            );
+
+                    }
 
                 }
-
-            });
+            );
 
         },
 
         {
-            threshold:0.12,
-            rootMargin:"0px 0px -40px 0px"
+            threshold:.08,
+
+            rootMargin:
+                "0px 0px -50px 0px"
         }
 
     );
 
 
-revealElements.forEach(element => {
-
-    revealObserver.observe(element);
-
-});
+reveal.forEach(
+    element =>
+        revealObserver.observe(
+            element
+        )
+);
 
 
 /* =========================================================
    ACTIVE NAV
 ========================================================= */
 
-const sections = [
+const navSections = [
 
-    document.getElementById("season-26-27"),
-    document.getElementById("season-25-26"),
-    document.getElementById("season-24-25"),
-    document.getElementById("season-23-24"),
-    document.getElementById("ewige-tabellen")
+    document.getElementById(
+        "current"
+    ),
+
+    document.getElementById(
+        "season-25-26"
+    ),
+
+    document.getElementById(
+        "season-24-25"
+    ),
+
+    document.getElementById(
+        "season-23-24"
+    ),
+
+    document.getElementById(
+        "ewige-tabellen"
+    ),
+
+    document.getElementById(
+        "history"
+    )
 
 ];
 
+
 const navLinks =
-    document.querySelectorAll(".nav a");
+    document.querySelectorAll(
+        ".nav a"
+    );
 
 
-const activeObserver =
+const navObserver =
     new IntersectionObserver(
 
         entries => {
 
-            entries.forEach(entry => {
+            entries.forEach(
+                entry => {
 
-                if(!entry.isIntersecting){
-                    return;
-                }
-
-                navLinks.forEach(link => {
-
-                    link.style.color = "";
-
-                    link.style.background =
-                        "";
-
-                });
+                    if(
+                        !entry.isIntersecting
+                    ){
+                        return;
+                    }
 
 
-                const active =
-                    document.querySelector(
-                        `.nav a[href="#${entry.target.id}"]`
+                    navLinks.forEach(
+                        link =>
+                            link.classList
+                                .remove(
+                                    "active"
+                                )
                     );
 
 
-                if(active){
+                    const active =
+                        document.querySelector(
+                            `.nav a[href="#${entry.target.id}"]`
+                        );
 
-                    active.style.color = "#fff";
 
-                    active.style.background =
-                        "rgba(255,255,255,.07)";
+                    if(active){
+
+                        active.classList
+                            .add(
+                                "active"
+                            );
+
+                    }
 
                 }
-
-            });
+            );
 
         },
 
         {
-            threshold:0.35
+            threshold:.35
         }
 
     );
 
 
-sections.forEach(section => {
+navSections.forEach(
+    section => {
 
-    if(section){
-        activeObserver.observe(section);
+        if(section){
+            navObserver.observe(
+                section
+            );
+        }
+
     }
-
-});
-
-
-/* =========================================================
-   PARALLAX NUMBER
-========================================================= */
-
-const numbers =
-    document.querySelectorAll(".section-number");
-
-
-window.addEventListener(
-    "scroll",
-
-    () => {
-
-        const scrollY =
-            window.scrollY;
-
-        numbers.forEach(number => {
-
-            const section =
-                number.closest("section");
-
-            if(!section){
-                return;
-            }
-
-            const rect =
-                section.getBoundingClientRect();
-
-            const offset =
-                rect.top * -0.05;
-
-            number.style.transform =
-                `translateY(${offset}px)`;
-
-        });
-
-    },
-
-    {
-        passive:true
-    }
-
 );
 
 </script>
