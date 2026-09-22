@@ -1,196 +1,834 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Saisonpunkte 25-26</title>
+
 <style>
-:root{--bg:#fff;--card:#f7f7f7;--text:#222;--muted:#777;--border:#ddd;--grid:#ddd;--accent:#444;--tooltip:#222;--tooltipText:#fff}
-@media(prefers-color-scheme:dark){:root{--bg:#181818;--card:#242424;--text:#eee;--muted:#aaa;--border:#444;--grid:#444;--accent:#bbb;--tooltip:#eee;--tooltipText:#111}}
-[data-theme=dark]{--bg:#181818;--card:#242424;--text:#eee;--muted:#aaa;--border:#444;--grid:#444;--accent:#bbb;--tooltip:#eee;--tooltipText:#111}
-*{box-sizing:border-box}
-body{font-family:'Segoe UI',Roboto,sans-serif;margin:0;padding:20px;background:var(--bg);color:var(--text)}
-h1{text-align:center;margin:0 0 18px;font-size:1.7rem}
-.chart-card,.table-block{background:var(--card);border:1px solid var(--border);border-radius:10px}
-.chart-card{padding:14px}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.legend-item{border:1px solid transparent;border-radius:6px;padding:4px 7px;cursor:pointer;font-size:.82rem}
-.legend-item:hover,.legend-item.active{border-color:currentColor;font-weight:700}
-.legend-item.dimmed{opacity:.3}
-.legend-swatch{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
-.chart-wrap{position:relative;width:100%;height:500px}
-.chart-wrap svg{display:block;width:100%;height:100%;overflow:visible}
-.tooltip{position:absolute;pointer-events:none;background:var(--tooltip);color:var(--tooltipText);border-radius:8px;padding:8px 10px;font-size:.8rem;line-height:1.5;box-shadow:0 4px 12px #0004;opacity:0;white-space:nowrap;z-index:5}
-.tooltip.visible{opacity:1}
-.tooltip-title{font-weight:700;margin-bottom:3px}
-.tooltip-row{display:flex;align-items:center;gap:5px}
-.tooltip-swatch{width:8px;height:8px;border-radius:50%;display:inline-block}
-.controls{margin:16px 0;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:10px}
-.controls-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.range-label{font-size:.9rem}
-.range-label span{font-weight:700}
-.reset-btn{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:5px;padding:5px 10px;cursor:pointer}
-.reset-btn:hover{background:var(--border)}
-.range-slider{position:relative;height:30px}
-.slider-track,.slider-range{position:absolute;top:13px;height:4px;border-radius:4px}
-.slider-track{left:0;right:0;background:var(--border)}
-.slider-range{background:var(--accent)}
-.range-slider input{position:absolute;left:0;top:0;width:100%;height:30px;margin:0;background:none;pointer-events:none;appearance:none}
-.range-slider input::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;pointer-events:auto}
-.range-slider input::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:var(--accent);cursor:pointer;pointer-events:auto}
-.ticks{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)}
-.tables-wrapper{display:grid;grid-template-columns:1fr;gap:14px}
-.table-block{padding:12px;overflow:hidden}
-.table-title,.static-heading{font-weight:700;margin-bottom:8px}
-.static-heading{font-size:1.1rem;margin-top:18px}
-table{width:100%;border-collapse:collapse;font-size:.84rem}
-th,td{padding:6px 7px;text-align:left;border-bottom:1px solid var(--border)}
-th{color:var(--muted);font-weight:600}
-tr:last-child td{border-bottom:0}
-.diff-up{color:#16833b}.diff-down{color:#c33}.diff-flat{color:var(--muted)}
-.table-block-half{margin-top:14px}
-@media(max-width:768px){body{padding:10px}.chart-wrap{height:400px}.legend-item{font-size:.75rem}.controls-top{gap:10px}.table-block{overflow-x:auto}}
+:root{
+  --bg-from:#e9eff5;
+  --bg-to:#f9fafc;
+  --card-bg:#ffffff;
+  --text:#222222;
+  --text-soft:#5a6472;
+  --header-bg:#f0f0f0;
+  --border:#dddddd;
+  --shadow:rgba(0,0,0,0.05);
+  --accent-a:#0056b3;
+  --accent-b:#0091ff;
+  --track:#dbe3ec;
+  --track-fill:#0091ff;
+  --thumb:#0056b3;
+  --thumb-ring:#ffffff;
+  --tooltip-bg:#222222;
+  --tooltip-text:#ffffff;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg-from:#12161c;
+    --bg-to:#1a1f27;
+    --card-bg:#1f242c;
+    --text:#eef1f5;
+    --text-soft:#a3adba;
+    --header-bg:#262c35;
+    --border:#333a44;
+    --shadow:rgba(0,0,0,0.35);
+    --accent-a:#5fb0ff;
+    --accent-b:#7fc4ff;
+    --track:#333a44;
+    --track-fill:#5fb0ff;
+    --thumb:#5fb0ff;
+    --thumb-ring:#1f242c;
+    --tooltip-bg:#eef1f5;
+    --tooltip-text:#12161c;
+  }
+}
+
+:root[data-theme="dark"]{
+  --bg-from:#12161c;
+  --bg-to:#1a1f27;
+  --card-bg:#1f242c;
+  --text:#eef1f5;
+  --text-soft:#a3adba;
+  --header-bg:#262c35;
+  --border:#333a44;
+  --shadow:rgba(0,0,0,0.35);
+  --accent-a:#5fb0ff;
+  --accent-b:#7fc4ff;
+  --track:#333a44;
+  --track-fill:#5fb0ff;
+  --thumb:#5fb0ff;
+  --thumb-ring:#1f242c;
+  --tooltip-bg:#eef1f5;
+  --tooltip-text:#12161c;
+}
+
+*{box-sizing:border-box;}
+
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+
+body{font-family:'Segoe UI',Roboto,sans-serif;margin:0;padding:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:linear-gradient(135deg,var(--bg-from),var(--bg-to));color:var(--text);display:flex;flex-direction:column;align-items:center;min-height:100%;}
+
+h1{margin:30px 0 6px 0;font-size:2rem;font-weight:700;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;padding:0 16px;}
+
+.subtitle{color:var(--text-soft);font-size:0.95rem;margin-bottom:22px;text-align:center;padding:0 16px;}
+
+.chart-card{width:90%;max-width:1200px;background:var(--card-bg);border-radius:12px;box-shadow:0 4px 15px var(--shadow);padding:20px 20px 8px 20px;margin-bottom:18px;}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin-bottom:10px;}
+
+.legend-item{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;cursor:pointer;font-size:0.85rem;user-select:none;transition:background 0.15s ease;border:1px solid transparent;}
+
+.legend-item:hover{background:var(--header-bg);}
+
+.legend-item.dimmed{opacity:0.35;}
+
+.legend-item.active{border-color:currentColor;font-weight:700;}
+
+.legend-swatch{width:10px;height:10px;border-radius:50%;flex:none;}
+
+.chart-wrap{position:relative;width:100%;height:48vh;min-height:300px;}
+
+.chart-wrap svg{width:100%;height:100%;display:block;overflow:visible;}
+
+.chart-fallback{color:var(--text-soft);text-align:center;padding:40px 10px;}
+
+.tooltip{position:absolute;pointer-events:none;background:var(--tooltip-bg);color:var(--tooltip-text);border-radius:8px;padding:8px 10px;font-size:0.8rem;line-height:1.5;box-shadow:0 4px 12px rgba(0,0,0,0.25);opacity:0;transform:none;transition:opacity 0.1s ease;white-space:nowrap;z-index:5;}
+
+.tooltip.visible{opacity:1;}
+
+.tooltip-title{font-weight:700;margin-bottom:4px;}
+
+.tooltip-row{display:flex;align-items:center;gap:6px;}
+
+.tooltip-swatch{width:8px;height:8px;border-radius:50%;flex:none;}
+
+.controls{width:90%;max-width:1200px;background:var(--card-bg);border-radius:12px;box-shadow:0 4px 15px var(--shadow);padding:18px 24px 22px 24px;margin-bottom:36px;}
+
+.controls-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+
+.range-label{font-weight:700;font-size:1.05rem;}
+
+.range-label span{color:var(--accent-a);}
+
+.reset-btn{border:1px solid var(--border);background:transparent;color:var(--text-soft);padding:6px 14px;border-radius:20px;font-size:0.85rem;cursor:pointer;transition:background 0.15s ease,color 0.15s ease;}
+
+.reset-btn:hover{background:var(--header-bg);color:var(--text);}
+
+.range-slider{position:relative;height:36px;display:flex;align-items:center;}
+
+.slider-track{position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--track);}
+
+.slider-range{position:absolute;height:6px;border-radius:3px;background:var(--track-fill);}
+
+.range-slider input[type="range"]{position:absolute;width:100%;margin:0;pointer-events:none;-webkit-appearance:none;appearance:none;background:transparent;height:36px;}
+
+.range-slider input[type="range"]::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--thumb);border:3px solid var(--thumb-ring);box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;margin-top:0;}
+
+.range-slider input[type="range"]::-moz-range-thumb{pointer-events:auto;width:20px;height:20px;border-radius:50%;background:var(--thumb);border:3px solid var(--thumb-ring);box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;}
+
+.range-slider input[type="range"]::-webkit-slider-runnable-track{-webkit-appearance:none;background:transparent;height:6px;}
+
+.range-slider input[type="range"]::-moz-range-track{background:transparent;height:6px;}
+
+.ticks{display:flex;justify-content:space-between;color:var(--text-soft);font-size:0.75rem;margin-top:6px;}
+
+.tables-wrapper{display:flex;width:90%;max-width:1200px;justify-content:center;margin-bottom:40px;gap:10px;flex-wrap:wrap;}
+
+.static-heading{width:90%;max-width:1200px;text-align:center;color:var(--text-soft);font-size:0.9rem;margin:-14px 0 16px 0;}
+
+.table-block{width:100%;max-width:560px;}
+
+.diff-up{color:#2e9e44;}
+
+.diff-down{color:#d9453d;}
+
+.diff-flat{color:var(--text-soft);}
+
+.table-block-half{width:47%;}
+
+.table-title{text-align:center;font-weight:700;margin-bottom:8px;font-size:1.1rem;}
+
+table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:0 4px 15px var(--shadow);}
+
+th,td{padding:8px;text-align:center;border-bottom:1px solid var(--border);font-size:0.9rem;}
+
+th{background:var(--header-bg);white-space:nowrap;}
+
+tr:last-child td{border-bottom:none;}
+
+@media (max-width:768px){
+  .table-block-half{width:100%;}
+  .tables-wrapper{flex-direction:column;align-items:center;}
+  .table-block{width:100%;}
+}
 </style>
 </head>
+
 <body>
 
 <h1>Saisonpunkte 25-26</h1>
 
 <div class="chart-card">
-<div id="legend" class="legend"></div>
-<div id="chartWrap" class="chart-wrap"><div id="tooltip" class="tooltip"></div></div>
+  <div class="legend" id="legend"></div>
+  <div class="chart-wrap" id="chartWrap">
+    <div class="tooltip" id="tooltip"></div>
+  </div>
 </div>
 
 <div class="controls">
-<div class="controls-top">
-<div class="range-label">Spieltage: <span id="rangeMinLabel">1</span> – <span id="rangeMaxLabel">34</span></div>
-<button id="reset" class="reset-btn">Reset</button>
-</div>
-<div class="range-slider">
-<div class="slider-track"></div>
-<div id="sliderRange" class="slider-range"></div>
-<input id="rangeMin" type="range" min="1" max="34" value="1">
-<input id="rangeMax" type="range" min="1" max="34" value="34">
-</div>
-<div class="ticks"><span>1</span><span>34</span></div>
+  <div class="controls-top">
+    <div class="range-label">Spieltag <span id="rangeMinLabel">1</span> – <span id="rangeMaxLabel">34</span></div>
+    <button class="reset-btn" id="resetBtn">Gesamte Saison</button>
+  </div>
+
+  <div class="range-slider">
+    <div class="slider-track"></div>
+    <div class="slider-range" id="sliderRange"></div>
+    <input type="range" id="rangeMin" min="1" max="34" value="1" step="1">
+    <input type="range" id="rangeMax" min="1" max="34" value="34" step="1">
+  </div>
+
+  <div class="ticks">
+    <span>1</span>
+    <span>34</span>
+  </div>
 </div>
 
-<div id="tablesContainer" class="tables-wrapper"></div>
-<div id="staticTablesContainer"></div>
+<div class="tables-wrapper" id="tablesContainer"></div>
+<div class="tables-wrapper" id="staticTablesContainer"></div>
 
 <script>
-const P={
-Markus:[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
-Erwin:[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
-Phil:[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
-Didi:[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
-Steffo:[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
-Basti:[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
-Eirik:[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
-Emil:[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
-Kempka:[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
-Espen:[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
-Alex:[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
+
+const playerPoints={
+'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
+'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
+'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
+'Didi':[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
+'Steffo':[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
+'Basti':[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
+'Eirik':[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
+'Emil':[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
+'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
+'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
+'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
 };
 
-const C=['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#E7298A','#999999','#66C2A5','#B8860B','#4363d8'];
-const N=Object.keys(P),active=new Set(N);
-const $=id=>document.getElementById(id), svg=(t,a={})=>{let e=document.createElementNS('http://www.w3.org/2000/svg',t);for(let k in a)e.setAttribute(k,a[k]);return e};
-const legend=$('legend'),wrap=$('chartWrap'),tip=$('tooltip');
+const players=Object.keys(playerPoints);
+const totalMatchdays=playerPoints[players[0]].length;
+
+const colors=['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#E7298A','#999999','#66C2A5','#B8860B','#4363d8'];
+
+const colorOf={};
+players.forEach((p,i)=>{colorOf[p]=colors[i];});
+
+const selectedPlayers=new Set();
+
+const SVG_NS='http://www.w3.org/2000/svg';
+
+const PAD={top:16,right:16,bottom:34,left:52};
+
+const chartWrap=document.getElementById('chartWrap');
+const tooltipEl=document.getElementById('tooltip');
+
+let svgEl=null;
+let currentRange={start:1,end:totalMatchdays};
+
+function niceTicks(min,max,count){
+  if(min===max){min-=1;max+=1;}
+
+  const range=max-min;
+  const rawStep=range/count;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep)));
+  const norm=rawStep/mag;
+
+  let step;
+
+  if(norm<1.5) step=1*mag;
+  else if(norm<3) step=2*mag;
+  else if(norm<7) step=5*mag;
+  else step=10*mag;
+
+  const niceMin=Math.floor(min/step)*step;
+  const niceMax=Math.ceil(max/step)*step;
+  const ticks=[];
+
+  for(let v=niceMin;v<=niceMax+step*0.5;v+=step){
+    ticks.push(Math.round(v));
+  }
+
+  return ticks;
+}
 
 function buildLegend(){
- legend.innerHTML=N.map((n,i)=>`<div class="legend-item active" data-p="${n}" style="color:${C[i]}"><span class="legend-swatch" style="background:${C[i]}"></span>${n}</div>`).join('');
- legend.querySelectorAll('.legend-item').forEach(e=>e.onclick=()=>{
-  let n=e.dataset.p;active.has(n)?active.delete(n):active.add(n);
-  if(!active.size)active.add(n);
-  updateLegend();refresh();
- });
-}
-function updateLegend(){legend.querySelectorAll('.legend-item').forEach(e=>e.classList.toggle('active',active.has(e.dataset.p)))}
+  const legend=document.getElementById('legend');
+  legend.innerHTML='';
 
-function nice(min,max,count=7){
- let s=(max-min)/count,p=10**Math.floor(Math.log10(s)),r=s/p;
- r=r<1.5?1:r<3?2:r<7?5:10;
- let st=r*p,a=Math.floor(min/st)*st,z=Math.ceil(max/st)*st,o=[];
- for(let x=a;x<=z+.001;x+=st)o.push(x);
- return o;
+  players.forEach(name=>{
+    const item=document.createElement('div');
+    item.className='legend-item';
+    item.dataset.player=name;
+    item.style.color=colorOf[name];
+
+    const swatch=document.createElement('span');
+    swatch.className='legend-swatch';
+    swatch.style.background=colorOf[name];
+
+    const label=document.createElement('span');
+    label.textContent=name;
+    label.style.color='var(--text)';
+
+    item.appendChild(swatch);
+    item.appendChild(label);
+
+    item.addEventListener('click',()=>{
+      if(selectedPlayers.has(name)){
+        selectedPlayers.delete(name);
+      }else{
+        selectedPlayers.add(name);
+      }
+
+      updateLegendVisual();
+      renderChart(currentRange.start,currentRange.end);
+    });
+
+    legend.appendChild(item);
+  });
+
+  updateLegendVisual();
+}
+
+function updateLegendVisual(){
+  document.querySelectorAll('.legend-item').forEach(item=>{
+    const name=item.dataset.player;
+    const isSelected=selectedPlayers.has(name);
+    const noneSelected=selectedPlayers.size===0;
+
+    item.classList.toggle('active',isSelected);
+    item.classList.toggle('dimmed',!noneSelected&&!isSelected);
+  });
+}
+
+function playerOpacity(name){
+  if(selectedPlayers.size===0) return 1;
+  return selectedPlayers.has(name)?1:0.18;
+}
+
+function playerWidth(name){
+  return selectedPlayers.has(name)?3.5:2;
+}
+
+function svgEl_(tag,attrs){
+  const el=document.createElementNS(SVG_NS,tag);
+
+  for(const k in attrs){
+    el.setAttribute(k,attrs[k]);
+  }
+
+  return el;
 }
 
 function renderChart(start,end){
- let W=wrap.clientWidth,H=wrap.clientHeight,pad={l:52,r:16,t:16,b:34},w=W-pad.l-pad.r,h=H-pad.t-pad.b;
- let all=N.flatMap(n=>P[n].slice(start-1,end)),min=Math.min(...all),max=Math.max(...all),d=(max-min)||1,min-=d*.08,max+=d*.08;
- const X=i=>pad.l+(i-(start-1))*w/Math.max(1,end-start),Y=v=>pad.t+h-(v-min)*h/(max-min);
- let S=svg('svg',{viewBox:`0 0 ${W} ${H}`});
- nice(min,max).forEach(v=>{
-  S.append(svg('line',{x1:pad.l,x2:W-pad.r,y1:Y(v),y2:Y(v),stroke:'var(--grid)','stroke-width':1}));
-  let t=svg('text',{x:pad.l-8,y:Y(v)+4,'text-anchor':'end',fill:'var(--muted)','font-size':11});t.textContent=Math.round(v);S.append(t);
- });
- for(let md=start;md<=end;md++){
-  let x=X(md-1);
-  if(md>start)S.append(svg('line',{x1:x,x2:x,y1:pad.t,y2:H-pad.b,stroke:'var(--grid)','stroke-width':1}));
-  let t=svg('text',{x,y:H-10,'text-anchor':'middle',fill:'var(--muted)','font-size':10});t.textContent=md;S.append(t);
- }
- S.append(svg('line',{x1:pad.l,x2:W-pad.r,y1:H-pad.b,y2:H-pad.b,stroke:'var(--accent)'}));
- S.append(svg('line',{x1:pad.l,x2:pad.l,y1:pad.t,y2:H-pad.b,stroke:'var(--accent)'}));
+  currentRange={start,end};
 
- N.forEach((n,i)=>{
-  let pts=P[n].slice(start-1,end).map((v,j)=>`${X(start+j-1)},${Y(v)}`).join(' ');
-  let line=svg('polyline',{points:pts,fill:'none',stroke:C[i],'stroke-width':active.has(n)?2.5:1.5,opacity:active.has(n)?1:.18});
-  S.append(line);
-  if(end-start<40)P[n].slice(start-1,end).forEach((v,j)=>S.append(svg('circle',{cx:X(start+j-1),cy:Y(v),r:active.has(n)?3:2,fill:C[i],opacity:active.has(n)?1:.18})));
- });
+  try{
+    if(!chartWrap.clientWidth||!chartWrap.clientHeight){
+      requestAnimationFrame(()=>renderChart(start,end));
+      return;
+    }
 
- let hit=svg('g');
- for(let md=start;md<=end;md++){
-  let x=X(md-1),bw=w/Math.max(1,end-start),r=svg('rect',{x:x-bw/2,y:pad.t,width:bw,height:h,fill:'transparent'});
-  const show=e=>{
-   let rows=N.map((n,i)=>({n,v:P[n][md-1],i})).sort((a,b)=>b.v-a.v);
-   tip.innerHTML=`<div class="tooltip-title">Spieltag ${md}</div>`+rows.map(o=>`<div class="tooltip-row" style="opacity:${active.has(o.n)?1:.45}"><span class="tooltip-swatch" style="background:${C[o.i]}"></span>${o.n}: ${o.v}</div>`).join('');
-   tip.classList.add('visible');
-   let rb=wrap.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight,xp=e.clientX-rb.left,yp=e.clientY-rb.top;
-   let left=md<=17?xp+76:xp-76-tw;
-   tip.style.left=Math.max(4,Math.min(left,W-tw-4))+'px';
-   tip.style.top=Math.max(4,Math.min(yp-th/2,H-th-4))+'px';
-  };
-  r.onmouseenter=show;r.onmousemove=show;r.onmouseleave=()=>tip.classList.remove('visible');
-  r.ontouchstart=e=>{e.preventDefault();show(e.touches[0])};
-  hit.append(r);
- }
- S.append(hit);wrap.querySelector('svg')?.remove();wrap.insertBefore(S,tip);
+    const W=chartWrap.clientWidth;
+    const H=chartWrap.clientHeight;
+
+    if(svgEl) svgEl.remove();
+
+    svgEl=svgEl_('svg',{
+      viewBox:'0 0 '+W+' '+H,
+      preserveAspectRatio:'none'
+    });
+
+    chartWrap.insertBefore(svgEl,tooltipEl);
+
+    const plotLeft=PAD.left;
+    const plotRight=W-PAD.right;
+    const plotTop=PAD.top;
+    const plotBottom=H-PAD.bottom;
+
+    const plotW=Math.max(plotRight-plotLeft,10);
+    const plotH=Math.max(plotBottom-plotTop,10);
+    const n=end-start+1;
+
+    let allVals=[];
+
+    players.forEach(p=>{
+      allVals=allVals.concat(playerPoints[p].slice(start-1,end));
+    });
+
+    let dataMin=Math.min(...allVals);
+    let dataMax=Math.max(...allVals);
+
+    if(dataMin===dataMax){
+      dataMin-=5;
+      dataMax+=5;
+    }
+
+    const pad=(dataMax-dataMin)*0.08;
+    const yMin=dataMin-pad;
+    const yMax=dataMax+pad;
+
+    function xOf(matchday){
+      if(n<=1) return plotLeft+plotW/2;
+      return plotLeft+((matchday-start)/(end-start))*plotW;
+    }
+
+    function yOf(val){
+      return plotTop+plotH-((val-yMin)/(yMax-yMin))*plotH;
+    }
+
+    const yTicks=niceTicks(yMin,yMax,5);
+
+    yTicks.forEach(t=>{
+      if(t<yMin||t>yMax) return;
+
+      const y=yOf(t);
+
+      svgEl.appendChild(svgEl_('line',{
+        x1:plotLeft,
+        x2:plotRight,
+        y1:y,
+        y2:y,
+        stroke:'var(--border)',
+        'stroke-width':1
+      }));
+
+      const label=svgEl_('text',{
+        x:plotLeft-8,
+        y:y+4,
+        'text-anchor':'end',
+        fill:'var(--text-soft)',
+        'font-size':'11'
+      });
+
+      label.textContent=t;
+      svgEl.appendChild(label);
+    });
+
+    const xLabelSize=n>26?'9':(n>16?'10':'11');
+
+    for(let md=start;md<=end;md++){
+      const x=xOf(md);
+
+      svgEl.appendChild(svgEl_('line',{
+        x1:x,
+        x2:x,
+        y1:plotTop,
+        y2:plotBottom,
+        stroke:'var(--border)',
+        'stroke-width':0.5,
+        opacity:0.4
+      }));
+
+      const label=svgEl_('text',{
+        x:x,
+        y:plotBottom+18,
+        'text-anchor':'middle',
+        fill:'var(--text-soft)',
+        'font-size':xLabelSize
+      });
+
+      label.textContent=md;
+      svgEl.appendChild(label);
+    }
+
+    svgEl.appendChild(svgEl_('line',{
+      x1:plotLeft,
+      x2:plotRight,
+      y1:plotBottom,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1
+    }));
+
+    svgEl.appendChild(svgEl_('line',{
+      x1:plotLeft,
+      x2:plotLeft,
+      y1:plotTop,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1
+    }));
+
+    const order=players.slice().sort((a,b)=>{
+      const aSel=selectedPlayers.has(a)?1:0;
+      const bSel=selectedPlayers.has(b)?1:0;
+      return aSel-bSel;
+    });
+
+    order.forEach(name=>{
+      const data=playerPoints[name].slice(start-1,end);
+      let d='';
+
+      data.forEach((val,i)=>{
+        const x=xOf(start+i);
+        const y=yOf(val);
+        d+=(i===0?'M':'L')+x+','+y+' ';
+      });
+
+      const path=svgEl_('path',{
+        d:d.trim(),
+        fill:'none',
+        stroke:colorOf[name],
+        'stroke-width':playerWidth(name),
+        'stroke-linejoin':'round',
+        'stroke-linecap':'round',
+        opacity:playerOpacity(name)
+      });
+
+      svgEl.appendChild(path);
+
+      if(n<=40){
+        data.forEach((val,i)=>{
+          const x=xOf(start+i);
+          const y=yOf(val);
+
+          const c=svgEl_('circle',{
+            cx:x,
+            cy:y,
+            r:n>20?2:3.2,
+            fill:colorOf[name],
+            opacity:playerOpacity(name)
+          });
+
+          svgEl.appendChild(c);
+        });
+      }
+    });
+
+    const crosshair=svgEl_('line',{
+      x1:0,
+      x2:0,
+      y1:plotTop,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1,
+      'stroke-dasharray':'3,3',
+      opacity:0
+    });
+
+    svgEl.appendChild(crosshair);
+
+    const hitLayer=svgEl_('g',{});
+    svgEl.appendChild(hitLayer);
+
+    const bandW=n>1?plotW/(n-1):plotW;
+
+    for(let i=0;i<n;i++){
+      const md=start+i;
+      const x=xOf(md);
+
+      const rect=svgEl_('rect',{
+        x:x-bandW/2,
+        y:plotTop,
+        width:bandW,
+        height:plotH,
+        fill:'transparent'
+      });
+
+      rect.addEventListener('mouseenter',evt=>showTooltip(md,x,evt));
+      rect.addEventListener('mousemove',evt=>showTooltip(md,x,evt));
+      rect.addEventListener('mouseleave',hideTooltip);
+      rect.addEventListener('touchstart',evt=>showTooltip(md,x,evt),{passive:true});
+
+      hitLayer.appendChild(rect);
+    }
+
+    function showTooltip(md,x,evt){
+      crosshair.setAttribute('x1',x);
+      crosshair.setAttribute('x2',x);
+      crosshair.setAttribute('opacity',1);
+
+      const rows=players.map(p=>({
+        name:p,
+        val:playerPoints[p][md-1]
+      }));
+
+      rows.sort((a,b)=>b.val-a.val);
+
+      let html='<div class="tooltip-title">Spieltag '+md+'</div>';
+
+      rows.forEach(r=>{
+        const dim=selectedPlayers.size>0&&!selectedPlayers.has(r.name);
+
+        html+='<div class="tooltip-row" style="opacity:'+(dim?0.4:1)+'">';
+        html+='<span class="tooltip-swatch" style="background:'+colorOf[r.name]+'"></span>';
+        html+='<span>'+r.name+': '+r.val+'</span>';
+        html+='</div>';
+      });
+
+      tooltipEl.innerHTML=html;
+      tooltipEl.classList.add('visible');
+
+      const rectBounds=chartWrap.getBoundingClientRect();
+
+      let localX;
+      let localY;
+
+      if(evt&&evt.touches&&evt.touches.length){
+        localX=evt.touches[0].clientX-rectBounds.left;
+        localY=evt.touches[0].clientY-rectBounds.top;
+      }else if(evt&&typeof evt.clientX==='number'){
+        localX=evt.clientX-rectBounds.left;
+        localY=evt.clientY-rectBounds.top;
+      }else{
+        const scaleX=rectBounds.width/W;
+        const scaleY=rectBounds.height/H;
+
+        localX=x*scaleX;
+        localY=plotTop*scaleY;
+      }
+
+      const tw=tooltipEl.offsetWidth||140;
+      const th=tooltipEl.offsetHeight||60;
+
+      const TOOLTIP_GAP=76;
+
+      let left;
+      let top;
+
+      if(md<=17){
+        left=localX+TOOLTIP_GAP;
+      }else{
+        left=localX-TOOLTIP_GAP-tw;
+      }
+
+      left=Math.max(4,Math.min(left,rectBounds.width-tw-4));
+
+      top=localY-(th/2);
+      top=Math.max(4,Math.min(top,rectBounds.height-th-4));
+
+      tooltipEl.style.transform='none';
+      tooltipEl.style.left=left+'px';
+      tooltipEl.style.top=top+'px';
+    }
+
+    function hideTooltip(){
+      crosshair.setAttribute('opacity',0);
+      tooltipEl.classList.remove('visible');
+    }
+
+  }catch(err){
+    console.error('Diagramm konnte nicht gezeichnet werden:',err);
+    chartWrap.innerHTML='<div class="chart-fallback">Diagramm konnte nicht gezeichnet werden. Die Tabelle unten funktioniert trotzdem.</div>';
+  }
 }
 
-function table(start,end,title){
- let rows=N.map((n,i)=>({n,v:P[n][end-1],old:P[n][start-2]??0,i})).sort((a,b)=>b.v-a.v);
- return `<div class="table-block"><div class="table-title">${title}</div><table><tr><th>#</th><th>Player</th><th>Punkte</th><th>Diff.</th></tr>${rows.map((o,i)=>`<tr><td>${i+1}</td><td><span class="legend-swatch" style="background:${C[o.i]}"></span>${o.n}</td><td>${o.v}</td><td class="${o.v>o.old?'diff-up':o.v<o.old?'diff-down':'diff-flat'}">${o.v-o.old>0?'+':''}${o.v-o.old}</td></tr>`).join('')}</table></div>`;
+function segmentPoints(arr,start,end){
+  return arr[end-1]-(start>1?arr[start-2]:0);
 }
 
 function renderTable(start,end){
- $('tablesContainer').innerHTML=table(start,end,`Spieltage ${start}–${end}`);
+  const standings=players.map(p=>({
+    name:p,
+    points:segmentPoints(playerPoints[p],start,end),
+    total:playerPoints[p][end-1]
+  }));
+
+  standings.sort((a,b)=>b.points-a.points);
+
+  const container=document.getElementById('tablesContainer');
+  container.innerHTML='';
+
+  const wrapper=document.createElement('div');
+  wrapper.className='table-block';
+
+  const titleDiv=document.createElement('div');
+  titleDiv.className='table-title';
+
+  titleDiv.textContent=start===end
+    ?'Rangliste – Spieltag '+start
+    :'Rangliste – Spieltag '+start+' bis '+end;
+
+  const table=document.createElement('table');
+
+  let html='<tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Gesamt</th></tr>';
+
+  standings.forEach((d,i)=>{
+    html+='<tr>';
+    html+='<td>'+(i+1)+'</td>';
+    html+='<td>'+d.name+'</td>';
+    html+='<td>'+d.points+'</td>';
+    html+='<td>'+d.total+'</td>';
+    html+='</tr>';
+  });
+
+  table.innerHTML=html;
+
+  wrapper.appendChild(titleDiv);
+  wrapper.appendChild(table);
+  container.appendChild(wrapper);
 }
 
-function renderStatic(){
- let make=(a,b,t)=>table(a,b,t);
- $('staticTablesContainer').innerHTML=`<div class="static-heading">Halbjahres-Tabellen</div><div class="tables-wrapper"><div class="table-block">${make(1,17,'Hinrunde')}</div><div class="table-block">${make(18,34,'Rückrunde')}</div></div>`;
+function renderStaticTables(){
+  const container=document.getElementById('staticTablesContainer');
+
+  if(!container) return;
+
+  container.innerHTML='';
+
+  const n=totalMatchdays-17;
+
+  const firstHalf=players.map(p=>({
+    name:p,
+    points:segmentPoints(playerPoints[p],1,n)
+  }));
+
+  firstHalf.sort((a,b)=>b.points-a.points);
+
+  const secondHalf=players.map(p=>{
+    const points=segmentPoints(playerPoints[p],18,17+n);
+    const firstPoints=firstHalf.find(f=>f.name===p).points;
+
+    return{
+      name:p,
+      points:points,
+      diff:points-firstPoints
+    };
+  });
+
+  secondHalf.sort((a,b)=>b.points-a.points);
+
+  function diffClass(d){
+    if(d>0) return'diff-up';
+    if(d<0) return'diff-down';
+    return'diff-flat';
+  }
+
+  function buildTable(title,matchLabel,rows,showDiff){
+    const wrapper=document.createElement('div');
+    wrapper.className='table-block table-block-half';
+
+    const titleDiv=document.createElement('div');
+    titleDiv.className='table-title';
+    titleDiv.textContent=title;
+
+    const table=document.createElement('table');
+
+    let html='<tr><th>Rang</th><th>Spieler</th><th>'+matchLabel+'</th>';
+
+    if(showDiff) html+='<th>Diff</th>';
+
+    html+='</tr>';
+
+    rows.forEach((d,i)=>{
+      html+='<tr>';
+      html+='<td>'+(i+1)+'</td>';
+      html+='<td>'+d.name+'</td>';
+      html+='<td>'+d.points+'</td>';
+
+      if(showDiff){
+        const sign=d.diff>0?'+':'';
+        html+='<td class="'+diffClass(d.diff)+'">'+sign+d.diff+'</td>';
+      }
+
+      html+='</tr>';
+    });
+
+    table.innerHTML=html;
+
+    wrapper.appendChild(titleDiv);
+    wrapper.appendChild(table);
+
+    return wrapper;
+  }
+
+  container.appendChild(
+    buildTable(
+      'Hinrunde',
+      'Spieltag 1 bis '+n,
+      firstHalf,
+      false
+    )
+  );
+
+  container.appendChild(
+    buildTable(
+      'Rückrunde',
+      'Spieltag 18 bis '+(17+n),
+      secondHalf,
+      true
+    )
+  );
 }
 
-function updateSlider(){
- let a=+$('rangeMin').value,b=+$('rangeMax').value;
- if(a>b){[a,b]=[b,a];$('rangeMin').value=a;$('rangeMax').value=b}
- $('rangeMinLabel').textContent=a;$('rangeMaxLabel').textContent=b;
- $('sliderRange').style.left=((a-1)/33*100)+'%';
- $('sliderRange').style.right=((34-b)/33*100)+'%';
- return[a,b];
-}
-function refresh(){let [a,b]=updateSlider();renderChart(a,b);renderTable(a,b)}
+const rangeMinEl=document.getElementById('rangeMin');
+const rangeMaxEl=document.getElementById('rangeMax');
+const rangeMinLabel=document.getElementById('rangeMinLabel');
+const rangeMaxLabel=document.getElementById('rangeMaxLabel');
+const sliderRangeEl=document.getElementById('sliderRange');
+const resetBtn=document.getElementById('resetBtn');
 
-$('rangeMin').oninput=refresh;
-$('rangeMax').oninput=refresh;
-$('reset').onclick=()=>{$('rangeMin').value=1;$('rangeMax').value=34;refresh()};
-window.onresize=refresh;
+function updateSliderVisual(){
+  const min=parseInt(rangeMinEl.value,10);
+  const max=parseInt(rangeMaxEl.value,10);
+
+  const pctMin=((min-1)/(totalMatchdays-1))*100;
+  const pctMax=((max-1)/(totalMatchdays-1))*100;
+
+  sliderRangeEl.style.left=pctMin+'%';
+  sliderRangeEl.style.right=(100-pctMax)+'%';
+
+  rangeMinLabel.textContent=min;
+  rangeMaxLabel.textContent=max;
+}
+
+function refreshView(){
+  let min=parseInt(rangeMinEl.value,10);
+  let max=parseInt(rangeMaxEl.value,10);
+
+  if(min>max){
+    const tmp=min;
+    min=max;
+    max=tmp;
+  }
+
+  updateSliderVisual();
+  renderChart(min,max);
+  renderTable(min,max);
+}
+
+rangeMinEl.addEventListener('input',()=>{
+  if(parseInt(rangeMinEl.value,10)>parseInt(rangeMaxEl.value,10)){
+    rangeMinEl.value=rangeMaxEl.value;
+  }
+
+  refreshView();
+});
+
+rangeMaxEl.addEventListener('input',()=>{
+  if(parseInt(rangeMaxEl.value,10)<parseInt(rangeMinEl.value,10)){
+    rangeMaxEl.value=rangeMinEl.value;
+  }
+
+  refreshView();
+});
+
+resetBtn.addEventListener('click',()=>{
+  rangeMinEl.value=1;
+  rangeMaxEl.value=totalMatchdays;
+  refreshView();
+});
+
+window.addEventListener('resize',()=>{
+  renderChart(currentRange.start,currentRange.end);
+});
 
 buildLegend();
-renderStatic();
-refresh();
+refreshView();
+renderStaticTables();
+
 </script>
+
 </body>
 </html>
