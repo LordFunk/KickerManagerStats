@@ -710,10 +710,19 @@ updateC1Fade();
 document.getElementById('rangeMin').addEventListener('input',updateRange);
 document.getElementById('rangeMax').addEventListener('input',updateRange);
 
-document.getElementById('resetRange').onclick=()=>{
-document.getElementById('rangeMin').value=1;
-document.getElementById('rangeMax').value=played;
-updateRange();
+document.getElementById('resetRange').onclick = () => {
+  document.getElementById('rangeMin').value = 1;
+  document.getElementById('rangeMax').value = played;
+
+  document.getElementById('rangeMinLabel').textContent = 1;
+  document.getElementById('rangeMaxLabel').textContent = played;
+
+  document.getElementById('sliderRange').style.left = '0%';
+  document.getElementById('sliderRange').style.right = '0%';
+
+  createC1(1, TOTAL_MDS);
+  updateRangeTable(1, played);
+  updateC1Fade();
 };
 
 makeChart('c2','Punkte je Spieltag',md,false,[avgDataset]);
