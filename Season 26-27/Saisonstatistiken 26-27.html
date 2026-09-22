@@ -1407,51 +1407,31 @@ function legendClickHandler(
 }
 
 
-Chart.Tooltip.positioners.side=
-function(elements){
+Chart.Tooltip.positioners.side = function(elements) {
 
-    const chart=this.chart;
+    const chart = this.chart;
 
-    if(!elements.length)
+    if (!elements.length) {
         return false;
+    }
 
-    const x=
-        elements[0].element.x;
+    const x = elements[0].element.x;
+    const area = chart.chartArea;
 
-    const area=
-        chart.chartArea;
+    const spacing =
+        (area.right - area.left) /
+        Math.max(1, chart.data.labels.length - 1);
 
-    const spacing=
-        (area.right-area.left)
-        /
-        (chart.data.labels.length-1);
+    const offset = spacing * 2 + 12;
+    const mdIndex = elements[0].index;
 
-    const offset=
-        spacing*2+12;
+    const left = mdIndex >= 17;
+    const tw = this.width || 160;
 
-    const mdIndex=
-        elements[0].index;
-
-    const left=
-        mdIndex>=17;
-
-    const tw=
-        this.width||160;
-
-    return{
-
-        x:
-            left
-            ?
-            x-offset-tw
-            :
-            x+offset,
-
-        y:
-            (area.top+area.bottom)/2
-
+    return {
+        x: left ? x - offset - tw : x + offset,
+        y: (area.top + area.bottom) / 2
     };
-
 };
 
 
