@@ -492,11 +492,104 @@ input[type=range]{
     font-size:13px;
 }
 
-footer{
-    padding:40px 0 60px;
+.archive-season{
+    padding:140px 0 180px;
+    border-top:1px solid rgba(255,255,255,.04);
+}
+
+.archive-season:last-of-type{
+    padding-bottom:160px;
+}
+
+.archive-season-header{
+    margin-bottom:80px;
+}
+
+.archive-season-title{
+    margin:0;
+    font-size:clamp(65px,10vw,130px);
+    line-height:.8;
+    letter-spacing:-.075em;
+    font-weight:900;
+}
+
+.archive-season-title span{
+    color:var(--red);
+}
+
+.archive-season-subtitle{
+    color:#777;
+    margin-top:20px;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+}
+
+.archive-stats{
+    display:flex;
+    flex-direction:column;
+    gap:100px;
+}
+
+.archive-stat{
+    opacity:0;
+    transform:translateY(70px) scale(.97);
+    transition:
+        opacity .8s ease,
+        transform 1s cubic-bezier(.22,1,.36,1);
+}
+
+.archive-stat.visible{
+    opacity:1;
+    transform:translateY(0) scale(1);
+}
+
+.archive-stat-heading{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:20px;
+}
+
+.archive-stat-heading h2{
+    margin:0;
+    font-size:clamp(25px,4vw,42px);
+    letter-spacing:-.045em;
+}
+
+.archive-stat-number{
     color:#444;
-    font-size:11px;
-    border-top:1px solid var(--line);
+    font-size:12px;
+    font-weight:800;
+}
+
+.image-card{
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:22px;
+    box-shadow:0 30px 80px rgba(0,0,0,.28);
+}
+
+.image-card img{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:16px;
+    background:white;
+}
+
+.archive-chart{
+    height:470px;
+    position:relative;
+}
+
+.small-info{
+    color:#666;
+    font-size:13px;
+    line-height:1.6;
+    margin-top:15px;
 }
 
 @media(max-width:850px){
@@ -528,7 +621,8 @@ footer{
         gap:75px;
     }
 
-    .chart-wrap{
+    .chart-wrap,
+    .archive-chart{
         height:350px;
     }
 
@@ -543,8 +637,13 @@ footer{
         grid-template-columns:1fr;
     }
 
-    .archive{
+    .archive,
+    .archive-season{
         padding:100px 0;
+    }
+
+    .archive-stats{
+        gap:75px;
     }
 }
 
@@ -559,12 +658,14 @@ footer{
         font-size:51px;
     }
 
-    .chart-card{
+    .chart-card,
+    .image-card{
         padding:12px;
         border-radius:18px;
     }
 
-    .chart-wrap{
+    .chart-wrap,
+    .archive-chart{
         height:285px;
     }
 
@@ -574,6 +675,10 @@ footer{
 
     .season-card .year{
         font-size:52px;
+    }
+
+    .archive-season-title{
+        font-size:65px;
     }
 }
 </style>
@@ -616,6 +721,10 @@ footer{
 
 </section>
 
+
+<!-- ============================================================
+     CURRENT SEASON 26/27
+============================================================ -->
 
 <section class="current" id="current">
 
@@ -837,6 +946,10 @@ footer{
 </section>
 
 
+<!-- ============================================================
+     ARCHIVE SELECTOR
+============================================================ -->
+
 <section class="archive" id="archive">
 
     <div class="container">
@@ -852,7 +965,7 @@ footer{
 
             <a
                 class="season-card"
-                href="season.html?season=25-26"
+                href="#season2526"
             >
 
                 <div>
@@ -869,7 +982,7 @@ footer{
 
             <a
                 class="season-card"
-                href="season.html?season=24-25"
+                href="#season2425"
             >
 
                 <div>
@@ -886,7 +999,7 @@ footer{
 
             <a
                 class="season-card"
-                href="season.html?season=23-24"
+                href="#season2324"
             >
 
                 <div>
@@ -906,6 +1019,372 @@ footer{
 
 </section>
 
+
+<!-- ============================================================
+     25/26
+============================================================ -->
+
+<section class="archive-season" id="season2526">
+
+    <div class="container">
+
+        <div class="archive-season-header">
+
+            <div class="eyebrow">Season Archive</div>
+
+            <h2 class="archive-season-title">
+                25 / <span>26</span>
+            </h2>
+
+            <div class="archive-season-subtitle">
+                Full season statistics
+            </div>
+
+        </div>
+
+
+        <div class="archive-stats">
+
+
+            <!-- 25/26 01 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Saisonpunkte 25-26</h2>
+                    <div class="archive-stat-number">01</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2526Points"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 25/26 02 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Punkte je Spieltag</h2>
+                    <div class="archive-stat-number">02</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2526Matchday"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 25/26 03 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Tabellenplatzentwicklung</h2>
+                    <div class="archive-stat-number">03</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2526Position"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 25/26 04 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Spieltagsplatzierung</h2>
+                    <div class="archive-stat-number">04</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2526Daily"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 25/26 05 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Endstand</h2>
+                    <div class="archive-stat-number">05</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="table-wrap">
+
+                        <table class="stats-table">
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Spieler</th>
+                                    <th>Punkte</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="archive2526Final"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     24/25
+============================================================ -->
+
+<section class="archive-season" id="season2425">
+
+    <div class="container">
+
+        <div class="archive-season-header">
+
+            <div class="eyebrow">Season Archive</div>
+
+            <h2 class="archive-season-title">
+                24 / <span>25</span>
+            </h2>
+
+            <div class="archive-season-subtitle">
+                Full season statistics
+            </div>
+
+        </div>
+
+
+        <div class="archive-stats">
+
+
+            <!-- 24/25 01 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Saisonpunkte 24-25</h2>
+                    <div class="archive-stat-number">01</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2425Points"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 02 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Punkte je Spieltag</h2>
+                    <div class="archive-stat-number">02</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2425Matchday"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 03 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Tabellenplatzentwicklung</h2>
+                    <div class="archive-stat-number">03</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2425Position"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 04 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Spieltagsplatzierung</h2>
+                    <div class="archive-stat-number">04</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="archive-chart">
+                        <canvas id="archive2425Daily"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- 24/25 05 -->
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Endstand</h2>
+                    <div class="archive-stat-number">05</div>
+                </div>
+
+                <div class="chart-card">
+
+                    <div class="table-wrap">
+
+                        <table class="stats-table">
+
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Spieler</th>
+                                    <th>Punkte</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="archive2425Final"></tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     23/24
+============================================================ -->
+
+<section class="archive-season" id="season2324">
+
+    <div class="container">
+
+        <div class="archive-season-header">
+
+            <div class="eyebrow">Season Archive</div>
+
+            <h2 class="archive-season-title">
+                23 / <span>24</span>
+            </h2>
+
+            <div class="archive-season-subtitle">
+                Historical statistics
+            </div>
+
+        </div>
+
+
+        <div class="archive-stats">
+
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Punkteentwicklung</h2>
+                    <div class="archive-stat-number">01</div>
+                </div>
+
+                <div class="image-card">
+
+                    <img
+                        src="Season%2023-24/Punkteentwicklung%2023-24.PNG"
+                        alt="Punkteentwicklung 23-24"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="archive-stat">
+
+                <div class="archive-stat-heading">
+                    <h2>Tabellenplatz je Spieltag</h2>
+                    <div class="archive-stat-number">02</div>
+                </div>
+
+                <div class="image-card">
+
+                    <img
+                        src="Season%2023-24/Tabellenplatz%20je%20Spieltag%2023-24.PNG"
+                        alt="Tabellenplatz je Spieltag 23-24"
+                    >
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ============================================================
+     EWIGE TABELLE
+============================================================ -->
 
 <section class="archive" id="ewige">
 
@@ -963,6 +1442,10 @@ footer{
 </section>
 
 
+<!-- ============================================================
+     HISTORY
+============================================================ -->
+
 <section class="archive" id="history">
 
     <div class="container">
@@ -1013,9 +1496,11 @@ footer{
 
 
 <footer>
+
     <div class="container">
         Kicker Manager Stats
     </div>
+
 </footer>
 
 
@@ -1041,39 +1526,8 @@ const colors = [
 
 
 /* ============================================================
-   CURRENT 26/27 DATA
+   GENERAL HELPERS
 ============================================================ */
-
-const playerPoints = {
-
-    Markus:[83,193,291,380],
-    Erwin:[58,86,124,154],
-    Phil:[59,77,116,186],
-    Didi:[68,141,212,272],
-    Steffo:[59,106,177,250],
-    Basti:[62,93,131,194],
-    Eirik:[69,75,108,170],
-    Emil:[51,75,75,145],
-    Kempka:[49,84,129,170],
-    Espen:[64,124,213,285],
-    Alex:[42,90,141,184]
-
-};
-
-const players = Object.keys(playerPoints);
-
-const TOTAL_MDS = 34;
-const PLAYED = 4;
-
-
-/* ============================================================
-   ORIGINAL HIGHLIGHT MECHANIC
-============================================================ */
-
-const selectedPlayers = new Set();
-
-let allCharts = [];
-
 
 function isMobile(){
 
@@ -1082,124 +1536,71 @@ function isMobile(){
 }
 
 
-function applyFade(){
+function getColor(players,player){
 
-    allCharts.forEach(chart=>{
+    const index = players.indexOf(player);
 
-        chart.data.datasets.forEach((dataset,index)=>{
-
-            const playerIndex =
-                players.indexOf(dataset.label);
-
-            if(playerIndex === -1){
-                return;
-            }
-
-            const selected =
-                selectedPlayers.has(dataset.label);
-
-            const noneSelected =
-                selectedPlayers.size === 0;
-
-            const color =
-                colors[playerIndex];
-
-
-            if(noneSelected || selected){
-
-                dataset.borderColor = color;
-                dataset.backgroundColor = color;
-                dataset.pointBackgroundColor = color;
-                dataset.pointBorderColor = color;
-
-                dataset.borderWidth =
-                    selected ? 4 : 2;
-
-                dataset.pointRadius =
-                    selected
-                        ? 6
-                        : (isMobile() ? 2 : 4);
-
-                dataset.pointHoverRadius =
-                    selected
-                        ? 8
-                        : (isMobile() ? 4 : 6);
-
-            }else{
-
-                dataset.borderColor = '#ccc';
-                dataset.backgroundColor = '#ccc';
-                dataset.pointBackgroundColor = '#ccc';
-                dataset.pointBorderColor = '#ccc';
-
-                dataset.borderWidth = 1;
-
-                dataset.pointRadius = 3;
-
-                dataset.pointHoverRadius = 4;
-
-            }
-
-        });
-
-        chart.update();
-
-    });
+    return colors[index] || '#999999';
 
 }
 
 
-function legendClickHandler(event,item){
-
-    const player =
-        item.text;
-
-    if(selectedPlayers.has(player)){
-
-        selectedPlayers.delete(player);
-
-    }else{
-
-        /*
-         * Only one player is selected at a time.
-         * This is the old behaviour requested.
-         */
-        selectedPlayers.clear();
-
-        selectedPlayers.add(player);
-
-    }
-
-    applyFade();
-
-}
-
-
-/* ============================================================
-   HELPERS
-============================================================ */
-
-function mdPoints(arr){
+function createLabels(length){
 
     return Array.from(
-        {length:TOTAL_MDS},
-        (_,i)=>{
-
-            if(i >= arr.length){
-                return null;
-            }
-
-            return i === 0
-                ? arr[0]
-                : arr[i]-arr[i-1];
-
-        }
+        {length:length},
+        (_,i)=>i+1
     );
 
 }
 
 
-function positions(){
+function cumulativeData(players,matchday){
+
+    const result = {};
+
+    players.forEach(player=>{
+
+        let total = 0;
+
+        result[player] =
+            matchday[player].map(value=>{
+
+                total += value;
+
+                return total;
+
+            });
+
+    });
+
+    return result;
+
+}
+
+
+function pointsPerMatchday(players,matchday){
+
+    const result = {};
+
+    players.forEach(player=>{
+
+        result[player] =
+            matchday[player].map(
+                value=>value
+            );
+
+    });
+
+    return result;
+
+}
+
+
+function createPositionFromPoints(
+    players,
+    cumulative
+){
 
     const result = {};
 
@@ -1208,33 +1609,64 @@ function positions(){
     });
 
 
-    for(let md=0;md<PLAYED;md++){
+    const matchdays =
+        Math.max(
+            ...players.map(
+                player=>cumulative[player].length
+            )
+        );
+
+
+    for(
+        let md=0;
+        md<matchdays;
+        md++
+    ){
 
         const ranked =
             players
                 .map(player=>({
+
                     player,
-                    points:playerPoints[player][md]
+
+                    points:
+                        cumulative[player][md]
+
                 }))
-                .sort((a,b)=>b.points-a.points);
+                .filter(item =>
+                    item.points !== null &&
+                    item.points !== undefined
+                )
+                .sort(
+                    (a,b)=>
+                        b.points-a.points
+                );
 
 
-        ranked.forEach((item,index)=>{
+        ranked.forEach(
+            (item,index)=>{
 
-            result[item.player].push(index+1);
+                result[item.player]
+                    .push(index+1);
+
+            }
+        );
+
+
+        players.forEach(player=>{
+
+            if(
+                result[player].length <
+                md+1
+            ){
+
+                result[player].push(null);
+
+            }
 
         });
 
     }
-
-
-    players.forEach(player=>{
-
-        while(result[player].length < TOTAL_MDS){
-            result[player].push(null);
-        }
-
-    });
 
 
     return result;
@@ -1242,59 +1674,89 @@ function positions(){
 }
 
 
-const positionData = positions();
-
-
 /* ============================================================
-   CHART CREATION
+   GENERIC CHART CREATOR
 ============================================================ */
 
-function makeChart(
-    canvas,
+const allCharts = [];
+
+
+function createArchiveChart(
+    canvasId,
+    players,
     data,
     reverseY=false
 ){
 
+    const canvas =
+        document.getElementById(canvasId);
+
+
+    if(!canvas){
+        return null;
+    }
+
+
+    const labels =
+        createLabels(
+            Math.max(
+                ...players.map(
+                    player=>data[player].length
+                )
+            )
+        );
+
+
     const chart =
         new Chart(
-            document.getElementById(canvas),
+            canvas,
             {
 
                 type:'line',
 
                 data:{
-                    labels:
-                        Array.from(
-                            {length:TOTAL_MDS},
-                            (_,i)=>i+1
-                        ),
+
+                    labels,
 
                     datasets:
-                        players.map((player,index)=>({
+                        players.map(
+                            (player,index)=>({
 
-                            label:player,
+                                label:player,
 
-                            data:data[player],
+                                data:data[player],
 
-                            borderColor:colors[index],
-                            backgroundColor:colors[index],
+                                borderColor:
+                                    colors[index],
 
-                            pointBackgroundColor:colors[index],
-                            pointBorderColor:colors[index],
+                                backgroundColor:
+                                    colors[index],
 
-                            pointStyle:'circle',
+                                pointBackgroundColor:
+                                    colors[index],
 
-                            borderWidth:2,
+                                pointBorderColor:
+                                    colors[index],
 
-                            pointRadius:
-                                isMobile()?2:4,
+                                pointStyle:
+                                    'circle',
 
-                            pointHoverRadius:
-                                isMobile()?4:6,
+                                borderWidth:2,
 
-                            spanGaps:false
+                                pointRadius:
+                                    isMobile()
+                                        ? 2
+                                        : 4,
 
-                        }))
+                                pointHoverRadius:
+                                    isMobile()
+                                        ? 4
+                                        : 6,
+
+                                spanGaps:false
+
+                            })
+                        )
 
                 },
 
@@ -1312,6 +1774,369 @@ function makeChart(
                     plugins:{
 
                         legend:{
+
+                            position:'bottom',
+
+                            labels:{
+                                usePointStyle:true,
+                                pointStyle:'circle',
+                                boxWidth:8,
+                                boxHeight:8,
+                                padding:12,
+                                color:'#aaa'
+                            }
+
+                        },
+
+                        tooltip:{
+
+                            backgroundColor:
+                                'rgba(10,10,10,.96)',
+
+                            borderColor:
+                                'rgba(255,255,255,.12)',
+
+                            borderWidth:1,
+
+                            callbacks:{
+
+                                label:
+                                    function(context){
+
+                                        if(reverseY){
+
+                                            return `${context.dataset.label}: Platz ${context.raw}`;
+
+                                        }
+
+                                        return `${context.dataset.label}: ${context.raw}`;
+
+                                    }
+
+                            }
+
+                        }
+
+                    },
+
+                    scales:{
+
+                        x:{
+
+                            ticks:{
+                                color:'#777',
+                                autoSkip:false
+                            },
+
+                            grid:{
+                                color:
+                                    'rgba(255,255,255,.055)'
+                            }
+
+                        },
+
+                        y:{
+
+                            reverse:reverseY,
+
+                            beginAtZero:false,
+
+                            ...(reverseY ? {
+
+                                min:.5,
+
+                                max:
+                                    players.length+.5
+
+                            } : {}),
+
+                            ticks:{
+
+                                color:'#777',
+
+                                padding:8,
+
+                                stepSize:
+                                    reverseY
+                                        ? 1
+                                        : undefined
+
+                            },
+
+                            grid:{
+                                color:
+                                    'rgba(255,255,255,.055)'
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+
+    allCharts.push(chart);
+
+    return chart;
+
+}
+
+
+/* ============================================================
+   26/27 DATA
+============================================================ */
+
+const playerPoints = {
+
+    Markus:[83,193,291,380],
+
+    Erwin:[58,86,124,154],
+
+    Phil:[59,77,116,186],
+
+    Didi:[68,141,212,272],
+
+    Steffo:[59,106,177,250],
+
+    Basti:[62,93,131,194],
+
+    Eirik:[69,75,108,170],
+
+    Emil:[51,75,75,145],
+
+    Kempka:[49,84,129,170],
+
+    Espen:[64,124,213,285],
+
+    Alex:[42,90,141,184]
+
+};
+
+
+const players =
+    Object.keys(playerPoints);
+
+
+const TOTAL_MDS = 34;
+
+const PLAYED = 4;
+
+
+/* ============================================================
+   26/27 HIGHLIGHT MECHANIC
+============================================================ */
+
+const selectedPlayers =
+    new Set();
+
+
+function applyFade(){
+
+    allCharts.forEach(chart=>{
+
+        chart.data.datasets.forEach(
+            (dataset,index)=>{
+
+                const playerIndex =
+                    players.indexOf(
+                        dataset.label
+                    );
+
+
+                if(playerIndex === -1){
+                    return;
+                }
+
+
+                const selected =
+                    selectedPlayers.has(
+                        dataset.label
+                    );
+
+
+                const noneSelected =
+                    selectedPlayers.size === 0;
+
+
+                const color =
+                    colors[playerIndex];
+
+
+                if(
+                    noneSelected ||
+                    selected
+                ){
+
+                    dataset.borderColor =
+                        color;
+
+                    dataset.backgroundColor =
+                        color;
+
+                    dataset.pointBackgroundColor =
+                        color;
+
+                    dataset.pointBorderColor =
+                        color;
+
+                    dataset.borderWidth =
+                        selected ? 4 : 2;
+
+                    dataset.pointRadius =
+                        selected
+                            ? 6
+                            : (isMobile() ? 2 : 4);
+
+                    dataset.pointHoverRadius =
+                        selected
+                            ? 8
+                            : (isMobile() ? 4 : 6);
+
+                }else{
+
+                    dataset.borderColor =
+                        '#ccc';
+
+                    dataset.backgroundColor =
+                        '#ccc';
+
+                    dataset.pointBackgroundColor =
+                        '#ccc';
+
+                    dataset.pointBorderColor =
+                        '#ccc';
+
+                    dataset.borderWidth = 1;
+
+                    dataset.pointRadius = 3;
+
+                    dataset.pointHoverRadius = 4;
+
+                }
+
+            }
+        );
+
+
+        chart.update();
+
+    });
+
+}
+
+
+function legendClickHandler(
+    event,
+    item
+){
+
+    const player =
+        item.text;
+
+
+    if(
+        selectedPlayers.has(player)
+    ){
+
+        selectedPlayers.delete(player);
+
+    }else{
+
+        selectedPlayers.clear();
+
+        selectedPlayers.add(player);
+
+    }
+
+
+    applyFade();
+
+}
+
+
+/* ============================================================
+   26/27 GENERIC CHART
+============================================================ */
+
+function makeCurrentChart(
+    canvas,
+    data,
+    reverseY=false
+){
+
+    const chart =
+        new Chart(
+            document.getElementById(canvas),
+            {
+
+                type:'line',
+
+                data:{
+
+                    labels:
+                        createLabels(
+                            TOTAL_MDS
+                        ),
+
+                    datasets:
+                        players.map(
+                            (player,index)=>({
+
+                                label:player,
+
+                                data:data[player],
+
+                                borderColor:
+                                    colors[index],
+
+                                backgroundColor:
+                                    colors[index],
+
+                                pointBackgroundColor:
+                                    colors[index],
+
+                                pointBorderColor:
+                                    colors[index],
+
+                                pointStyle:'circle',
+
+                                borderWidth:2,
+
+                                pointRadius:
+                                    isMobile()
+                                        ? 2
+                                        : 4,
+
+                                pointHoverRadius:
+                                    isMobile()
+                                        ? 4
+                                        : 6,
+
+                                spanGaps:false
+
+                            })
+                        )
+
+                },
+
+                options:{
+
+                    responsive:true,
+
+                    maintainAspectRatio:false,
+
+                    interaction:{
+                        mode:'index',
+                        intersect:false
+                    },
+
+                    plugins:{
+
+                        legend:{
+
                             position:'bottom',
 
                             labels:{
@@ -1325,20 +2150,24 @@ function makeChart(
 
                             onClick:
                                 legendClickHandler
+
                         },
 
                         tooltip:{
-                            backgroundColor:'rgba(10,10,10,.96)',
-                            borderColor:'rgba(255,255,255,.12)',
+
+                            backgroundColor:
+                                'rgba(10,10,10,.96)',
+
+                            borderColor:
+                                'rgba(255,255,255,.12)',
+
                             borderWidth:1,
 
                             callbacks:{
 
                                 label:function(context){
 
-                                    if(
-                                        reverseY
-                                    ){
+                                    if(reverseY){
 
                                         return `${context.dataset.label}: Platz ${context.raw}`;
 
@@ -1362,16 +2191,21 @@ function makeChart(
                                 color:'#777',
                                 autoSkip:false,
 
-                                callback:function(value,index){
+                                callback:
+                                    function(
+                                        value,
+                                        index
+                                    ){
 
-                                    return index+1;
+                                        return index+1;
 
-                                }
+                                    }
 
                             },
 
                             grid:{
-                                color:'rgba(255,255,255,.055)'
+                                color:
+                                    'rgba(255,255,255,.055)'
                             }
 
                         },
@@ -1382,25 +2216,31 @@ function makeChart(
 
                             beginAtZero:false,
 
-                            /*
-                             * The 0.5 padding prevents position 1
-                             * and the final position being clipped.
-                             */
                             ...(reverseY ? {
+
                                 min:.5,
-                                max:players.length+.5
+
+                                max:
+                                    players.length+.5
+
                             } : {}),
 
                             ticks:{
+
                                 color:'#777',
+
                                 padding:8,
 
                                 stepSize:
-                                    reverseY ? 1 : undefined
+                                    reverseY
+                                        ? 1
+                                        : undefined
+
                             },
 
                             grid:{
-                                color:'rgba(255,255,255,.055)'
+                                color:
+                                    'rgba(255,255,255,.055)'
                             }
 
                         }
@@ -1421,25 +2261,31 @@ function makeChart(
 
 
 /* ============================================================
-   CHART 1
+   26/27 CHART 1
 ============================================================ */
 
 const accumulated =
     Object.fromEntries(
+
         players.map(player=>[
+
             player,
+
             Array.from(
                 {length:TOTAL_MDS},
                 (_,i)=>
-                    i < playerPoints[player].length
+                    i <
+                    playerPoints[player].length
                         ? playerPoints[player][i]
                         : null
             )
+
         ])
+
     );
 
 
-makeChart(
+makeCurrentChart(
     'pointsChart',
     accumulated,
     false
@@ -1447,19 +2293,34 @@ makeChart(
 
 
 /* ============================================================
-   CHART 2
+   26/27 CHART 2
 ============================================================ */
 
 const matchday =
     Object.fromEntries(
+
         players.map(player=>[
+
             player,
-            mdPoints(playerPoints[player])
+
+            Array.from(
+                {length:TOTAL_MDS},
+                (_,i)=>
+                    i <
+                    playerPoints[player].length
+                        ? i === 0
+                            ? playerPoints[player][0]
+                            : playerPoints[player][i] -
+                              playerPoints[player][i-1]
+                        : null
+            )
+
         ])
+
     );
 
 
-makeChart(
+makeCurrentChart(
     'matchdayChart',
     matchday,
     false
@@ -1467,21 +2328,24 @@ makeChart(
 
 
 /* ============================================================
-   CHART 3
+   26/27 POSITIONS
 ============================================================ */
 
-makeChart(
+const positionData =
+    createPositionFromPoints(
+        players,
+        accumulated
+    );
+
+
+makeCurrentChart(
     'positionChart',
     positionData,
     true
 );
 
 
-/* ============================================================
-   CHART 4
-============================================================ */
-
-makeChart(
+makeCurrentChart(
     'dayPositionChart',
     positionData,
     true
@@ -1489,10 +2353,13 @@ makeChart(
 
 
 /* ============================================================
-   RANGE TABLE
+   26/27 RANGE TABLE
 ============================================================ */
 
-function updateRangeTable(start,end){
+function updateRangeTable(
+    start,
+    end
+){
 
     const rows =
         players
@@ -1501,13 +2368,16 @@ function updateRangeTable(start,end){
                 const values =
                     playerPoints[player];
 
+
                 const first =
                     start === 1
                         ? 0
                         : values[start-2];
 
+
                 const last =
                     values[end-1];
+
 
                 return {
 
@@ -1522,38 +2392,48 @@ function updateRangeTable(start,end){
                 };
 
             })
-            .sort((a,b)=>b.points-a.points);
+            .sort(
+                (a,b)=>
+                    b.points-a.points
+            );
 
 
     document.getElementById(
         'rangeTable'
     ).innerHTML =
 
-        rows.map((row,index)=>`
+        rows.map(
+            (row,index)=>`
 
-            <tr>
+                <tr>
 
-                <td>${index+1}</td>
+                    <td>${index+1}</td>
 
-                <td>
-                    <span
-                        class="player-dot"
-                        style="background:${row.color}"
-                    ></span>
-                    ${row.player}
-                </td>
+                    <td>
 
-                <td>${row.points}</td>
+                        <span
+                            class="player-dot"
+                            style="background:${row.color}"
+                        ></span>
 
-            </tr>
+                        ${row.player}
 
-        `).join('');
+                    </td>
+
+                    <td>${row.points}</td>
+
+                </tr>
+
+            `
+        ).join('');
 
 }
 
 
 const rangeSlider =
-    document.getElementById('rangeSlider');
+    document.getElementById(
+        'rangeSlider'
+    );
 
 
 rangeSlider.addEventListener(
@@ -1563,12 +2443,17 @@ rangeSlider.addEventListener(
         const end =
             Number(this.value);
 
+
         document.getElementById(
             'rangeText'
         ).textContent =
             `1 – ${end}`;
 
-        updateRangeTable(1,end);
+
+        updateRangeTable(
+            1,
+            end
+        );
 
     }
 );
@@ -1580,12 +2465,15 @@ document.getElementById(
     'click',
     function(){
 
-        rangeSlider.value = PLAYED;
+        rangeSlider.value =
+            PLAYED;
+
 
         document.getElementById(
             'rangeText'
         ).textContent =
             `1 – ${PLAYED}`;
+
 
         updateRangeTable(
             1,
@@ -1603,55 +2491,68 @@ updateRangeTable(
 
 
 /* ============================================================
-   HINRUNDE / RÜCKRUNDE
+   26/27 HINRUNDE / RÜCKRUNDE
 ============================================================ */
 
 function createTable(
     elementId,
-    values
+    values,
+    tablePlayers
 ){
 
     const rows =
         Object.entries(values)
-            .sort((a,b)=>b[1]-a[1]);
+            .sort(
+                (a,b)=>
+                    b[1]-a[1]
+            );
 
 
     document.getElementById(
         elementId
     ).innerHTML =
 
-        rows.map((item,index)=>{
+        rows.map(
+            (item,index)=>{
 
-            const player =
-                item[0];
+                const player =
+                    item[0];
 
-            const points =
-                item[1];
+                const points =
+                    item[1];
 
-            const color =
-                colors[players.indexOf(player)];
+                const color =
+                    getColor(
+                        tablePlayers,
+                        player
+                    );
 
-            return `
 
-                <tr>
+                return `
 
-                    <td>${index+1}</td>
+                    <tr>
 
-                    <td>
-                        <span
-                            class="player-dot"
-                            style="background:${color}"
-                        ></span>
-                        ${player}
-                    </td>
+                        <td>${index+1}</td>
 
-                    <td>${points}</td>
+                        <td>
 
-                </tr>
+                            <span
+                                class="player-dot"
+                                style="background:${color}"
+                            ></span>
 
-            `;
+                            ${player}
 
-        }).join('');
+                        </td>
+
+                        <td>${points}</td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join('');
 
 }
 
@@ -1659,6 +2560,7 @@ function createTable(
 const hinrunde = {};
 
 const rueckrunde = {};
+
 
 players.forEach(player=>{
 
@@ -1672,12 +2574,559 @@ players.forEach(player=>{
 
 createTable(
     'hinrunde',
-    hinrunde
+    hinrunde,
+    players
 );
+
 
 createTable(
     'rueckrunde',
-    rueckrunde
+    rueckrunde,
+    players
+);
+
+
+/* ============================================================
+   25/26 DATA
+============================================================ */
+
+const data2526 = {
+
+    players:[
+        'Markus',
+        'Erwin',
+        'Phil',
+        'Didi',
+        'Steffo',
+        'Basti',
+        'Eirik',
+        'Emil',
+        'Kempka',
+        'Espen',
+        'Alex'
+    ],
+
+    matchday:{
+
+        Markus:[
+            63,68,83,63,78,40,16,82,75,45,44,26,67,48,40,69,73,
+            32,43,32,102,73,52,76,40,112,59,70,60,53,50,61,49
+        ],
+
+        Erwin:[
+            48,70,51,78,38,10,57,65,30,41,53,59,20,64,56,67,53,
+            18,31,34,101,24,30,59,43,56,62,51,68,29,52,35,105
+        ],
+
+        Phil:[
+            76,72,64,58,93,42,34,43,34,55,52,20,70,92,76,51,62,
+            36,35,48,63,66,34,62,41,81,69,62,75,55,56,44,71
+        ],
+
+        Didi:[
+            50,60,85,70,45,38,44,71,28,24,51,63,56,63,41,87,82,
+            31,47,47,104,70,79,41,63,69,55,73,41,54,70,47,71
+        ],
+
+        Steffo:[
+            53,55,50,44,50,22,28,45,55,54,53,55,27,37,40,47,28,
+            29,47,64,31,46,24,69,34,51,59,38,64,35,26,50,57
+        ],
+
+        Basti:[
+            47,53,44,62,67,28,37,39,46,31,39,53,51,28,40,70,31,
+            33,14,42,53,63,28,48,22,50,28,35,70,52,22,54,84
+        ],
+
+        Eirik:[
+            46,36,34,64,37,65,74,72,64,34,76,48,56,19,27,44,32,
+            26,39,41,49,42,65,61,51,84,96,86,80,53,72,35,79
+        ],
+
+        Emil:[
+            61,57,18,35,39,2,26,10,14,33,54,46,19,67,62,75,46,
+            40,40,31,69,41,63,67,22,57,22,24,63,29,14,34,34
+        ],
+
+        Kempka:[
+            36,63,32,55,55,28,55,65,40,25,64,46,42,56,10,43,52,
+            31,57,47,76,48,52,50,48,81,80,85,72,75,54,33,87
+        ],
+
+        Espen:[
+            57,45,47,49,51,2,41,61,57,12,52,25,29,47,16,41,33,
+            13,28,35,51,29,-4,20,39,4,18,22,16,32,31,25,68
+        ],
+
+        Alex:[
+            55,66,48,25,51,77,22,51,48,64,36,42,26,30,47,58,52,
+            52,46,56,67,41,39,57,43,65,57,53,63,35,56,24,34
+        ]
+
+    },
+
+    position:{
+
+        Markus:[
+            2,2,1,1,2,2,2,1,1,1,1,1,1,2,2,2,2,2,2,2,1,1,2,2,2,
+            2,1,1,1,1,1,1,1,1
+        ],
+
+        Erwin:[
+            8,4,4,4,4,6,5,5,5,6,6,5,5,5,5,4,4,4,4,5,4,4,5,5,5,
+            6,7,7,7,7,7,7,7,6
+        ],
+
+        Phil:[
+            1,1,2,2,1,1,1,2,2,2,2,3,2,1,1,1,1,1,1,1,3,3,3,3,3,
+            3,3,3,3,3,3,3,3,3
+        ],
+
+        Didi:[
+            7,6,3,3,3,3,3,3,4,4,4,4,4,3,3,3,3,3,3,3,2,2,1,1,1,
+            1,2,2,2,2,2,2,2,2
+        ],
+
+        Steffo:[
+            6,7,6,6,6,8,9,10,10,7,8,7,9,8,8,8,9,9,8,8,8,9,9,9,8,
+            8,8,8,8,8,8,8,8,9
+        ],
+
+        Basti:[
+            9,9,8,5,5,5,7,8,8,9,9,9,8,9,9,7,8,7,9,9,9,8,8,8,9,
+            9,9,9,9,9,9,9,9,8
+        ],
+
+        Eirik:[
+            10,11,11,10,10,7,4,4,3,3,3,2,3,4,4,5,5,5,5,6,6,7,7,
+            7,6,5,4,4,4,4,4,4,4,4
+        ],
+
+        Emil:[
+            3,4,9,11,11,11,11,11,11,11,11,11,11,11,11,11,11,10,10,
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10
+        ],
+
+        Kempka:[
+            11,10,10,9,9,9,8,7,7,8,7,7,7,6,7,8,7,8,7,7,7,6,6,6,
+            7,7,6,5,5,5,5,5,5,5
+        ],
+
+        Espen:[
+            4,8,7,7,7,10,10,9,9,10,10,10,10,10,10,10,10,11,11,11,
+            11,11,11,11,11,11,11,11,11,11,11,11,11,11
+        ],
+
+        Alex:[
+            5,3,4,8,8,4,6,6,6,5,5,6,6,7,6,6,6,6,5,4,5,5,4,4,4,
+            4,5,6,6,6,6,6,6,7
+        ]
+
+    },
+
+    daily:{
+
+        Markus:[
+            2,3,2,4,2,4,11,1,1,4,9,9,2,6,6,4,2,5,5,10,2,1,6,4,
+            1,7,1,5,4,9,4,7,1,9
+        ],
+
+        Erwin:[
+            8,2,4,1,10,9,2,4,9,5,4,2,10,3,3,5,4,10,9,9,3,11,7,8,
+            6,4,8,4,7,5,10,6,6,1
+        ],
+
+        Phil:[
+            1,1,3,6,1,3,7,9,8,2,6,11,1,1,1,7,3,3,8,3,7,3,4,7,4,6,
+            3,3,5,2,2,3,5,5
+        ],
+
+        Didi:[
+            7,6,1,2,8,5,4,3,10,10,8,1,3,4,5,1,1,6,2,4,1,2,2,1,10,
+            1,5,8,3,10,3,2,4,6
+        ],
+
+        Steffo:[
+            6,8,5,9,7,8,8,8,4,3,4,3,8,8,6,8,11,8,2,1,11,6,11,10,2,
+            9,9,5,8,6,7,9,3,8
+        ],
+
+        Basti:[
+            9,9,8,5,3,6,6,10,6,8,10,4,5,10,6,3,10,4,11,6,8,4,10,9,
+            9,10,10,9,9,4,6,10,2,3
+        ],
+
+        Eirik:[
+            10,11,9,3,11,2,1,2,2,6,1,5,3,11,9,9,9,9,7,7,10,7,5,2,
+            5,2,2,1,1,1,4,1,6,4
+        ],
+
+        Emil:[
+            3,7,11,10,9,10,9,11,11,7,3,6,11,2,2,2,7,2,6,11,5,8,8,3,
+            3,10,7,10,10,7,10,11,8,10
+        ],
+
+        Kempka:[
+            11,5,10,7,4,6,3,4,7,9,2,6,6,5,11,10,5,6,1,4,4,5,1,4,
+            8,3,3,2,2,3,1,5,9,2
+        ],
+
+        Espen:[
+            4,10,7,8,5,10,5,6,3,11,6,10,7,7,10,11,8,11,10,8,9,10,9,
+            11,11,8,11,11,11,11,9,8,10,7
+        ],
+
+        Alex:[
+            5,4,6,11,5,1,10,7,5,1,11,8,9,9,4,6,6,1,4,2,6,8,3,6,7,
+            4,6,7,6,7,7,3,11,10
+        ]
+
+    }
+
+};
+
+
+/* ============================================================
+   25/26 CHARTS
+============================================================ */
+
+const cumulative2526 =
+    cumulativeData(
+        data2526.players,
+        data2526.matchday
+    );
+
+
+createArchiveChart(
+    'archive2526Points',
+    data2526.players,
+    cumulative2526,
+    false
+);
+
+
+createArchiveChart(
+    'archive2526Matchday',
+    data2526.players,
+    data2526.matchday,
+    false
+);
+
+
+createArchiveChart(
+    'archive2526Position',
+    data2526.players,
+    data2526.position,
+    true
+);
+
+
+createArchiveChart(
+    'archive2526Daily',
+    data2526.players,
+    data2526.daily,
+    true
+);
+
+
+/* ============================================================
+   25/26 FINAL TABLE
+============================================================ */
+
+function createFinalTable(
+    elementId,
+    players,
+    cumulative
+){
+
+    const finalRows =
+        players
+            .map(player=>({
+
+                player,
+
+                points:
+                    cumulative[player][
+                        cumulative[player].length-1
+                    ]
+
+            }))
+            .sort(
+                (a,b)=>
+                    b.points-a.points
+            );
+
+
+    document.getElementById(
+        elementId
+    ).innerHTML =
+
+        finalRows.map(
+            (row,index)=>`
+
+                <tr>
+
+                    <td>${index+1}</td>
+
+                    <td>
+
+                        <span
+                            class="player-dot"
+                            style="background:${getColor(players,row.player)}"
+                        ></span>
+
+                        ${row.player}
+
+                    </td>
+
+                    <td>${row.points}</td>
+
+                </tr>
+
+            `
+        ).join('');
+
+}
+
+
+createFinalTable(
+    'archive2526Final',
+    data2526.players,
+    cumulative2526
+);
+
+
+/* ============================================================
+   24/25 DATA
+============================================================ */
+
+const data2425 = {
+
+    players:[
+        'Markus',
+        'Erwin',
+        'Phil',
+        'Didi',
+        'Steffo',
+        'Basti',
+        'Eirik',
+        'Emil',
+        'Kempka',
+        'Espen'
+    ],
+
+    matchday:{
+
+        Markus:[
+            59,82,65,33,59,67,36,26,45,41,12,29,53,39,16,60,66,
+            56,64,42,67,32,52,64,54,67,47,47,67,43,57,79,47,88
+        ],
+
+        Erwin:[
+            51,81,58,71,55,40,49,30,69,43,62,48,50,37,43,66,45,
+            65,81,46,84,45,62,54,25,66,37,56,60,44,61,81,50,88
+        ],
+
+        Phil:[
+            61,70,26,75,57,83,1,36,34,59,49,104,60,77,16,64,88,
+            39,70,39,69,50,38,64,44,48,23,38,65,52,31,20,49,89
+        ],
+
+        Didi:[
+            40,20,32,18,68,12,33,22,10,30,35,30,27,30,14,43,35,
+            32,51,31,44,40,26,36,43,43,34,49,50,49,42,50,43,45
+        ],
+
+        Steffo:[
+            49,56,64,54,37,47,20,46,35,65,56,50,63,22,32,28,37,
+            31,40,40,59,16,26,39,24,34,39,57,55,31,54,36,42,54
+        ],
+
+        Basti:[
+            52,46,23,14,71,41,46,29,35,46,18,47,56,46,43,69,43,
+            27,46,32,63,55,46,50,54,42,41,60,52,32,14,62,37,74
+        ],
+
+        Eirik:[
+            66,42,56,28,58,45,42,50,45,31,56,37,38,24,31,39,38,
+            61,48,49,48,34,78,47,29,41,70,69,46,32,28,37,74,64
+        ],
+
+        Emil:[
+            67,87,54,57,62,48,46,43,75,53,60,34,38,64,35,67,69,
+            63,62,37,55,55,43,51,46,51,43,63,43,37,57,87,59,67
+        ],
+
+        Kempka:[
+            47,44,73,92,53,65,29,34,30,30,22,47,73,64,39,73,65,
+            54,54,34,50,58,71,26,41,57,22,39,46,48,56,47,89,78
+        ],
+
+        Espen:[
+            92,97,63,61,53,74,65,68,103,72,66,68,36,73,23,79,77,
+            49,68,33,47,71,53,54,67,76,40,39,39,52,27,44,60,53
+        ]
+
+    },
+
+    position:{
+
+        Markus:[
+            5,3,3,5,5,5,5,5,4,4,6,8,7,7,7,7,6,6,6,6,6,6,6,6,6,
+            6,6,6,5,5,5,5,5,5
+        ],
+
+        Erwin:[
+            7,4,4,3,3,6,3,4,3,3,3,3,4,4,4,4,4,4,4,4,3,4,2,2,4,
+            2,2,3,2,2,2,2,2,2
+        ],
+
+        Phil:[
+            4,5,8,6,6,4,6,6,6,5,4,4,3,2,3,3,2,3,3,3,2,2,4,3,2,
+            3,4,4,4,4,4,4,4,4
+        ],
+
+        Didi:[
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+            10,10,10,10,10,10,10,10,10,10,10,10,10,10,10
+        ],
+
+        Steffo:[
+            8,7,5,7,7,7,8,8,8,7,5,5,5,6,6,6,7,7,8,8,8,9,9,9,9,
+            9,9,9,9,9,9,9,9,9
+        ],
+
+        Basti:[
+            6,8,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,8,8,8,8,
+            8,8,8,8,8,8,8,8,8
+        ],
+
+        Eirik:[
+            3,6,6,8,8,8,7,7,7,8,7,7,8,8,8,8,8,8,7,7,7,7,7,7,7,
+            7,7,7,7,7,7,7,7,7
+        ],
+
+        Emil:[
+            2,2,2,2,2,2,2,2,2,2,2,2,2,3,2,2,3,2,2,2,4,3,3,4,3,
+            4,3,2,3,3,3,3,3,3
+        ],
+
+        Kempka:[
+            9,9,6,4,4,3,4,3,5,6,7,6,6,5,5,5,5,5,5,5,5,5,5,5,5,
+            5,5,5,6,6,6,6,6,6
+        ],
+
+        Espen:[
+            1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1
+        ]
+
+    },
+
+    daily:{
+
+        Markus:[
+            5,3,2,7,4,3,6,9,4,7,10,10,5,6,8,7,4,4,4,3,3,9,5,1,
+            2,2,2,7,1,6,2,3,7,2
+        ],
+
+        Erwin:[
+            7,4,5,3,7,9,2,7,3,6,2,4,6,7,1,5,6,1,1,2,1,6,3,3,9,
+            3,7,5,3,5,1,2,5,2
+        ],
+
+        Phil:[
+            4,5,9,2,6,1,10,5,8,3,6,1,3,1,8,6,1,7,2,5,2,5,8,1,5,
+            6,9,10,2,1,7,10,6,1
+        ],
+
+        Didi:[
+            10,10,8,9,2,10,7,10,10,8,7,9,10,8,10,8,10,8,7,10,10,
+            7,9,9,6,7,8,6,6,3,6,5,8,10
+        ],
+
+        Steffo:[
+            8,6,3,6,10,6,9,3,6,2,4,3,2,10,5,10,9,9,10,4,5,10,
+            9,8,10,10,6,4,4,10,5,9,9,8
+        ],
+
+        Basti:[
+            6,7,10,10,1,8,3,8,6,5,9,5,4,5,1,3,7,10,9,9,4,3,6,
+            6,2,8,4,3,5,8,10,4,10,5
+        ],
+
+        Eirik:[
+            3,9,6,8,5,7,5,2,4,9,4,7,7,9,6,9,8,3,8,1,8,8,1,7,
+            8,9,1,1,7,8,8,8,2,7
+        ],
+
+        Emil:[
+            2,2,7,5,3,5,3,4,2,4,3,8,7,4,4,4,3,2,5,6,6,3,7,5,
+            4,5,3,2,9,7,2,1,4,6
+        ],
+
+        Kempka:[
+            9,8,1,1,8,4,8,6,9,10,8,5,1,3,3,2,5,5,6,7,7,2,2,10,
+            7,4,10,8,7,4,4,6,1,4
+        ],
+
+        Espen:[
+            1,1,4,4,8,2,1,1,1,1,1,2,9,2,7,1,2,6,3,8,9,1,4,3,1,
+            1,5,8,10,1,9,7,3,9
+        ]
+
+    }
+
+};
+
+
+/* ============================================================
+   24/25 CHARTS
+============================================================ */
+
+const cumulative2425 =
+    cumulativeData(
+        data2425.players,
+        data2425.matchday
+    );
+
+
+createArchiveChart(
+    'archive2425Points',
+    data2425.players,
+    cumulative2425,
+    false
+);
+
+
+createArchiveChart(
+    'archive2425Matchday',
+    data2425.players,
+    data2425.matchday,
+    false
+);
+
+
+createArchiveChart(
+    'archive2425Position',
+    data2425.players,
+    data2425.position,
+    true
+);
+
+
+createArchiveChart(
+    'archive2425Daily',
+    data2425.players,
+    data2425.daily,
+    true
+);
+
+
+createFinalTable(
+    'archive2425Final',
+    data2425.players,
+    cumulative2425
 );
 
 
@@ -1685,7 +3134,7 @@ createTable(
    SCROLL REVEAL
 ============================================================ */
 
-const observer =
+const revealObserver =
     new IntersectionObserver(
         entries=>{
 
@@ -1709,25 +3158,49 @@ const observer =
 
 
 document
-    .querySelectorAll('.stat-block')
+    .querySelectorAll(
+        '.stat-block,.archive-stat'
+    )
     .forEach(element=>{
-        observer.observe(element);
+
+        revealObserver.observe(
+            element
+        );
+
     });
 
 
 /* ============================================================
-   NAV
+   NAVIGATION
 ============================================================ */
 
 const sections = [
-    document.getElementById('current'),
-    document.getElementById('archive'),
-    document.getElementById('ewige'),
-    document.getElementById('history')
+
+    document.getElementById(
+        'current'
+    ),
+
+    document.getElementById(
+        'archive'
+    ),
+
+    document.getElementById(
+        'ewige'
+    ),
+
+    document.getElementById(
+        'history'
+    )
+
 ];
 
+
 const navLinks =
-    [...document.querySelectorAll('.nav-links a')];
+    [
+        ...document.querySelectorAll(
+            '.nav-links a'
+        )
+    ];
 
 
 const navObserver =
@@ -1741,9 +3214,14 @@ const navObserver =
                     navLinks.forEach(link=>{
 
                         link.classList.toggle(
+
                             'active',
-                            link.getAttribute('href') ===
+
+                            link.getAttribute(
+                                'href'
+                            ) ===
                             `#${entry.target.id}`
+
                         );
 
                     });
@@ -1760,8 +3238,28 @@ const navObserver =
 
 
 sections.forEach(section=>{
-    navObserver.observe(section);
+
+    navObserver.observe(
+        section
+    );
+
 });
+
+
+/* ============================================================
+   CHART RESIZE
+============================================================ */
+
+window.addEventListener(
+    'resize',
+    function(){
+
+        allCharts.forEach(
+            chart=>chart.resize()
+        );
+
+    }
+);
 
 </script>
 
