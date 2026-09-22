@@ -606,11 +606,6 @@ footer{
         border-radius:10px;
     }
 
-    /*
-     * The rank charts contain 11 separate rank levels.
-     * They need substantially more vertical room on phones
-     * so Chart.js can display every level from 1 to 11.
-     */
     .chart-container.rank-chart{
         height:460px;
         min-height:460px;
@@ -683,11 +678,6 @@ footer{
 
 }
 
-/*
- * Landscape phones have less vertical space.
- * Keep the rank charts tall enough for all 11 ranks,
- * but slightly shorter than portrait mode.
- */
 @media(max-width:900px) and (orientation:landscape){
 
     .chart-container.rank-chart{
@@ -698,10 +688,6 @@ footer{
 
 }
 
-/*
- * Very small portrait screens.
- * Still keep enough room for all 11 rank levels.
- */
 @media(max-width:400px){
 
     .chart-container.rank-chart{
@@ -711,11 +697,6 @@ footer{
 
 }
 
-/*
- * Desktop rank charts also get enough room that
- * rank 1 and rank 11 are never pressed against
- * the chart boundaries.
- */
 @media(min-width:701px){
 
     .chart-container.rank-chart{
@@ -728,10 +709,6 @@ footer{
 </head>
 
 <body>
-
-<!-- =========================
-     NAVIGATION
-========================= -->
 
 <nav class="nav">
 
@@ -752,11 +729,6 @@ footer{
 
 </nav>
 
-
-<!-- =========================
-     HEADER
-========================= -->
-
 <header class="page-header" id="season">
 
     <h1>
@@ -765,13 +737,7 @@ footer{
 
 </header>
 
-
 <main>
-
-
-<!-- =========================
-     ACCUMULATED POINTS
-========================= -->
 
 <div class="section-label" id="points">
     Season Points
@@ -787,11 +753,6 @@ footer{
 
 </div>
 
-
-<!-- =========================
-     RANGE CONTROLS
-========================= -->
-
 <div class="interactive-controls">
 
     <div class="controls-top">
@@ -800,7 +761,7 @@ footer{
             Spieltage:
             <strong id="rangeMinLabel">1</strong>
             –
-            <strong id="rangeMaxLabel">4</strong>
+            <strong id="rangeMaxLabel">34</strong>
         </div>
 
         <button
@@ -811,7 +772,6 @@ footer{
         </button>
 
     </div>
-
 
     <div class="range-slider">
 
@@ -840,31 +800,20 @@ footer{
 
     </div>
 
-
     <div class="slider-ticks">
 
         <span>1</span>
-        <span id="sliderMaxTick">4</span>
+        <span id="sliderMaxTick">34</span>
 
     </div>
 
 </div>
-
-
-<!-- =========================
-     RANGE TABLE
-========================= -->
 
 <div
     class="range-table-wrapper"
     id="rangeTable"
 >
 </div>
-
-
-<!-- =========================
-     MATCHDAY POINTS
-========================= -->
 
 <div class="section-label">
     Matchday Performance
@@ -875,11 +824,6 @@ footer{
     <canvas id="c2"></canvas>
 
 </div>
-
-
-<!-- =========================
-     LEAGUE POSITION
-========================= -->
 
 <div
     class="section-label"
@@ -894,11 +838,6 @@ footer{
 
 </div>
 
-
-<!-- =========================
-     MATCHDAY POSITION
-========================= -->
-
 <div class="section-label">
     Matchday Ranking
 </div>
@@ -908,11 +847,6 @@ footer{
     <canvas id="c4"></canvas>
 
 </div>
-
-
-<!-- =========================
-     HALF SEASON TABLES
-========================= -->
 
 <div
     class="section-label"
@@ -927,14 +861,11 @@ footer{
 >
 </div>
 
-
 </main>
-
 
 <footer>
     Kicker Interactive Stats · Season 22/23
 </footer>
-
 
 <script>
 
@@ -989,7 +920,6 @@ const played=Math.max(
     )
 );
 
-
 /* =========================
    DATA CALCULATIONS
 ========================= */
@@ -1014,7 +944,6 @@ function mdPoints(arr){
 
 }
 
-
 function cumulativeForChart(arr){
 
     return Array.from(
@@ -1028,7 +957,6 @@ function cumulativeForChart(arr){
     );
 
 }
-
 
 function leaguePos(data){
 
@@ -1082,7 +1010,6 @@ function leaguePos(data){
     return out;
 
 }
-
 
 function mdRank(data){
 
@@ -1142,7 +1069,6 @@ function mdRank(data){
 
 }
 
-
 const cumulative=
     Object.fromEntries(
         players.map(
@@ -1154,7 +1080,6 @@ const cumulative=
             ]
         )
     );
-
 
 const md=
     Object.fromEntries(
@@ -1168,13 +1093,11 @@ const md=
         )
     );
 
-
 const league=
     leaguePos(playerPoints);
 
 const rank=
     mdRank(playerPoints);
-
 
 const avgMd=
     Array.from(
@@ -1213,7 +1136,6 @@ const avgMd=
         }
     );
 
-
 /* =========================
    HALF SEASON DATA
 ========================= */
@@ -1225,7 +1147,6 @@ const rueckStart=17;
 
 const rueckEnd=
     played-1;
-
 
 function segmentPts(
     arr,
@@ -1255,18 +1176,15 @@ function segmentPts(
         );
 }
 
-
 const rueckPlayed=
     Math.max(
         0,
         played-hinEnd
     );
 
-
 const hinPtsMap={};
 const rueckPtsMap={};
 const hinEquivPtsMap={};
-
 
 players.forEach(p=>{
 
@@ -1293,7 +1211,6 @@ players.forEach(p=>{
 
 });
 
-
 const hin=
     players
     .map(
@@ -1305,7 +1222,6 @@ const hin=
     .sort(
         (a,b)=>b.pts-a.pts
     );
-
 
 const rueck=
     players
@@ -1323,7 +1239,6 @@ const rueck=
         (a,b)=>b.pts-a.pts
     );
 
-
 /* =========================
    CHART STATE
 ========================= */
@@ -1333,13 +1248,11 @@ const selectedPlayers=
 
 const allCharts=[];
 
-
 function isMobile(){
 
     return window.innerWidth<=700;
 
 }
-
 
 /* =========================
    CHART THEME
@@ -1381,7 +1294,6 @@ function applyChartTheme(chart){
     }
 
 }
-
 
 /* =========================
    PLAYER FADE
@@ -1476,7 +1388,6 @@ function applyFade(){
 
 }
 
-
 /* =========================
    LEGEND CLICK
 ========================= */
@@ -1497,7 +1408,6 @@ function legendClickHandler(
     applyFade();
 
 }
-
 
 /* =========================
    GENERIC CHART CREATOR
@@ -1808,7 +1718,6 @@ function makeChart(
 
 }
 
-
 /* =========================
    CUSTOM TOOLTIP
 ========================= */
@@ -1822,7 +1731,6 @@ interactiveTooltip.className=
 document.body.appendChild(
     interactiveTooltip
 );
-
 
 function showInteractiveTooltip(
     html,
@@ -1895,7 +1803,6 @@ function showInteractiveTooltip(
 
 }
 
-
 function hideInteractiveTooltip(){
 
     interactiveTooltip.classList.remove(
@@ -1904,13 +1811,11 @@ function hideInteractiveTooltip(){
 
 }
 
-
 /* =========================
    ACCUMULATED POINTS CHART
 ========================= */
 
 let c1;
-
 
 function createC1(
     start=1,
@@ -1926,7 +1831,6 @@ function createC1(
             (_,i)=>start+i
         );
 
-
     const data=
         Object.fromEntries(
             players.map(
@@ -1941,7 +1845,6 @@ function createC1(
                 ]
             )
         );
-
 
     if(c1){
 
@@ -1970,7 +1873,6 @@ function createC1(
         return;
 
     }
-
 
     c1=
         new Chart(
@@ -2135,7 +2037,6 @@ function createC1(
 
                                 }
 
-
                                 const index=
                                     tooltipModel
                                     .dataPoints?.[0]
@@ -2146,10 +2047,8 @@ function createC1(
                                 )
                                     return;
 
-
                                 const mdNumber=
                                     c1Labels[index];
-
 
                                 if(
                                     mdNumber>played
@@ -2160,7 +2059,6 @@ function createC1(
                                     return;
 
                                 }
-
 
                                 const values=
                                     players
@@ -2187,12 +2085,10 @@ function createC1(
                                             b.value-a.value
                                     );
 
-
                                 let html=
                                     `<div class="tooltip-title">
                                         Spieltag ${mdNumber}
                                     </div>`;
-
 
                                 html+=
                                     values
@@ -2215,7 +2111,6 @@ function createC1(
                                         `
                                     )
                                     .join('');
-
 
                                 showInteractiveTooltip(
                                     html,
@@ -2303,11 +2198,9 @@ function createC1(
             }
         );
 
-
     allCharts.push(c1);
 
 }
-
 
 /* =========================
    ACCUMULATED CHART FADE
@@ -2331,7 +2224,6 @@ function updateC1Fade(){
 
             const col=
                 colors[i];
-
 
             if(none||selected){
 
@@ -2401,7 +2293,6 @@ function updateC1Fade(){
 
 }
 
-
 /* =========================
    RANGE TABLE
 ========================= */
@@ -2443,7 +2334,6 @@ function updateRangeTable(
         .sort(
             (a,b)=>b.pts-a.pts
         );
-
 
     document.getElementById(
         'rangeTable'
@@ -2533,7 +2423,6 @@ function updateRangeTable(
 
 }
 
-
 /* =========================
    RANGE SLIDER
 ========================= */
@@ -2541,92 +2430,43 @@ function updateRangeTable(
 function updateRange(){
 
     let start=
-        +document.getElementById(
-            'rangeMin'
-        ).value;
+        Number(
+            document.getElementById(
+                'rangeMin'
+            ).value
+        );
 
     let end=
-        +document.getElementById(
-            'rangeMax'
-        ).value;
+        Number(
+            document.getElementById(
+                'rangeMax'
+            ).value
+        );
 
+    if(start>end){
 
-    function updateRange(){
+        if(
+            document.activeElement.id===
+            'rangeMin'
+        ){
 
-    let start =
-        +document.getElementById('rangeMin').value;
-
-    let end =
-        +document.getElementById('rangeMax').value;
-
-    if(start > end){
-
-        if(document.activeElement.id === 'rangeMin'){
-
-            start = end;
+            start=end;
 
             document.getElementById(
                 'rangeMin'
-            ).value = start;
+            ).value=start;
 
         }else{
 
-            end = start;
+            end=start;
 
             document.getElementById(
                 'rangeMax'
-            ).value = end;
+            ).value=end;
 
         }
 
     }
-
-    document.getElementById(
-        'rangeMinLabel'
-    ).textContent = start;
-
-    document.getElementById(
-        'rangeMaxLabel'
-    ).textContent = end;
-
-    const denominator = TOTAL_MDS - 1;
-
-    document.getElementById(
-        'sliderRange'
-    ).style.left =
-        (
-            (start - 1)
-            /
-            denominator
-            *
-            100
-        ) + '%';
-
-    document.getElementById(
-        'sliderRange'
-    ).style.right =
-        (
-            (TOTAL_MDS - end)
-            /
-            denominator
-            *
-            100
-        ) + '%';
-
-    createC1(
-        start,
-        end
-    );
-
-    updateRangeTable(
-        start,
-        end
-    );
-
-    updateC1Fade();
-
-    }
-
 
     document.getElementById(
         'rangeMinLabel'
@@ -2636,13 +2476,8 @@ function updateRange(){
         'rangeMaxLabel'
     ).textContent=end;
 
-
     const denominator=
-        Math.max(
-            1,
-            played-1
-        );
-
+        TOTAL_MDS-1;
 
     document.getElementById(
         'sliderRange'
@@ -2655,18 +2490,16 @@ function updateRange(){
             100
         )+'%';
 
-
     document.getElementById(
         'sliderRange'
     ).style.right=
         (
-            (played-end)
+            (TOTAL_MDS-end)
             /
             denominator
             *
             100
         )+'%';
-
 
     createC1(
         start,
@@ -2682,7 +2515,6 @@ function updateRange(){
 
 }
 
-
 document.getElementById(
     'rangeMin'
 ).addEventListener(
@@ -2690,14 +2522,12 @@ document.getElementById(
     updateRange
 );
 
-
 document.getElementById(
     'rangeMax'
 ).addEventListener(
     'input',
     updateRange
 );
-
 
 document.getElementById(
     'resetRange'
@@ -2709,8 +2539,7 @@ document.getElementById(
 
     document.getElementById(
         'rangeMax'
-    ).value=played;
-
+    ).value=TOTAL_MDS;
 
     document.getElementById(
         'rangeMinLabel'
@@ -2718,8 +2547,11 @@ document.getElementById(
 
     document.getElementById(
         'rangeMaxLabel'
-    ).textContent=played;
+    ).textContent=TOTAL_MDS;
 
+    document.getElementById(
+        'sliderMaxTick'
+    ).textContent=TOTAL_MDS;
 
     document.getElementById(
         'sliderRange'
@@ -2729,7 +2561,6 @@ document.getElementById(
         'sliderRange'
     ).style.right='0%';
 
-
     createC1(
         1,
         TOTAL_MDS
@@ -2737,13 +2568,12 @@ document.getElementById(
 
     updateRangeTable(
         1,
-        played
+        TOTAL_MDS
     );
 
     updateC1Fade();
 
 };
-
 
 /* =========================
    AVERAGE DATASET
@@ -2798,7 +2628,6 @@ const avgDataset={
 
 };
 
-
 /* =========================
    CREATE REMAINING CHARTS
 ========================= */
@@ -2811,7 +2640,6 @@ makeChart(
     [avgDataset]
 );
 
-
 const c3=
     makeChart(
         'c3',
@@ -2819,7 +2647,6 @@ const c3=
         league,
         true
     );
-
 
 const c4=
     makeChart(
@@ -2829,23 +2656,9 @@ const c4=
         true
     );
 
-
 /* =========================
    INTEGER RANK AXES
 ========================= */
-
-/*
- * The chart scale runs from 0.5 to 11.5.
- * This gives rank 1 and rank 11 physical space
- * inside the chart so their lines and points cannot
- * be clipped.
- *
- * The callback hides 0.5 and 11.5, so the user sees
- * only the actual positions 1 through 11.
- *
- * autoSkip:false ensures all 11 positions are shown,
- * including on mobile.
- */
 
 [c3,c4].forEach(chart=>{
 
@@ -2855,11 +2668,17 @@ const c4=
     chart.options.scales.y.reverse=true;
 
     chart.options.scales.y.ticks={
+
         color:'#777',
+
         stepSize:1,
+
         precision:0,
+
         autoSkip:false,
+
         includeBounds:false,
+
         padding:5,
 
         font:{
@@ -2882,6 +2701,7 @@ const c4=
             }
 
             return '';
+
         }
 
     };
@@ -2891,17 +2711,12 @@ const c4=
         drawTicks:true
     };
 
-    /*
-     * Prevent Chart.js from clipping line segments
-     * and points at the chart boundaries.
-     */
     chart.options.elements.line.clip=false;
     chart.options.elements.point.clip=false;
 
     chart.update();
 
 });
-
 
 /* =========================
    INITIAL ACCUMULATED GRAPH
@@ -2912,12 +2727,10 @@ createC1(
     TOTAL_MDS
 );
 
-
 updateRangeTable(
     1,
-    played
+    TOTAL_MDS
 );
-
 
 /* =========================
    HALF SEASON TABLES
@@ -2927,7 +2740,6 @@ const tablesWrapper=
     document.getElementById(
         'tablesWrapper'
     );
-
 
 function playerNameCell(name){
 
@@ -2950,7 +2762,6 @@ function playerNameCell(name){
 
 }
 
-
 function hinTable(
     title,
     data
@@ -2963,7 +2774,6 @@ function hinTable(
 
     w.className=
         'table-block';
-
 
     let html=`
 
@@ -3000,7 +2810,6 @@ function hinTable(
             <tbody>
 
     `;
-
 
     data.forEach(
         (d,i)=>{
@@ -3045,7 +2854,6 @@ function hinTable(
         }
     );
 
-
     html+=`
 
             </tbody>
@@ -3054,13 +2862,11 @@ function hinTable(
 
     `;
 
-
     w.innerHTML=html;
 
     return w;
 
 }
-
 
 function rueckTable(
     title,
@@ -3075,14 +2881,12 @@ function rueckTable(
     w.className=
         'table-block';
 
-
     const rueckLabel=
         played>hinEnd
         ?
         `${hinEnd+1}–${played}`
         :
         '—';
-
 
     let html=`
 
@@ -3101,7 +2905,6 @@ function rueckTable(
             </span>
 
         </div>
-
 
         <table>
 
@@ -3131,10 +2934,8 @@ function rueckTable(
 
     `;
 
-
     const rueckStarted=
         played>hinEnd;
-
 
     data.forEach(
         (d,i)=>{
@@ -3143,7 +2944,6 @@ function rueckTable(
                 i===0;
 
             let diffCell;
-
 
             if(!rueckStarted){
 
@@ -3157,7 +2957,6 @@ function rueckTable(
 
                 let cls;
                 let str;
-
 
                 if(diff>0){
 
@@ -3176,7 +2975,6 @@ function rueckTable(
 
                 }
 
-
                 diffCell=`
 
                     <td class="${cls}">
@@ -3186,7 +2984,6 @@ function rueckTable(
                 `;
 
             }
-
 
             html+=`
 
@@ -3227,7 +3024,6 @@ function rueckTable(
         }
     );
 
-
     html+=`
 
             </tbody>
@@ -3235,7 +3031,6 @@ function rueckTable(
         </table>
 
     `;
-
 
     if(rueckStarted){
 
@@ -3258,13 +3053,11 @@ function rueckTable(
 
     }
 
-
     w.innerHTML=html;
 
     return w;
 
 }
-
 
 tablesWrapper.appendChild(
     hinTable(
@@ -3273,14 +3066,12 @@ tablesWrapper.appendChild(
     )
 );
 
-
 tablesWrapper.appendChild(
     rueckTable(
         'Rückrunde',
         rueck
     )
 );
-
 
 /* =========================
    RESPONSIVE UPDATE
@@ -3293,10 +3084,8 @@ window.addEventListener(
         if(!c1)
             return;
 
-
         const mobile=
             isMobile();
-
 
         c1.data.datasets.forEach(
             ds=>{
@@ -3316,7 +3105,6 @@ window.addEventListener(
                         4
                     );
 
-
                 ds.pointHoverRadius=
                     selectedPlayers.has(
                         ds.label
@@ -3334,7 +3122,6 @@ window.addEventListener(
 
             }
         );
-
 
         c1.options.scales.x.ticks.maxTicksLimit=
             mobile
@@ -3363,14 +3150,8 @@ window.addEventListener(
             :
             11;
 
-
         c1.update();
 
-        /*
-         * Reapply the rank-chart settings after
-         * resizing. This is important because Chart.js
-         * recalculates the chart dimensions on phones.
-         */
         [c3,c4].forEach(chart=>{
 
             chart.options.scales.y.min=0.5;
@@ -3402,6 +3183,7 @@ window.addEventListener(
                     }
 
                     return '';
+
                 };
 
             chart.options.elements.line.clip=false;
