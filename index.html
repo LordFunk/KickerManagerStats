@@ -1,266 +1,1783 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kicker Interactive Statistiken</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #e9eff5, #f9fafc);
-      color: #222;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+<title>Kicker Manager</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    font-family:'Inter',Arial,sans-serif;
+    background:#080a0d;
+    color:#f4f5f7;
+    overflow-x:hidden;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+::selection{
+    background:#ffffff;
+    color:#080a0d;
+}
+
+
+/* =========================================================
+   SCROLL PROGRESS
+========================================================= */
+
+.scroll-progress{
+    position:fixed;
+    top:0;
+    left:0;
+    height:3px;
+    width:0%;
+    background:#fff;
+    z-index:9999;
+    transition:width .05s linear;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:76px;
+    z-index:1000;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 5vw;
+
+    background:rgba(8,10,13,.65);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(255,255,255,.07);
+}
+
+.logo{
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+}
+
+.logo span{
+    opacity:.45;
+}
+
+.nav-links{
+    display:flex;
+    gap:28px;
+    font-size:12px;
+    color:#969ba4;
+}
+
+.nav-links a{
+    transition:color .2s ease;
+}
+
+.nav-links a:hover{
+    color:#fff;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+    min-height:100vh;
+    position:relative;
+
+    display:flex;
+    align-items:center;
+
+    padding:120px 8vw 100px;
+
+    overflow:hidden;
+
+    background:
+        radial-gradient(circle at 70% 40%,rgba(255,255,255,.07),transparent 32%),
+        radial-gradient(circle at 20% 80%,rgba(80,100,130,.08),transparent 30%),
+        #080a0d;
+}
+
+.hero-grid{
+    position:absolute;
+    inset:0;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+
+    background-size:80px 80px;
+
+    mask-image:linear-gradient(to bottom,black,transparent 85%);
+    -webkit-mask-image:linear-gradient(to bottom,black,transparent 85%);
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:1100px;
+}
+
+.eyebrow{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+
+    color:#858b94;
+
+    margin-bottom:28px;
+}
+
+.eyebrow-line{
+    width:36px;
+    height:1px;
+    background:#777d86;
+}
+
+.hero h1{
+    margin:0;
+
+    font-size:clamp(72px,12vw,190px);
+    line-height:.82;
+    letter-spacing:-.075em;
+    font-weight:900;
+}
+
+.hero h1 .muted{
+    color:#41454c;
+}
+
+.hero-subtitle{
+    max-width:550px;
+
+    margin-top:42px;
+
+    font-size:17px;
+    line-height:1.7;
+    color:#9a9fa7;
+}
+
+.hero-season{
+    position:absolute;
+    right:7vw;
+    bottom:9vh;
+
+    text-align:right;
+
+    opacity:.9;
+}
+
+.hero-season-label{
+    font-size:10px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:#777d85;
+}
+
+.hero-season-number{
+    font-size:clamp(70px,10vw,150px);
+    line-height:.85;
+    font-weight:900;
+    letter-spacing:-.08em;
+}
+
+.scroll-hint{
+    position:absolute;
+    left:8vw;
+    bottom:34px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.15em;
+    color:#666b73;
+}
+
+.scroll-line{
+    width:45px;
+    height:1px;
+    background:#666b73;
+}
+
+
+/* =========================================================
+   GENERAL SECTIONS
+========================================================= */
+
+section{
+    position:relative;
+}
+
+.section{
+    padding:150px 8vw;
+}
+
+.section-inner{
+    max-width:1300px;
+    margin:auto;
+}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+
+    margin-bottom:65px;
+}
+
+.section-number{
+    font-size:11px;
+    letter-spacing:.16em;
+    color:#555a62;
+}
+
+.section-title{
+    margin:0;
+    font-size:clamp(42px,6vw,82px);
+    line-height:.95;
+    letter-spacing:-.055em;
+    font-weight:800;
+}
+
+.section-description{
+    max-width:420px;
+    color:#777d86;
+    font-size:14px;
+    line-height:1.7;
+}
+
+
+/* =========================================================
+   CURRENT SEASON
+========================================================= */
+
+.current{
+    background:#f2f3f5;
+    color:#0a0c0f;
+}
+
+.current .section-number{
+    color:#999da4;
+}
+
+.current .section-description{
+    color:#686d75;
+}
+
+.season-feature{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    min-height:550px;
+
+    border-top:1px solid #d4d7db;
+    border-bottom:1px solid #d4d7db;
+}
+
+.season-main{
+    padding:70px 70px 70px 0;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    border-right:1px solid #d4d7db;
+}
+
+.season-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    color:#8b9097;
+}
+
+.season-big{
+    font-size:clamp(100px,17vw,240px);
+    line-height:.75;
+    letter-spacing:-.1em;
+    font-weight:900;
+    margin-left:-10px;
+}
+
+.season-name{
+    font-size:16px;
+    color:#686d74;
+}
+
+.season-link{
+    display:inline-flex;
+    align-items:center;
+    gap:18px;
+
+    margin-top:30px;
+
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+
+    width:max-content;
+
+    border-bottom:1px solid #999da3;
+    padding-bottom:8px;
+
+    transition:gap .25s ease;
+}
+
+.season-link:hover{
+    gap:28px;
+}
+
+.season-side{
+    padding:70px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.stat-row{
+    padding:22px 0;
+    border-bottom:1px solid #d4d7db;
+}
+
+.stat-row:first-child{
+    border-top:1px solid #d4d7db;
+}
+
+.stat-label{
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#92969c;
+    margin-bottom:8px;
+}
+
+.stat-value{
+    font-size:36px;
+    font-weight:800;
+    letter-spacing:-.04em;
+}
+
+
+/* =========================================================
+   DATA SECTION
+========================================================= */
+
+.data-section{
+    background:#0b0d10;
+}
+
+.data-layout{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:2px;
+
+    background:#292d33;
+    border:1px solid #292d33;
+}
+
+.data-card{
+    min-height:420px;
+    padding:48px;
+
+    background:#0b0d10;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    transition:background .3s ease;
+}
+
+.data-card:hover{
+    background:#101318;
+}
+
+.data-card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
+
+.data-card-number{
+    font-size:11px;
+    color:#555b64;
+}
+
+.data-card h3{
+    margin:0;
+    font-size:28px;
+    letter-spacing:-.04em;
+}
+
+.data-card p{
+    max-width:390px;
+    color:#747a83;
+    font-size:13px;
+    line-height:1.7;
+}
+
+.card-arrow{
+    font-size:26px;
+    color:#555b64;
+    transition:transform .3s ease,color .3s ease;
+}
+
+.data-card:hover .card-arrow{
+    transform:translate(5px,-5px);
+    color:#fff;
+}
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+.history{
+    background:#111419;
+}
+
+.history-list{
+    border-top:1px solid #292d33;
+}
+
+.history-item{
+    display:grid;
+    grid-template-columns:180px 1fr 100px;
+
+    align-items:center;
+
+    min-height:145px;
+
+    border-bottom:1px solid #292d33;
+
+    transition:padding .35s ease,background .35s ease;
+}
+
+.history-item:hover{
+    padding-left:24px;
+    background:#15181d;
+}
+
+.history-year{
+    font-size:12px;
+    color:#666c74;
+    letter-spacing:.08em;
+}
+
+.history-title{
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:-.04em;
+}
+
+.history-meta{
+    color:#666c74;
+    font-size:11px;
+    margin-top:7px;
+}
+
+.history-arrow{
+    text-align:right;
+    font-size:25px;
+    color:#555b63;
+}
+
+
+/* =========================================================
+   ALL TIME
+========================================================= */
+
+.all-time{
+    background:#f2f3f5;
+    color:#090b0e;
+}
+
+.all-time .section-description{
+    color:#696e75;
+}
+
+.table-preview{
+    border-top:1px solid #d4d7db;
+}
+
+.table-row{
+    display:grid;
+    grid-template-columns:70px 1fr 130px 100px;
+
+    align-items:center;
+
+    min-height:80px;
+
+    border-bottom:1px solid #d4d7db;
+
+    font-size:14px;
+}
+
+.table-row.header{
+    min-height:48px;
+
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:#999da3;
+}
+
+.table-position{
+    color:#999da3;
+}
+
+.table-player{
+    font-weight:700;
+}
+
+.table-points{
+    text-align:right;
+    font-weight:700;
+}
+
+.table-arrow{
+    text-align:right;
+    color:#999da3;
+}
+
+
+/* =========================================================
+   WINNERS
+========================================================= */
+
+.winners{
+    background:#080a0d;
+}
+
+.winners-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+}
+
+.winner{
+    min-height:330px;
+
+    border:1px solid #282c32;
+    padding:30px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    transition:transform .3s ease,border-color .3s ease;
+}
+
+.winner:hover{
+    transform:translateY(-7px);
+    border-color:#555b63;
+}
+
+.winner-season{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.16em;
+    color:#646a73;
+}
+
+.winner h3{
+    margin:0;
+
+    font-size:30px;
+    letter-spacing:-.05em;
+}
+
+.winner-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+}
+
+.winner-label{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    color:#5e646c;
+}
+
+.winner-arrow{
+    font-size:24px;
+    color:#666c74;
+}
+
+
+/* =========================================================
+   FINAL CTA
+========================================================= */
+
+.final{
+    min-height:75vh;
+
+    display:flex;
+    align-items:center;
+
+    background:
+        radial-gradient(circle at 50% 50%,#1b2027 0%,#080a0d 55%);
+}
+
+.final-inner{
+    width:100%;
+    text-align:center;
+}
+
+.final-small{
+    font-size:10px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:#666c74;
+    margin-bottom:28px;
+}
+
+.final h2{
+    margin:0;
+
+    font-size:clamp(65px,12vw,170px);
+    line-height:.8;
+    letter-spacing:-.08em;
+    font-weight:900;
+}
+
+.final-link{
+    display:inline-block;
+
+    margin-top:55px;
+
+    padding:17px 28px;
+
+    border:1px solid #444951;
+
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+
+    transition:
+        background .25s ease,
+        color .25s ease,
+        border-color .25s ease;
+}
+
+.final-link:hover{
+    background:#fff;
+    color:#080a0d;
+    border-color:#fff;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+    padding:35px 8vw;
+
+    border-top:1px solid #20242a;
+
+    display:flex;
+    justify-content:space-between;
+
+    color:#4f555e;
+
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+}
+
+
+/* =========================================================
+   REVEAL ANIMATIONS
+========================================================= */
+
+.reveal{
+    opacity:0;
+    transform:translateY(45px);
+    transition:
+        opacity .9s ease,
+        transform .9s cubic-bezier(.16,1,.3,1);
+}
+
+.reveal.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.delay-1{
+    transition-delay:.1s;
+}
+
+.delay-2{
+    transition-delay:.2s;
+}
+
+.delay-3{
+    transition-delay:.3s;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+    .nav{
+        height:64px;
+        padding:0 6vw;
     }
 
-    h1 {
-      margin: 30px 0;
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #0056b3, #0091ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .nav-links{
+        display:none;
     }
 
-    h2 {
-      color: #0056b3;
-      margin-top: 30px;
+    .hero{
+        padding:100px 7vw 80px;
     }
 
-    .static-block, details {
-      width: 90%;
-      max-width: 550px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-      padding: 15px 20px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-sizing: border-box;
+    .hero h1{
+        font-size:22vw;
     }
 
-    .static-block:hover, details:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    .hero-subtitle{
+        font-size:14px;
+        margin-top:32px;
     }
 
-    summary {
-      font-size: 1.15rem;
-      font-weight: 600;
-      cursor: pointer;
+    .hero-season{
+        right:7vw;
+        bottom:9vh;
     }
 
-    summary::-webkit-details-marker {
-      display: none;
+    .hero-season-number{
+        font-size:80px;
     }
 
-    summary::after {
-      content: "▸";
-      float: right;
-      transition: transform 0.3s ease;
+    .section{
+        padding:100px 7vw;
     }
 
-    details[open] > summary::after {
-      transform: rotate(90deg);
+    .section-header{
+        display:block;
+        margin-bottom:45px;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 15px;
+    .section-description{
+        margin-top:25px;
     }
 
-    li a {
-      display: block;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #0056b3, #007bff);
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
+    .season-feature{
+        display:block;
+        min-height:0;
     }
 
-    li a:hover {
-      background: linear-gradient(90deg, #00428a, #0069d9);
-      transform: translateX(4px);
+    .season-main{
+        padding:45px 0;
+        border-right:none;
+        border-bottom:1px solid #d4d7db;
     }
 
-    /* Nested folders */
-
-    details details {
-      width: auto;
-      max-width: none;
-      background: #f5f7fa;
-      box-shadow: none;
-      margin: 12px 0 0 0;
-      padding: 12px 15px;
-      border-radius: 8px;
+    .season-big{
+        font-size:34vw;
+        margin:55px 0;
     }
 
-    details details:hover {
-      transform: none;
-      box-shadow: none;
+    .season-side{
+        padding:40px 0;
     }
 
-    details details summary {
-      font-size: 1rem;
+    .data-layout{
+        display:block;
     }
 
-    .winning-teams {
-      width: 90%;
-      max-width: 550px;
-      margin-bottom: 30px;
+    .data-card{
+        min-height:300px;
+        padding:35px;
+        border-bottom:1px solid #292d33;
     }
 
-    .winner-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    .history-item{
+        grid-template-columns:90px 1fr 30px;
+        min-height:120px;
     }
 
-    .winner-card h3 {
-      margin: 0 0 10px 0;
-      font-size: 1.1rem;
+    .history-title{
+        font-size:21px;
     }
 
-    .winner-images {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+    .history-item:hover{
+        padding-left:10px;
     }
 
-    .winner-images img {
-      width: 100%;
-      max-width: 420px;
-      border-radius: 8px;
-      object-fit: contain;
-      background: #fff;
+    .winners-grid{
+        grid-template-columns:1fr;
     }
 
-    @media (max-width: 768px) {
-      .winner-images {
-        flex-direction: column;
-      }
-
-      .winner-images img {
-        max-width: 100%;
-      }
+    .table-row{
+        grid-template-columns:45px 1fr 70px;
     }
-  </style>
+
+    .table-arrow{
+        display:none;
+    }
+
+    footer{
+        padding:30px 7vw;
+        display:block;
+        line-height:2;
+    }
+
+}
+
+</style>
+
 </head>
 
 <body>
 
-  <h1>Kicker Interactive Statistiken</h1>
+<div class="scroll-progress" id="scrollProgress"></div>
 
-  <div class="static-block">
-    <ul>
-      <li><a href="Endplatzierungen.html">Endplatzierungen</a></li>
-      <li><a href="Winning Teams/winning-teams.html">Winning Teams</a></li>
-    </ul>
-  </div>
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
+<nav class="nav">
+
+```
+<a href="#" class="logo">
+    Kicker <span>/ Manager</span>
+</a>
+
+<div class="nav-links">
+    <a href="#season">Season</a>
+    <a href="#stats">Stats</a>
+    <a href="#history">History</a>
+    <a href="#alltime">All Time</a>
+    <a href="#winners">Winners</a>
+</div>
+```
+
+</nav>
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+```
+<div class="hero-grid"></div>
+
+<div class="hero-content">
+
+    <div class="eyebrow reveal">
+        <span class="eyebrow-line"></span>
+        Manager Statistics
+    </div>
+
+    <h1 class="reveal delay-1">
+        KICKER<br>
+        <span class="muted">MANAGER</span>
+    </h1>
+
+    <p class="hero-subtitle reveal delay-2">
+        Every matchday. Every point. Every season.
+        A complete statistical history of our manager league.
+    </p>
+
+</div>
+
+<div class="hero-season reveal delay-3">
+    <div class="hero-season-label">
+        Current Season
+    </div>
+
+    <div class="hero-season-number">
+        26/27
+    </div>
+</div>
+
+<div class="scroll-hint">
+    <span class="scroll-line"></span>
+    Scroll to explore
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     CURRENT SEASON
+===================================================== -->
+
+<section class="section current" id="season">
+
+```
+<div class="section-inner">
+
+    <div class="section-header reveal">
+
+        <div>
+            <div class="section-number">01 / CURRENT SEASON</div>
+
+            <h2 class="section-title">
+                The season<br>
+                in numbers.
+            </h2>
+        </div>
+
+        <p class="section-description">
+            Follow the current campaign matchday by matchday.
+            Explore the complete interactive statistics and
+            compare every manager's progress throughout the season.
+        </p>
+
+    </div>
 
 
-  <!-- Ewige Tabellen -->
+    <div class="season-feature reveal">
 
-  <details>
-    <summary>Ewige Tabellen</summary>
+        <div class="season-main">
 
-    <!-- Current all time table -->
+            <div class="season-label">
+                Season
+            </div>
 
-    <ul>
-      <li><a href="Ewige Tabellen/Ewige Tabelle 2027.html">Ewige Tabelle 2027</a></li>
-    </ul>
+            <div class="season-big">
+                26
+            </div>
 
+            <div>
 
-    <!-- Previous all time tabell -->
+                <div class="season-name">
+                    2026 / 2027
+                </div>
 
-    <details>
-      <summary>Previous all time tabell</summary>
+                <a
+                    class="season-link"
+                    href="Season 26-27/Saisonstatistiken 26-27.html"
+                >
+                    Explore season
+                    <span>→</span>
+                </a>
 
-      <ul>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2026.html">Ewige Tabelle 2026</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2025.html">Ewige Tabelle 2025</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2024.PNG">Ewige Tabelle 2024</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2023.png">Ewige Tabelle 2023</a></li>
-        <li><a href="Ewige Tabellen/Ewige Tabelle 2022.PNG">Ewige Tabelle 2022</a></li>
-      </ul>
+            </div>
 
-    </details>
-
-  </details>
-
-
-  <!-- Current season -->
-
-  <details open>
-    <summary>Season 26-27</summary>
-
-    <ul>
-      <li><a href="Season 26-27/Saisonstatistiken 26-27.html">Saisonstatistiken 26/27</a></li>
-    </ul>
-
-  </details>
+        </div>
 
 
-  <!-- Previous seasons -->
+        <div class="season-side">
 
-  <details>
-    <summary>Previous seasons</summary>
+            <div class="stat-row">
 
+                <div class="stat-label">
+                    Managers
+                </div>
 
-    <!-- Season 25-26 -->
+                <div class="stat-value">
+                    11
+                </div>
 
-    <details>
-      <summary>Saison 25-26</summary>
-
-      <ul>
-        <li><a href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html">Fieberkurve Saisonpunkte</a></li>
-        <li><a href="Season 25-26/Punkte pro Spieltag 25-26.html">Punkte pro Spieltag</a></li>
-        <li><a href="Season 25-26/Tabelle Spieltag 25-26.html">Tabelle Spieltag</a></li>
-        <li><a href="Season 25-26/Tagesplatzplatzierung 25-26.html">Tagesplatzierung</a></li>
-      </ul>
-
-    </details>
+            </div>
 
 
-    <!-- Season 24-25 -->
+            <div class="stat-row">
 
-    <details>
-      <summary>Saison 24-25</summary>
+                <div class="stat-label">
+                    Matchdays
+                </div>
 
-      <ul>
-        <li><a href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html">Fieberkurve Saisonpunkte</a></li>
-        <li><a href="Season 24-25/PunkteProSpieltag 24-25.html">Punkte pro Spieltag</a></li>
-        <li><a href="Season 24-25/Tabelle Spieltag 24-25.html">Tabelle Spieltag</a></li>
-        <li><a href="Season 24-25/Tagesplatzierung 24-25.html">Tagesplatzierung</a></li>
-        <li><a href="Season 24-25/Hin und Rueckrunde/Hin- und Rückrundentabelle 24-25.html">Hin- und Rückrundentabelle</a></li>
-      </ul>
+                <div class="stat-value">
+                    34
+                </div>
 
-    </details>
+            </div>
 
 
-    <!-- Season 23-24 -->
+            <div class="stat-row">
 
-    <details>
-      <summary>Saison 23-24</summary>
+                <div class="stat-label">
+                    Current matchday
+                </div>
 
-      <ul>
-        <li><a href="Season 23-24/Punkteentwicklung 23-24.PNG">Punkteentwicklung</a></li>
-        <li><a href="Season 23-24/Tabellenplatz je Spieltag 23-24.PNG">Tabellenplatz je Spieltag</a></li>
-      </ul>
+                <div class="stat-value">
+                    4
+                </div>
 
-    </details>
+            </div>
 
-  </details>
+
+            <div class="stat-row">
+
+                <div class="stat-label">
+                    Seasons recorded
+                </div>
+
+                <div class="stat-value">
+                    5
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+
+<section class="section data-section" id="stats">
+
+```
+<div class="section-inner">
+
+    <div class="section-header reveal">
+
+        <div>
+
+            <div class="section-number">
+                02 / STATISTICS
+            </div>
+
+            <h2 class="section-title">
+                More than<br>
+                just points.
+            </h2>
+
+        </div>
+
+        <p class="section-description">
+            Dive into the statistics behind the league.
+            From final standings to matchday performance
+            and historical tables.
+        </p>
+
+    </div>
+
+
+    <div class="data-layout">
+
+        <a
+            class="data-card reveal"
+            href="Endplatzierungen.html"
+        >
+
+            <div class="data-card-top">
+
+                <div class="data-card-number">
+                    01
+                </div>
+
+                <div class="card-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Final standings
+                </h3>
+
+                <p>
+                    See how every manager finished each
+                    completed season.
+                </p>
+
+            </div>
+
+        </a>
+
+
+        <a
+            class="data-card reveal delay-1"
+            href="Season 26-27/Saisonstatistiken 26-27.html"
+        >
+
+            <div class="data-card-top">
+
+                <div class="data-card-number">
+                    02
+                </div>
+
+                <div class="card-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Season analytics
+                </h3>
+
+                <p>
+                    Points development, league position,
+                    matchday performance and interactive
+                    player comparisons.
+                </p>
+
+            </div>
+
+        </a>
+
+
+        <a
+            class="data-card reveal"
+            href="Ewige Tabellen/Ewige Tabelle 2027.html"
+        >
+
+            <div class="data-card-top">
+
+                <div class="data-card-number">
+                    03
+                </div>
+
+                <div class="card-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    All-time table
+                </h3>
+
+                <p>
+                    Combine the history of the league into
+                    one continuously evolving table.
+                </p>
+
+            </div>
+
+        </a>
+
+
+        <a
+            class="data-card reveal delay-1"
+            href="Winning Teams/winning-teams.html"
+        >
+
+            <div class="data-card-top">
+
+                <div class="data-card-number">
+                    04
+                </div>
+
+                <div class="card-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+            <div>
+
+                <h3>
+                    Winning teams
+                </h3>
+
+                <p>
+                    Look back at the teams that defined
+                    each championship season.
+                </p>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     HISTORY
+===================================================== -->
+
+<section class="section history" id="history">
+
+```
+<div class="section-inner">
+
+    <div class="section-header reveal">
+
+        <div>
+
+            <div class="section-number">
+                03 / HISTORY
+            </div>
+
+            <h2 class="section-title">
+                Five seasons.<br>
+                One history.
+            </h2>
+
+        </div>
+
+        <p class="section-description">
+            Explore previous campaigns and see how the league
+            evolved from season to season.
+        </p>
+
+    </div>
+
+
+    <div class="history-list">
+
+        <a
+            class="history-item reveal"
+            href="Season 26-27/Saisonstatistiken 26-27.html"
+        >
+
+            <div class="history-year">
+                2026 / 27
+            </div>
+
+            <div>
+                <div class="history-title">
+                    Current season
+                </div>
+
+                <div class="history-meta">
+                    Interactive statistics
+                </div>
+            </div>
+
+            <div class="history-arrow">
+                →
+            </div>
+
+        </a>
+
+
+        <a
+            class="history-item reveal"
+            href="Season 25-26/Fieberkurve Saisonpunkte 25-26.html"
+        >
+
+            <div class="history-year">
+                2025 / 26
+            </div>
+
+            <div>
+                <div class="history-title">
+                    Season 25/26
+                </div>
+
+                <div class="history-meta">
+                    Points · Tables · Rankings
+                </div>
+            </div>
+
+            <div class="history-arrow">
+                →
+            </div>
+
+        </a>
+
+
+        <a
+            class="history-item reveal"
+            href="Season 24-25/Fieberkurve Saisonpunkte 24-25.html"
+        >
+
+            <div class="history-year">
+                2024 / 25
+            </div>
+
+            <div>
+                <div class="history-title">
+                    Season 24/25
+                </div>
+
+                <div class="history-meta">
+                    Points · Tables · Rankings
+                </div>
+            </div>
+
+            <div class="history-arrow">
+                →
+            </div>
+
+        </a>
+
+
+        <a
+            class="history-item reveal"
+            href="Season 23-24/Punkteentwicklung 23-24.PNG"
+        >
+
+            <div class="history-year">
+                2023 / 24
+            </div>
+
+            <div>
+                <div class="history-title">
+                    Season 23/24
+                </div>
+
+                <div class="history-meta">
+                    Historical statistics
+                </div>
+            </div>
+
+            <div class="history-arrow">
+                →
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     ALL TIME
+===================================================== -->
+
+<section class="section all-time" id="alltime">
+
+```
+<div class="section-inner">
+
+    <div class="section-header reveal">
+
+        <div>
+
+            <div class="section-number">
+                04 / ALL TIME
+            </div>
+
+            <h2 class="section-title">
+                The bigger<br>
+                picture.
+            </h2>
+
+        </div>
+
+        <p class="section-description">
+            The all-time table brings multiple seasons together
+            and shows the long-term standings of the league.
+        </p>
+
+    </div>
+
+
+    <div class="table-preview reveal">
+
+        <div class="table-row header">
+            <div>Rank</div>
+            <div>Manager</div>
+            <div style="text-align:right">Points</div>
+            <div></div>
+        </div>
+
+
+        <div class="table-row">
+            <div class="table-position">01</div>
+            <div class="table-player">Current leader</div>
+            <div class="table-points">—</div>
+            <div class="table-arrow">→</div>
+        </div>
+
+
+        <div class="table-row">
+            <div class="table-position">02</div>
+            <div class="table-player">View full table</div>
+            <div class="table-points">→</div>
+            <div class="table-arrow"></div>
+        </div>
+
+
+        <div class="table-row">
+            <div class="table-position">03</div>
+            <div class="table-player">Historical ranking</div>
+            <div class="table-points">→</div>
+            <div class="table-arrow"></div>
+        </div>
+
+    </div>
+
+
+    <a
+        class="season-link reveal"
+        href="Ewige Tabellen/Ewige Tabelle 2027.html"
+    >
+        Open all-time table
+        <span>→</span>
+    </a>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     WINNERS
+===================================================== -->
+
+<section class="section winners" id="winners">
+
+```
+<div class="section-inner">
+
+    <div class="section-header reveal">
+
+        <div>
+
+            <div class="section-number">
+                05 / WINNERS
+            </div>
+
+            <h2 class="section-title">
+                The champions.
+            </h2>
+
+        </div>
+
+        <p class="section-description">
+            The winning teams from previous seasons,
+            collected in one place.
+        </p>
+
+    </div>
+
+
+    <div class="winners-grid">
+
+        <a
+            class="winner reveal"
+            href="Winning Teams/winning-teams.html"
+        >
+
+            <div class="winner-season">
+                2025 / 26
+            </div>
+
+            <h3>
+                Winning team
+            </h3>
+
+            <div class="winner-footer">
+
+                <div class="winner-label">
+                    Championship
+                </div>
+
+                <div class="winner-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+        </a>
+
+
+        <a
+            class="winner reveal delay-1"
+            href="Winning Teams/winning-teams.html"
+        >
+
+            <div class="winner-season">
+                2024 / 25
+            </div>
+
+            <h3>
+                Winning team
+            </h3>
+
+            <div class="winner-footer">
+
+                <div class="winner-label">
+                    Championship
+                </div>
+
+                <div class="winner-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+        </a>
+
+
+        <a
+            class="winner reveal delay-2"
+            href="Winning Teams/winning-teams.html"
+        >
+
+            <div class="winner-season">
+                All seasons
+            </div>
+
+            <h3>
+                View archive
+            </h3>
+
+            <div class="winner-footer">
+
+                <div class="winner-label">
+                    Complete history
+                </div>
+
+                <div class="winner-arrow">
+                    ↗
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =====================================================
+     FINAL
+===================================================== -->
+
+<section class="final">
+
+```
+<div class="final-inner">
+
+    <div class="final-small reveal">
+        Kicker Manager Statistics
+    </div>
+
+    <h2 class="reveal delay-1">
+        LET THE<br>
+        NUMBERS TALK.
+    </h2>
+
+    <a
+        class="final-link reveal delay-2"
+        href="Season 26-27/Saisonstatistiken 26-27.html"
+    >
+        Enter Season 26/27
+    </a>
+
+</div>
+```
+
+</section>
+
+<footer>
+
+```
+<div>
+    Kicker Manager Statistics
+</div>
+
+<div>
+    Season 26 / 27
+</div>
+```
+
+</footer>
+
+<script>
+
+/* =========================================================
+   SCROLL PROGRESS
+========================================================= */
+
+const progress = document.getElementById('scrollProgress');
+
+function updateProgress(){
+
+    const scrollTop = window.scrollY;
+
+    const height =
+        document.documentElement.scrollHeight -
+        window.innerHeight;
+
+    const percentage =
+        height > 0
+        ? (scrollTop / height) * 100
+        : 0;
+
+    progress.style.width = percentage + '%';
+
+}
+
+window.addEventListener(
+    'scroll',
+    updateProgress,
+    {passive:true}
+);
+
+updateProgress();
+
+
+/* =========================================================
+   REVEAL ELEMENTS
+========================================================= */
+
+const revealObserver =
+    new IntersectionObserver(
+        entries => {
+
+            entries.forEach(entry => {
+
+                if(entry.isIntersecting){
+
+                    entry.target.classList.add('visible');
+
+                    revealObserver.unobserve(
+                        entry.target
+                    );
+
+                }
+
+            });
+
+        },
+        {
+            threshold:.12,
+            rootMargin:'0px 0px -50px 0px'
+        }
+    );
+
+
+document
+    .querySelectorAll('.reveal')
+    .forEach(element => {
+
+        revealObserver.observe(element);
+
+    });
+
+
+/* =========================================================
+   HERO PARALLAX
+========================================================= */
+
+const heroGrid =
+    document.querySelector('.hero-grid');
+
+const heroContent =
+    document.querySelector('.hero-content');
+
+const heroSeason =
+    document.querySelector('.hero-season');
+
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        const y = window.scrollY;
+
+        if(y < window.innerHeight){
+
+            const amount = y * .18;
+
+            heroGrid.style.transform =
+                `translateY(${amount}px)`;
+
+            heroContent.style.transform =
+                `translateY(${y * .08}px)`;
+
+            heroSeason.style.transform =
+                `translateY(${y * .12}px)`;
+
+        }
+
+    },
+    {passive:true}
+);
+
+
+/* =========================================================
+   NAV BACKGROUND
+========================================================= */
+
+const nav =
+    document.querySelector('.nav');
+
+
+window.addEventListener(
+    'scroll',
+    () => {
+
+        if(window.scrollY > 50){
+
+            nav.style.background =
+                'rgba(8,10,13,.88)';
+
+        }else{
+
+            nav.style.background =
+                'rgba(8,10,13,.65)';
+
+        }
+
+    },
+    {passive:true}
+);
+
+</script>
 
 </body>
 </html>
