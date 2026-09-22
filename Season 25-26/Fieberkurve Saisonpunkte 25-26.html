@@ -65,366 +65,104 @@
   --tooltip-text:#12161c;
 }
 
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
-html{
-scroll-padding-top:env(safe-area-inset-top,0px);
-}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
 
-body{
-font-family:'Segoe UI',Roboto,sans-serif;
-margin:0;
-padding:0;
-padding-top:env(safe-area-inset-top,0px);
-padding-bottom:env(safe-area-inset-bottom,0px);
-background:linear-gradient(135deg,var(--bg-from),var(--bg-to));
-color:var(--text);
-display:flex;
-flex-direction:column;
-align-items:center;
-min-height:100%;
-}
+body{font-family:'Segoe UI',Roboto,sans-serif;margin:0;padding:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:linear-gradient(135deg,var(--bg-from),var(--bg-to));color:var(--text);display:flex;flex-direction:column;align-items:center;min-height:100%;}
 
-h1{
-margin:30px 0 6px 0;
-font-size:2rem;
-font-weight:700;
-background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-text-align:center;
-padding:0 16px;
-}
+h1{margin:30px 0 6px 0;font-size:2rem;font-weight:700;background:linear-gradient(90deg,var(--accent-a),var(--accent-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;padding:0 16px;}
 
-.subtitle{
-color:var(--text-soft);
-font-size:0.95rem;
-margin-bottom:22px;
-text-align:center;
-padding:0 16px;
-}
+.subtitle{color:var(--text-soft);font-size:0.95rem;margin-bottom:22px;text-align:center;padding:0 16px;}
 
-.chart-card{
-width:90%;
-max-width:1200px;
-background:var(--card-bg);
-border-radius:12px;
-box-shadow:0 4px 15px var(--shadow);
-padding:20px 20px 8px 20px;
-margin-bottom:18px;
-}
+.chart-card{width:90%;max-width:1200px;background:var(--card-bg);border-radius:12px;box-shadow:0 4px 15px var(--shadow);padding:20px 20px 8px 20px;margin-bottom:18px;}
 
-.legend{
-display:flex;
-flex-wrap:wrap;
-gap:6px 14px;
-justify-content:center;
-margin-bottom:10px;
-}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin-bottom:10px;}
 
-.legend-item{
-display:flex;
-align-items:center;
-gap:6px;
-padding:4px 10px;
-border-radius:16px;
-cursor:pointer;
-font-size:0.85rem;
-user-select:none;
-transition:background 0.15s ease;
-border:1px solid transparent;
-}
+.legend-item{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;cursor:pointer;font-size:0.85rem;user-select:none;transition:background 0.15s ease;border:1px solid transparent;}
 
-.legend-item:hover{
-background:var(--header-bg);
-}
+.legend-item:hover{background:var(--header-bg);}
 
-.legend-item.dimmed{
-opacity:0.35;
-}
+.legend-item.dimmed{opacity:0.35;}
 
-.legend-item.active{
-border-color:currentColor;
-font-weight:700;
-}
+.legend-item.active{border-color:currentColor;font-weight:700;}
 
-.legend-swatch{
-width:10px;
-height:10px;
-border-radius:50%;
-flex:none;
-}
+.legend-swatch{width:10px;height:10px;border-radius:50%;flex:none;}
 
-.chart-wrap{
-position:relative;
-width:100%;
-height:48vh;
-min-height:300px;
-}
+.chart-wrap{position:relative;width:100%;height:48vh;min-height:300px;}
 
-.chart-wrap svg{
-width:100%;
-height:100%;
-display:block;
-overflow:visible;
-}
+.chart-wrap svg{width:100%;height:100%;display:block;overflow:visible;}
 
-.chart-fallback{
-color:var(--text-soft);
-text-align:center;
-padding:40px 10px;
-}
+.chart-fallback{color:var(--text-soft);text-align:center;padding:40px 10px;}
 
-.tooltip{
-position:absolute;
-pointer-events:none;
-background:var(--tooltip-bg);
-color:var(--tooltip-text);
-border-radius:8px;
-padding:8px 10px;
-font-size:0.8rem;
-line-height:1.5;
-box-shadow:0 4px 12px rgba(0,0,0,0.25);
-opacity:0;
-transform:none;
-transition:opacity 0.1s ease;
-white-space:nowrap;
-z-index:5;
-}
+.tooltip{position:absolute;pointer-events:none;background:var(--tooltip-bg);color:var(--tooltip-text);border-radius:8px;padding:8px 10px;font-size:0.8rem;line-height:1.5;box-shadow:0 4px 12px rgba(0,0,0,0.25);opacity:0;transform:none;transition:opacity 0.1s ease;white-space:nowrap;z-index:5;}
 
-.tooltip.visible{
-opacity:1;
-}
+.tooltip.visible{opacity:1;}
 
-.tooltip-title{
-font-weight:700;
-margin-bottom:4px;
-}
+.tooltip-title{font-weight:700;margin-bottom:4px;}
 
-.tooltip-row{
-display:flex;
-align-items:center;
-gap:6px;
-}
+.tooltip-row{display:flex;align-items:center;gap:6px;}
 
-.tooltip-swatch{
-width:8px;
-height:8px;
-border-radius:50%;
-flex:none;
-}
+.tooltip-swatch{width:8px;height:8px;border-radius:50%;flex:none;}
 
-.controls{
-width:90%;
-max-width:1200px;
-background:var(--card-bg);
-border-radius:12px;
-box-shadow:0 4px 15px var(--shadow);
-padding:18px 24px 22px 24px;
-margin-bottom:36px;
-}
+.controls{width:90%;max-width:1200px;background:var(--card-bg);border-radius:12px;box-shadow:0 4px 15px var(--shadow);padding:18px 24px 22px 24px;margin-bottom:36px;}
 
-.controls-top{
-display:flex;
-align-items:center;
-justify-content:space-between;
-flex-wrap:wrap;
-gap:10px;
-margin-bottom:14px;
-}
+.controls-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
 
-.range-label{
-font-weight:700;
-font-size:1.05rem;
-}
+.range-label{font-weight:700;font-size:1.05rem;}
 
-.range-label span{
-color:var(--accent-a);
-}
+.range-label span{color:var(--accent-a);}
 
-.reset-btn{
-border:1px solid var(--border);
-background:transparent;
-color:var(--text-soft);
-padding:6px 14px;
-border-radius:20px;
-font-size:0.85rem;
-cursor:pointer;
-transition:background 0.15s ease, color 0.15s ease;
-}
+.reset-btn{border:1px solid var(--border);background:transparent;color:var(--text-soft);padding:6px 14px;border-radius:20px;font-size:0.85rem;cursor:pointer;transition:background 0.15s ease,color 0.15s ease;}
 
-.reset-btn:hover{
-background:var(--header-bg);
-color:var(--text);
-}
+.reset-btn:hover{background:var(--header-bg);color:var(--text);}
 
-.range-slider{
-position:relative;
-height:36px;
-display:flex;
-align-items:center;
-}
+.range-slider{position:relative;height:36px;display:flex;align-items:center;}
 
-.slider-track{
-position:absolute;
-left:0;
-right:0;
-height:6px;
-border-radius:3px;
-background:var(--track);
-}
+.slider-track{position:absolute;left:0;right:0;height:6px;border-radius:3px;background:var(--track);}
 
-.slider-range{
-position:absolute;
-height:6px;
-border-radius:3px;
-background:var(--track-fill);
-}
+.slider-range{position:absolute;height:6px;border-radius:3px;background:var(--track-fill);}
 
-.range-slider input[type="range"]{
-position:absolute;
-width:100%;
-margin:0;
-pointer-events:none;
--webkit-appearance:none;
-appearance:none;
-background:transparent;
-height:36px;
-}
+.range-slider input[type="range"]{position:absolute;width:100%;margin:0;pointer-events:none;-webkit-appearance:none;appearance:none;background:transparent;height:36px;}
 
-.range-slider input[type="range"]::-webkit-slider-thumb{
-pointer-events:auto;
--webkit-appearance:none;
-appearance:none;
-width:20px;
-height:20px;
-border-radius:50%;
-background:var(--thumb);
-border:3px solid var(--thumb-ring);
-box-shadow:0 1px 4px rgba(0,0,0,0.3);
-cursor:pointer;
-margin-top:0;
-}
+.range-slider input[type="range"]::-webkit-slider-thumb{pointer-events:auto;-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--thumb);border:3px solid var(--thumb-ring);box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;margin-top:0;}
 
-.range-slider input[type="range"]::-moz-range-thumb{
-pointer-events:auto;
-width:20px;
-height:20px;
-border-radius:50%;
-background:var(--thumb);
-border:3px solid var(--thumb-ring);
-box-shadow:0 1px 4px rgba(0,0,0,0.3);
-cursor:pointer;
-}
+.range-slider input[type="range"]::-moz-range-thumb{pointer-events:auto;width:20px;height:20px;border-radius:50%;background:var(--thumb);border:3px solid var(--thumb-ring);box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;}
 
-.range-slider input[type="range"]::-webkit-slider-runnable-track{
--webkit-appearance:none;
-background:transparent;
-height:6px;
-}
+.range-slider input[type="range"]::-webkit-slider-runnable-track{-webkit-appearance:none;background:transparent;height:6px;}
 
-.range-slider input[type="range"]::-moz-range-track{
-background:transparent;
-height:6px;
-}
+.range-slider input[type="range"]::-moz-range-track{background:transparent;height:6px;}
 
-.ticks{
-display:flex;
-justify-content:space-between;
-color:var(--text-soft);
-font-size:0.75rem;
-margin-top:6px;
-}
+.ticks{display:flex;justify-content:space-between;color:var(--text-soft);font-size:0.75rem;margin-top:6px;}
 
-.tables-wrapper{
-display:flex;
-width:90%;
-max-width:1200px;
-justify-content:center;
-margin-bottom:40px;
-gap:10px;
-flex-wrap:wrap;
-}
+.tables-wrapper{display:flex;width:90%;max-width:1200px;justify-content:center;margin-bottom:40px;gap:10px;flex-wrap:wrap;}
 
-.static-heading{
-width:90%;
-max-width:1200px;
-text-align:center;
-color:var(--text-soft);
-font-size:0.9rem;
-margin:-14px 0 16px 0;
-}
+.static-heading{width:90%;max-width:1200px;text-align:center;color:var(--text-soft);font-size:0.9rem;margin:-14px 0 16px 0;}
 
-.table-block{
-width:100%;
-max-width:560px;
-}
+.table-block{width:100%;max-width:560px;}
 
-.diff-up{
-color:#2e9e44;
-}
+.diff-up{color:#2e9e44;}
 
-.diff-down{
-color:#d9453d;
-}
+.diff-down{color:#d9453d;}
 
-.diff-flat{
-color:var(--text-soft);
-}
+.diff-flat{color:var(--text-soft);}
 
-.table-block-half{
-width:47%;
-}
+.table-block-half{width:47%;}
+
+.table-title{text-align:center;font-weight:700;margin-bottom:8px;font-size:1.1rem;}
+
+table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:0 4px 15px var(--shadow);}
+
+th,td{padding:8px;text-align:center;border-bottom:1px solid var(--border);font-size:0.9rem;}
+
+th{background:var(--header-bg);white-space:nowrap;}
+
+tr:last-child td{border-bottom:none;}
 
 @media (max-width:768px){
-.table-block-half{
-width:100%;
-}
-}
-
-.table-title{
-text-align:center;
-font-weight:700;
-margin-bottom:8px;
-font-size:1.1rem;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:var(--card-bg);
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 4px 15px var(--shadow);
-}
-
-th,td{
-padding:8px;
-text-align:center;
-border-bottom:1px solid var(--border);
-font-size:0.9rem;
-}
-
-th{
-background:var(--header-bg);
-white-space:nowrap;
-}
-
-tr:last-child td{
-border-bottom:none;
-}
-
-@media (max-width:768px){
-.tables-wrapper{
-flex-direction:column;
-align-items:center;
-}
-
-.table-block{
-width:100%;
-}
+  .table-block-half{width:100%;}
+  .tables-wrapper{flex-direction:column;align-items:center;}
+  .table-block{width:100%;}
 }
 </style>
 </head>
@@ -435,7 +173,6 @@ width:100%;
 
 <div class="chart-card">
   <div class="legend" id="legend"></div>
-
   <div class="chart-wrap" id="chartWrap">
     <div class="tooltip" id="tooltip"></div>
   </div>
@@ -443,36 +180,15 @@ width:100%;
 
 <div class="controls">
   <div class="controls-top">
-    <div class="range-label">
-      Spieltag <span id="rangeMinLabel">1</span> – <span id="rangeMaxLabel">34</span>
-    </div>
-
-    <button class="reset-btn" id="resetBtn">
-      Gesamte Saison
-    </button>
+    <div class="range-label">Spieltag <span id="rangeMinLabel">1</span> – <span id="rangeMaxLabel">34</span></div>
+    <button class="reset-btn" id="resetBtn">Gesamte Saison</button>
   </div>
 
   <div class="range-slider">
     <div class="slider-track"></div>
     <div class="slider-range" id="sliderRange"></div>
-
-    <input
-      type="range"
-      id="rangeMin"
-      min="1"
-      max="34"
-      value="1"
-      step="1"
-    >
-
-    <input
-      type="range"
-      id="rangeMax"
-      min="1"
-      max="34"
-      value="34"
-      step="1"
-    >
+    <input type="range" id="rangeMin" min="1" max="34" value="1" step="1">
+    <input type="range" id="rangeMax" min="1" max="34" value="34" step="1">
   </div>
 
   <div class="ticks">
@@ -482,7 +198,6 @@ width:100%;
 </div>
 
 <div class="tables-wrapper" id="tablesContainer"></div>
-
 <div class="tables-wrapper" id="staticTablesContainer"></div>
 
 <script>
@@ -499,1255 +214,619 @@ const playerPoints={
 'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
 'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
 'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
-}
+};
 
-const players=Object.keys(playerPoints)
-const totalMatchdays=playerPoints[players[0]].length
+const players=Object.keys(playerPoints);
+const totalMatchdays=playerPoints[players[0]].length;
 
-const colors=[
-'#E41A1C',
-'#377EB8',
-'#4DAF4A',
-'#984EA3',
-'#FF7F00',
-'#A65628',
-'#E7298A',
-'#999999',
-'#66C2A5',
-'#B8860B',
-'#4363d8'
-]
+const colors=['#E41A1C','#377EB8','#4DAF4A','#984EA3','#FF7F00','#A65628','#E7298A','#999999','#66C2A5','#B8860B','#4363d8'];
 
-const colorOf={}
+const colorOf={};
+players.forEach((p,i)=>{colorOf[p]=colors[i];});
 
-players.forEach((p,i)=>{
-colorOf[p]=colors[i]
-})
+const selectedPlayers=new Set();
 
-const selectedPlayers=new Set()
+const SVG_NS='http://www.w3.org/2000/svg';
 
-const SVG_NS='http://www.w3.org/2000/svg'
+const PAD={top:16,right:16,bottom:34,left:52};
 
-const PAD={
-top:16,
-right:16,
-bottom:34,
-left:52
-}
+const chartWrap=document.getElementById('chartWrap');
+const tooltipEl=document.getElementById('tooltip');
 
-const chartWrap=document.getElementById('chartWrap')
-const tooltipEl=document.getElementById('tooltip')
-
-let svgEl=null
-
-let currentRange={
-start:1,
-end:totalMatchdays
-}
+let svgEl=null;
+let currentRange={start:1,end:totalMatchdays};
 
 function niceTicks(min,max,count){
+  if(min===max){min-=1;max+=1;}
 
-if(min===max){
-min-=1
-max+=1
-}
+  const range=max-min;
+  const rawStep=range/count;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep)));
+  const norm=rawStep/mag;
 
-const range=max-min
-const rawStep=range/count
-const mag=Math.pow(10,Math.floor(Math.log10(rawStep)))
-const norm=rawStep/mag
+  let step;
 
-let step
+  if(norm<1.5) step=1*mag;
+  else if(norm<3) step=2*mag;
+  else if(norm<7) step=5*mag;
+  else step=10*mag;
 
-if(norm<1.5){
-step=1*mag
-}else if(norm<3){
-step=2*mag
-}else if(norm<7){
-step=5*mag
-}else{
-step=10*mag
-}
+  const niceMin=Math.floor(min/step)*step;
+  const niceMax=Math.ceil(max/step)*step;
+  const ticks=[];
 
-const niceMin=Math.floor(min/step)*step
-const niceMax=Math.ceil(max/step)*step
+  for(let v=niceMin;v<=niceMax+step*0.5;v+=step){
+    ticks.push(Math.round(v));
+  }
 
-const ticks=[]
-
-for(let v=niceMin;v<=niceMax+step*0.5;v+=step){
-ticks.push(Math.round(v))
-}
-
-return ticks
+  return ticks;
 }
 
 function buildLegend(){
+  const legend=document.getElementById('legend');
+  legend.innerHTML='';
 
-const legend=document.getElementById('legend')
+  players.forEach(name=>{
+    const item=document.createElement('div');
+    item.className='legend-item';
+    item.dataset.player=name;
+    item.style.color=colorOf[name];
 
-legend.innerHTML=''
+    const swatch=document.createElement('span');
+    swatch.className='legend-swatch';
+    swatch.style.background=colorOf[name];
 
-players.forEach(name=>{
+    const label=document.createElement('span');
+    label.textContent=name;
+    label.style.color='var(--text)';
 
-const item=document.createElement('div')
+    item.appendChild(swatch);
+    item.appendChild(label);
 
-item.className='legend-item'
-item.dataset.player=name
-item.style.color=colorOf[name]
+    item.addEventListener('click',()=>{
+      if(selectedPlayers.has(name)){
+        selectedPlayers.delete(name);
+      }else{
+        selectedPlayers.add(name);
+      }
 
-const swatch=document.createElement('span')
+      updateLegendVisual();
+      renderChart(currentRange.start,currentRange.end);
+    });
 
-swatch.className='legend-swatch'
-swatch.style.background=colorOf[name]
+    legend.appendChild(item);
+  });
 
-const label=document.createElement('span')
-
-label.textContent=name
-label.style.color='var(--text)'
-
-item.appendChild(swatch)
-item.appendChild(label)
-
-item.addEventListener('click',()=>{
-
-if(selectedPlayers.has(name)){
-selectedPlayers.delete(name)
-}else{
-selectedPlayers.add(name)
-}
-
-updateLegendVisual()
-
-renderChart(
-currentRange.start,
-currentRange.end
-)
-
-})
-
-legend.appendChild(item)
-
-})
-
-updateLegendVisual()
+  updateLegendVisual();
 }
 
 function updateLegendVisual(){
+  document.querySelectorAll('.legend-item').forEach(item=>{
+    const name=item.dataset.player;
+    const isSelected=selectedPlayers.has(name);
+    const noneSelected=selectedPlayers.size===0;
 
-document.querySelectorAll('.legend-item').forEach(item=>{
-
-const name=item.dataset.player
-
-const isSelected=selectedPlayers.has(name)
-
-const noneSelected=selectedPlayers.size===0
-
-item.classList.toggle(
-'active',
-isSelected
-)
-
-item.classList.toggle(
-'dimmed',
-!noneSelected && !isSelected
-)
-
-})
-
+    item.classList.toggle('active',isSelected);
+    item.classList.toggle('dimmed',!noneSelected&&!isSelected);
+  });
 }
 
 function playerOpacity(name){
-
-if(selectedPlayers.size===0){
-return 1
-}
-
-return selectedPlayers.has(name)
-?1
-:0.18
+  if(selectedPlayers.size===0) return 1;
+  return selectedPlayers.has(name)?1:0.18;
 }
 
 function playerWidth(name){
-
-return selectedPlayers.has(name)
-?3.5
-:2
+  return selectedPlayers.has(name)?3.5:2;
 }
 
 function svgEl_(tag,attrs){
+  const el=document.createElementNS(SVG_NS,tag);
 
-const el=document.createElementNS(
-SVG_NS,
-tag
-)
+  for(const k in attrs){
+    el.setAttribute(k,attrs[k]);
+  }
 
-for(const k in attrs){
-el.setAttribute(k,attrs[k])
-}
-
-return el
+  return el;
 }
 
 function renderChart(start,end){
-
-currentRange={
-start,
-end
-}
-
-try{
-
-if(
-!chartWrap.clientWidth ||
-!chartWrap.clientHeight
-){
-
-requestAnimationFrame(
-()=>renderChart(start,end)
-)
-
-return
-}
-
-const W=chartWrap.clientWidth
-const H=chartWrap.clientHeight
-
-if(svgEl){
-svgEl.remove()
-}
-
-svgEl=svgEl_(
-'svg',
-{
-viewBox:'0 0 '+W+' '+H,
-preserveAspectRatio:'none'
-}
-)
-
-chartWrap.insertBefore(
-svgEl,
-tooltipEl
-)
-
-const plotLeft=PAD.left
-const plotRight=W-PAD.right
-const plotTop=PAD.top
-const plotBottom=H-PAD.bottom
-
-const plotW=Math.max(
-plotRight-plotLeft,
-10
-)
-
-const plotH=Math.max(
-plotBottom-plotTop,
-10
-)
-
-const n=end-start+1
-
-let allVals=[]
-
-players.forEach(p=>{
-
-allVals=allVals.concat(
-playerPoints[p].slice(
-start-1,
-end
-)
-)
-
-})
-
-let dataMin=Math.min(...allVals)
-let dataMax=Math.max(...allVals)
-
-if(dataMin===dataMax){
-dataMin-=5
-dataMax+=5
-}
-
-const pad=(dataMax-dataMin)*0.08
-
-const yMin=dataMin-pad
-const yMax=dataMax+pad
-
-function xOf(matchday){
-
-if(n<=1){
-return plotLeft+plotW/2
-}
-
-return plotLeft+
-((matchday-start)/(end-start))*plotW
-}
-
-function yOf(val){
-
-return plotTop+
-plotH-
-((val-yMin)/(yMax-yMin))*plotH
-}
-
-// Y axis and grid
-
-const yTicks=niceTicks(
-yMin,
-yMax,
-5
-)
-
-yTicks.forEach(t=>{
-
-if(
-t<yMin ||
-t>yMax
-){
-return
-}
-
-const y=yOf(t)
-
-svgEl.appendChild(
-svgEl_(
-'line',
-{
-x1:plotLeft,
-x2:plotRight,
-y1:y,
-y2:y,
-stroke:'var(--border)',
-'stroke-width':1
-}
-)
-)
-
-const label=svgEl_(
-'text',
-{
-x:plotLeft-8,
-y:y+4,
-'text-anchor':'end',
-fill:'var(--text-soft)',
-'font-size':'11'
-}
-)
-
-label.textContent=t
-
-svgEl.appendChild(label)
-
-})
-
-// X axis
-
-const xLabelSize=
-n>26
-?'9'
-:(n>16?'10':'11')
-
-for(
-let md=start;
-md<=end;
-md++
-){
-
-const x=xOf(md)
-
-svgEl.appendChild(
-svgEl_(
-'line',
-{
-x1:x,
-x2:x,
-y1:plotTop,
-y2:plotBottom,
-stroke:'var(--border)',
-'stroke-width':0.5,
-opacity:0.4
-}
-)
-)
-
-const label=svgEl_(
-'text',
-{
-x:x,
-y:plotBottom+18,
-'text-anchor':'middle',
-fill:'var(--text-soft)',
-'font-size':xLabelSize
-}
-)
-
-label.textContent=md
-
-svgEl.appendChild(label)
-
-}
-
-// Axis lines
-
-svgEl.appendChild(
-svgEl_(
-'line',
-{
-x1:plotLeft,
-x2:plotRight,
-y1:plotBottom,
-y2:plotBottom,
-stroke:'var(--text-soft)',
-'stroke-width':1
-}
-)
-)
-
-svgEl.appendChild(
-svgEl_(
-'line',
-{
-x1:plotLeft,
-x2:plotLeft,
-y1:plotTop,
-y2:plotBottom,
-stroke:'var(--text-soft)',
-'stroke-width':1
-}
-)
-)
-
-// Selected players are drawn last
-
-const order=players.slice().sort(
-(a,b)=>{
-
-const aSel=selectedPlayers.has(a)
-?1
-:0
-
-const bSel=selectedPlayers.has(b)
-?1
-:0
-
-return aSel-bSel
-
-}
-)
-
-order.forEach(name=>{
-
-const data=playerPoints[name].slice(
-start-1,
-end
-)
-
-let d=''
-
-data.forEach((val,i)=>{
-
-const x=xOf(start+i)
-const y=yOf(val)
-
-d+=
-(i===0?'M':'L')+
-x+
-','+
-y+
-' '
-
-})
-
-const path=svgEl_(
-'path',
-{
-d:d.trim(),
-fill:'none',
-stroke:colorOf[name],
-'stroke-width':playerWidth(name),
-'stroke-linejoin':'round',
-'stroke-linecap':'round',
-opacity:playerOpacity(name)
-}
-)
-
-svgEl.appendChild(path)
-
-if(n<=40){
-
-data.forEach((val,i)=>{
-
-const x=xOf(start+i)
-const y=yOf(val)
-
-const c=svgEl_(
-'circle',
-{
-cx:x,
-cy:y,
-r:n>20?2:3.2,
-fill:colorOf[name],
-opacity:playerOpacity(name)
-}
-)
-
-svgEl.appendChild(c)
-
-})
-
-}
-
-})
-
-// Crosshair
-
-const crosshair=svgEl_(
-'line',
-{
-x1:0,
-x2:0,
-y1:plotTop,
-y2:plotBottom,
-stroke:'var(--text-soft)',
-'stroke-width':1,
-'stroke-dasharray':'3,3',
-opacity:0
-}
-)
-
-svgEl.appendChild(crosshair)
-
-// Hit areas
-
-const hitLayer=svgEl_(
-'g',
-{}
-)
-
-svgEl.appendChild(hitLayer)
-
-const bandW=
-n>1
-?plotW/(n-1)
-:plotW
-
-for(let i=0;i<n;i++){
-
-const md=start+i
-
-const x=xOf(md)
-
-const rect=svgEl_(
-'rect',
-{
-x:x-bandW/2,
-y:plotTop,
-width:bandW,
-height:plotH,
-fill:'transparent'
-}
-)
-
-rect.addEventListener(
-'mouseenter',
-evt=>showTooltip(md,x,evt)
-)
-
-rect.addEventListener(
-'mousemove',
-evt=>showTooltip(md,x,evt)
-)
-
-rect.addEventListener(
-'mouseleave',
-hideTooltip
-)
-
-rect.addEventListener(
-'touchstart',
-evt=>showTooltip(md,x,evt),
-{passive:true}
-)
-
-hitLayer.appendChild(rect)
-
-}
-
-function showTooltip(md,x,evt){
-
-crosshair.setAttribute(
-'x1',
-x
-)
-
-crosshair.setAttribute(
-'x2',
-x
-)
-
-crosshair.setAttribute(
-'opacity',
-1
-)
-
-const rows=players.map(
-p=>({
-name:p,
-val:playerPoints[p][md-1]
-})
-)
-
-rows.sort(
-(a,b)=>b.val-a.val
-)
-
-let html=
-'<div class="tooltip-title">Spieltag '+
-md+
-'</div>'
-
-rows.forEach(r=>{
-
-const dim=
-selectedPlayers.size>0 &&
-!selectedPlayers.has(r.name)
-
-html+=
-'<div class="tooltip-row" style="opacity:'+
-(dim?0.4:1)+
-'">'
-
-html+=
-'<span class="tooltip-swatch" style="background:'+
-colorOf[r.name]+
-'"></span>'
-
-html+=
-'<span>'+
-r.name+
-': '+
-r.val+
-'</span>'
-
-html+='</div>'
-
-})
-
-tooltipEl.innerHTML=html
-
-tooltipEl.classList.add('visible')
-
-const rectBounds=
-chartWrap.getBoundingClientRect()
-
-// Get actual cursor/touch position
-
-let localX
-let localY
-
-if(
-evt &&
-evt.touches &&
-evt.touches.length
-){
-
-localX=
-evt.touches[0].clientX-
-rectBounds.left
-
-localY=
-evt.touches[0].clientY-
-rectBounds.top
-
-}else if(
-evt &&
-typeof evt.clientX==='number'
-){
-
-localX=
-evt.clientX-
-rectBounds.left
-
-localY=
-evt.clientY-
-rectBounds.top
-
-}else{
-
-const scaleX=
-rectBounds.width/W
-
-const scaleY=
-rectBounds.height/H
-
-localX=x*scaleX
-
-localY=plotTop*scaleY
-
-}
-
-// Measure tooltip
-
-const tw=
-tooltipEl.offsetWidth||140
-
-const th=
-tooltipEl.offsetHeight||60
-
-// Approximately 2 cm
-
-const TOOLTIP_GAP=76
-
-let left
-let top
-
-/*
-  Spieltag 1-17:
-  tooltip is placed to the RIGHT of cursor
-
-  Spieltag 18-34:
-  tooltip is placed to the LEFT of cursor
-*/
-
-if(md<=17){
-
-left=
-localX+
-TOOLTIP_GAP
-
-}else{
-
-left=
-localX-
-TOOLTIP_GAP-
-tw
-
-}
-
-// Keep tooltip inside chart horizontally
-
-left=Math.max(
-4,
-Math.min(
-left,
-rectBounds.width-tw-4
-)
-)
-
-// Vertically center tooltip around cursor
-
-top=
-localY-
-(th/2)
-
-// Keep tooltip inside chart vertically
-
-top=Math.max(
-4,
-Math.min(
-top,
-rectBounds.height-th-4
-)
-)
-
-tooltipEl.style.transform='none'
-
-tooltipEl.style.left=
-left+
-'px'
-
-tooltipEl.style.top=
-top+
-'px'
-}
-
-function hideTooltip(){
-
-crosshair.setAttribute(
-'opacity',
-0
-)
-
-tooltipEl.classList.remove(
-'visible'
-)
-
-}
-
-}catch(err){
-
-console.error(
-'Diagramm konnte nicht gezeichnet werden:',
-err
-)
-
-chartWrap.innerHTML=
-'<div class="chart-fallback">Diagramm konnte nicht gezeichnet werden. Die Tabelle unten funktioniert trotzdem.</div>'
-
-}
-
+  currentRange={start,end};
+
+  try{
+    if(!chartWrap.clientWidth||!chartWrap.clientHeight){
+      requestAnimationFrame(()=>renderChart(start,end));
+      return;
+    }
+
+    const W=chartWrap.clientWidth;
+    const H=chartWrap.clientHeight;
+
+    if(svgEl) svgEl.remove();
+
+    svgEl=svgEl_('svg',{
+      viewBox:'0 0 '+W+' '+H,
+      preserveAspectRatio:'none'
+    });
+
+    chartWrap.insertBefore(svgEl,tooltipEl);
+
+    const plotLeft=PAD.left;
+    const plotRight=W-PAD.right;
+    const plotTop=PAD.top;
+    const plotBottom=H-PAD.bottom;
+
+    const plotW=Math.max(plotRight-plotLeft,10);
+    const plotH=Math.max(plotBottom-plotTop,10);
+    const n=end-start+1;
+
+    let allVals=[];
+
+    players.forEach(p=>{
+      allVals=allVals.concat(playerPoints[p].slice(start-1,end));
+    });
+
+    let dataMin=Math.min(...allVals);
+    let dataMax=Math.max(...allVals);
+
+    if(dataMin===dataMax){
+      dataMin-=5;
+      dataMax+=5;
+    }
+
+    const pad=(dataMax-dataMin)*0.08;
+    const yMin=dataMin-pad;
+    const yMax=dataMax+pad;
+
+    function xOf(matchday){
+      if(n<=1) return plotLeft+plotW/2;
+      return plotLeft+((matchday-start)/(end-start))*plotW;
+    }
+
+    function yOf(val){
+      return plotTop+plotH-((val-yMin)/(yMax-yMin))*plotH;
+    }
+
+    const yTicks=niceTicks(yMin,yMax,5);
+
+    yTicks.forEach(t=>{
+      if(t<yMin||t>yMax) return;
+
+      const y=yOf(t);
+
+      svgEl.appendChild(svgEl_('line',{
+        x1:plotLeft,
+        x2:plotRight,
+        y1:y,
+        y2:y,
+        stroke:'var(--border)',
+        'stroke-width':1
+      }));
+
+      const label=svgEl_('text',{
+        x:plotLeft-8,
+        y:y+4,
+        'text-anchor':'end',
+        fill:'var(--text-soft)',
+        'font-size':'11'
+      });
+
+      label.textContent=t;
+      svgEl.appendChild(label);
+    });
+
+    const xLabelSize=n>26?'9':(n>16?'10':'11');
+
+    for(let md=start;md<=end;md++){
+      const x=xOf(md);
+
+      svgEl.appendChild(svgEl_('line',{
+        x1:x,
+        x2:x,
+        y1:plotTop,
+        y2:plotBottom,
+        stroke:'var(--border)',
+        'stroke-width':0.5,
+        opacity:0.4
+      }));
+
+      const label=svgEl_('text',{
+        x:x,
+        y:plotBottom+18,
+        'text-anchor':'middle',
+        fill:'var(--text-soft)',
+        'font-size':xLabelSize
+      });
+
+      label.textContent=md;
+      svgEl.appendChild(label);
+    }
+
+    svgEl.appendChild(svgEl_('line',{
+      x1:plotLeft,
+      x2:plotRight,
+      y1:plotBottom,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1
+    }));
+
+    svgEl.appendChild(svgEl_('line',{
+      x1:plotLeft,
+      x2:plotLeft,
+      y1:plotTop,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1
+    }));
+
+    const order=players.slice().sort((a,b)=>{
+      const aSel=selectedPlayers.has(a)?1:0;
+      const bSel=selectedPlayers.has(b)?1:0;
+      return aSel-bSel;
+    });
+
+    order.forEach(name=>{
+      const data=playerPoints[name].slice(start-1,end);
+      let d='';
+
+      data.forEach((val,i)=>{
+        const x=xOf(start+i);
+        const y=yOf(val);
+        d+=(i===0?'M':'L')+x+','+y+' ';
+      });
+
+      const path=svgEl_('path',{
+        d:d.trim(),
+        fill:'none',
+        stroke:colorOf[name],
+        'stroke-width':playerWidth(name),
+        'stroke-linejoin':'round',
+        'stroke-linecap':'round',
+        opacity:playerOpacity(name)
+      });
+
+      svgEl.appendChild(path);
+
+      if(n<=40){
+        data.forEach((val,i)=>{
+          const x=xOf(start+i);
+          const y=yOf(val);
+
+          const c=svgEl_('circle',{
+            cx:x,
+            cy:y,
+            r:n>20?2:3.2,
+            fill:colorOf[name],
+            opacity:playerOpacity(name)
+          });
+
+          svgEl.appendChild(c);
+        });
+      }
+    });
+
+    const crosshair=svgEl_('line',{
+      x1:0,
+      x2:0,
+      y1:plotTop,
+      y2:plotBottom,
+      stroke:'var(--text-soft)',
+      'stroke-width':1,
+      'stroke-dasharray':'3,3',
+      opacity:0
+    });
+
+    svgEl.appendChild(crosshair);
+
+    const hitLayer=svgEl_('g',{});
+    svgEl.appendChild(hitLayer);
+
+    const bandW=n>1?plotW/(n-1):plotW;
+
+    for(let i=0;i<n;i++){
+      const md=start+i;
+      const x=xOf(md);
+
+      const rect=svgEl_('rect',{
+        x:x-bandW/2,
+        y:plotTop,
+        width:bandW,
+        height:plotH,
+        fill:'transparent'
+      });
+
+      rect.addEventListener('mouseenter',evt=>showTooltip(md,x,evt));
+      rect.addEventListener('mousemove',evt=>showTooltip(md,x,evt));
+      rect.addEventListener('mouseleave',hideTooltip);
+      rect.addEventListener('touchstart',evt=>showTooltip(md,x,evt),{passive:true});
+
+      hitLayer.appendChild(rect);
+    }
+
+    function showTooltip(md,x,evt){
+      crosshair.setAttribute('x1',x);
+      crosshair.setAttribute('x2',x);
+      crosshair.setAttribute('opacity',1);
+
+      const rows=players.map(p=>({
+        name:p,
+        val:playerPoints[p][md-1]
+      }));
+
+      rows.sort((a,b)=>b.val-a.val);
+
+      let html='<div class="tooltip-title">Spieltag '+md+'</div>';
+
+      rows.forEach(r=>{
+        const dim=selectedPlayers.size>0&&!selectedPlayers.has(r.name);
+
+        html+='<div class="tooltip-row" style="opacity:'+(dim?0.4:1)+'">';
+        html+='<span class="tooltip-swatch" style="background:'+colorOf[r.name]+'"></span>';
+        html+='<span>'+r.name+': '+r.val+'</span>';
+        html+='</div>';
+      });
+
+      tooltipEl.innerHTML=html;
+      tooltipEl.classList.add('visible');
+
+      const rectBounds=chartWrap.getBoundingClientRect();
+
+      let localX;
+      let localY;
+
+      if(evt&&evt.touches&&evt.touches.length){
+        localX=evt.touches[0].clientX-rectBounds.left;
+        localY=evt.touches[0].clientY-rectBounds.top;
+      }else if(evt&&typeof evt.clientX==='number'){
+        localX=evt.clientX-rectBounds.left;
+        localY=evt.clientY-rectBounds.top;
+      }else{
+        const scaleX=rectBounds.width/W;
+        const scaleY=rectBounds.height/H;
+
+        localX=x*scaleX;
+        localY=plotTop*scaleY;
+      }
+
+      const tw=tooltipEl.offsetWidth||140;
+      const th=tooltipEl.offsetHeight||60;
+
+      const TOOLTIP_GAP=76;
+
+      let left;
+      let top;
+
+      if(md<=17){
+        left=localX+TOOLTIP_GAP;
+      }else{
+        left=localX-TOOLTIP_GAP-tw;
+      }
+
+      left=Math.max(4,Math.min(left,rectBounds.width-tw-4));
+
+      top=localY-(th/2);
+      top=Math.max(4,Math.min(top,rectBounds.height-th-4));
+
+      tooltipEl.style.transform='none';
+      tooltipEl.style.left=left+'px';
+      tooltipEl.style.top=top+'px';
+    }
+
+    function hideTooltip(){
+      crosshair.setAttribute('opacity',0);
+      tooltipEl.classList.remove('visible');
+    }
+
+  }catch(err){
+    console.error('Diagramm konnte nicht gezeichnet werden:',err);
+    chartWrap.innerHTML='<div class="chart-fallback">Diagramm konnte nicht gezeichnet werden. Die Tabelle unten funktioniert trotzdem.</div>';
+  }
 }
 
 function segmentPoints(arr,start,end){
-
-return arr[end-1]-
-(
-start>1
-?arr[start-2]
-:0
-)
-
+  return arr[end-1]-(start>1?arr[start-2]:0);
 }
 
 function renderTable(start,end){
+  const standings=players.map(p=>({
+    name:p,
+    points:segmentPoints(playerPoints[p],start,end),
+    total:playerPoints[p][end-1]
+  }));
 
-const standings=players.map(
-p=>({
+  standings.sort((a,b)=>b.points-a.points);
 
-name:p,
+  const container=document.getElementById('tablesContainer');
+  container.innerHTML='';
 
-points:
-segmentPoints(
-playerPoints[p],
-start,
-end
-),
+  const wrapper=document.createElement('div');
+  wrapper.className='table-block';
 
-total:
-playerPoints[p][end-1]
+  const titleDiv=document.createElement('div');
+  titleDiv.className='table-title';
 
-})
-)
+  titleDiv.textContent=start===end
+    ?'Rangliste – Spieltag '+start
+    :'Rangliste – Spieltag '+start+' bis '+end;
 
-standings.sort(
-(a,b)=>b.points-a.points
-)
+  const table=document.createElement('table');
 
-const container=
-document.getElementById(
-'tablesContainer'
-)
+  let html='<tr><th>Rang</th><th>Spieler</th><th>Punkte</th><th>Gesamt</th></tr>';
 
-container.innerHTML=''
+  standings.forEach((d,i)=>{
+    html+='<tr>';
+    html+='<td>'+(i+1)+'</td>';
+    html+='<td>'+d.name+'</td>';
+    html+='<td>'+d.points+'</td>';
+    html+='<td>'+d.total+'</td>';
+    html+='</tr>';
+  });
 
-const wrapper=
-document.createElement('div')
+  table.innerHTML=html;
 
-wrapper.className=
-'table-block'
-
-const titleDiv=
-document.createElement('div')
-
-titleDiv.className=
-'table-title'
-
-titleDiv.textContent=
-start===end
-?'Rangliste – Spieltag '+start
-:'Rangliste – Spieltag '+start+' bis '+end
-
-const table=
-document.createElement('table')
-
-let html=
-'<tr>'+
-'<th>Rang</th>'+
-'<th>Spieler</th>'+
-'<th>Punkte</th>'+
-'<th>Gesamt</th>'+
-'</tr>'
-
-standings.forEach((d,i)=>{
-
-html+='<tr>'
-
-html+=
-'<td>'+
-(i+1)+
-'</td>'
-
-html+=
-'<td>'+
-d.name+
-'</td>'
-
-html+=
-'<td>'+
-d.points+
-'</td>'
-
-html+=
-'<td>'+
-d.total+
-'</td>'
-
-html+='</tr>'
-
-})
-
-table.innerHTML=html
-
-wrapper.appendChild(titleDiv)
-wrapper.appendChild(table)
-
-container.appendChild(wrapper)
-
+  wrapper.appendChild(titleDiv);
+  wrapper.appendChild(table);
+  container.appendChild(wrapper);
 }
-
-// Static Hinrunde / Rückrunde
 
 function renderStaticTables(){
+  const container=document.getElementById('staticTablesContainer');
 
-const container=
-document.getElementById(
-'staticTablesContainer'
-)
+  if(!container) return;
 
-if(!container){
-return
+  container.innerHTML='';
+
+  const n=totalMatchdays-17;
+
+  const firstHalf=players.map(p=>({
+    name:p,
+    points:segmentPoints(playerPoints[p],1,n)
+  }));
+
+  firstHalf.sort((a,b)=>b.points-a.points);
+
+  const secondHalf=players.map(p=>{
+    const points=segmentPoints(playerPoints[p],18,17+n);
+    const firstPoints=firstHalf.find(f=>f.name===p).points;
+
+    return{
+      name:p,
+      points:points,
+      diff:points-firstPoints
+    };
+  });
+
+  secondHalf.sort((a,b)=>b.points-a.points);
+
+  function diffClass(d){
+    if(d>0) return'diff-up';
+    if(d<0) return'diff-down';
+    return'diff-flat';
+  }
+
+  function buildTable(title,matchLabel,rows,showDiff){
+    const wrapper=document.createElement('div');
+    wrapper.className='table-block table-block-half';
+
+    const titleDiv=document.createElement('div');
+    titleDiv.className='table-title';
+    titleDiv.textContent=title;
+
+    const table=document.createElement('table');
+
+    let html='<tr><th>Rang</th><th>Spieler</th><th>'+matchLabel+'</th>';
+
+    if(showDiff) html+='<th>Diff</th>';
+
+    html+='</tr>';
+
+    rows.forEach((d,i)=>{
+      html+='<tr>';
+      html+='<td>'+(i+1)+'</td>';
+      html+='<td>'+d.name+'</td>';
+      html+='<td>'+d.points+'</td>';
+
+      if(showDiff){
+        const sign=d.diff>0?'+':'';
+        html+='<td class="'+diffClass(d.diff)+'">'+sign+d.diff+'</td>';
+      }
+
+      html+='</tr>';
+    });
+
+    table.innerHTML=html;
+
+    wrapper.appendChild(titleDiv);
+    wrapper.appendChild(table);
+
+    return wrapper;
+  }
+
+  container.appendChild(
+    buildTable(
+      'Hinrunde',
+      'Spieltag 1 bis '+n,
+      firstHalf,
+      false
+    )
+  );
+
+  container.appendChild(
+    buildTable(
+      'Rückrunde',
+      'Spieltag 18 bis '+(17+n),
+      secondHalf,
+      true
+    )
+  );
 }
 
-container.innerHTML=''
-
-const n=
-totalMatchdays-17
-
-const firstHalf=
-players.map(
-p=>({
-
-name:p,
-
-points:
-segmentPoints(
-playerPoints[p],
-1,
-n
-)
-
-})
-)
-
-firstHalf.sort(
-(a,b)=>b.points-a.points
-)
-
-const secondHalf=
-players.map(p=>{
-
-const points=
-segmentPoints(
-playerPoints[p],
-18,
-17+n
-)
-
-const firstPoints=
-firstHalf.find(
-f=>f.name===p
-).points
-
-return{
-name:p,
-points:points,
-diff:points-firstPoints
-}
-
-})
-
-secondHalf.sort(
-(a,b)=>b.points-a.points
-)
-
-function diffClass(d){
-
-if(d>0){
-return'diff-up'
-}
-
-if(d<0){
-return'diff-down'
-}
-
-return'diff-flat'
-}
-
-function buildTable(
-title,
-matchLabel,
-rows,
-showDiff
-){
-
-const wrapper=
-document.createElement('div')
-
-wrapper.className=
-'table-block table-block-half'
-
-const titleDiv=
-document.createElement('div')
-
-titleDiv.className=
-'table-title'
-
-titleDiv.textContent=title
-
-const table=
-document.createElement('table')
-
-let html=
-'<tr>'+
-'<th>Rang</th>'+
-'<th>Spieler</th>'+
-'<th>'+
-matchLabel+
-'</th>'
-
-if(showDiff){
-html+='<th>Diff</th>'
-}
-
-html+='</tr>'
-
-rows.forEach((d,i)=>{
-
-html+='<tr>'
-
-html+=
-'<td>'+
-(i+1)+
-'</td>'
-
-html+=
-'<td>'+
-d.name+
-'</td>'
-
-html+=
-'<td>'+
-d.points+
-'</td>'
-
-if(showDiff){
-
-const sign=
-d.diff>0
-?'+'
-:''
-
-html+=
-'<td class="'+
-diffClass(d.diff)+
-'">'+
-sign+
-d.diff+
-'</td>'
-
-}
-
-html+='</tr>'
-
-})
-
-table.innerHTML=html
-
-wrapper.appendChild(titleDiv)
-wrapper.appendChild(table)
-
-return wrapper
-}
-
-container.appendChild(
-buildTable(
-'Hinrunde',
-'Spieltag 1 bis '+n,
-firstHalf,
-false
-)
-)
-
-container.appendChild(
-buildTable(
-'Rückrunde',
-'Spieltag 18 bis '+(17+n),
-secondHalf,
-true
-)
-)
-
-}
-
-// Range slider
-
-const rangeMinEl=
-document.getElementById(
-'rangeMin'
-)
-
-const rangeMaxEl=
-document.getElementById(
-'rangeMax'
-)
-
-const rangeMinLabel=
-document.getElementById(
-'rangeMinLabel'
-)
-
-const rangeMaxLabel=
-document.getElementById(
-'rangeMaxLabel'
-)
-
-const sliderRangeEl=
-document.getElementById(
-'sliderRange'
-)
-
-const resetBtn=
-document.getElementById(
-'resetBtn'
-)
+const rangeMinEl=document.getElementById('rangeMin');
+const rangeMaxEl=document.getElementById('rangeMax');
+const rangeMinLabel=document.getElementById('rangeMinLabel');
+const rangeMaxLabel=document.getElementById('rangeMaxLabel');
+const sliderRangeEl=document.getElementById('sliderRange');
+const resetBtn=document.getElementById('resetBtn');
 
 function updateSliderVisual(){
+  const min=parseInt(rangeMinEl.value,10);
+  const max=parseInt(rangeMaxEl.value,10);
 
-const min=
-parseInt(
-rangeMinEl.value,
-10
-)
+  const pctMin=((min-1)/(totalMatchdays-1))*100;
+  const pctMax=((max-1)/(totalMatchdays-1))*100;
 
-const max=
-parseInt(
-rangeMaxEl.value,
-10
-)
+  sliderRangeEl.style.left=pctMin+'%';
+  sliderRangeEl.style.right=(100-pctMax)+'%';
 
-const pctMin=
-((min-1)/
-(totalMatchdays-1))*
-100
-
-const pctMax=
-((max-1)/
-(totalMatchdays-1))*
-100
-
-sliderRangeEl.style.left=
-pctMin+'%'
-
-sliderRangeEl.style.right=
-(100-pctMax)+'%'
-
-rangeMinLabel.textContent=min
-rangeMaxLabel.textContent=max
+  rangeMinLabel.textContent=min;
+  rangeMaxLabel.textContent=max;
 }
 
 function refreshView(){
+  let min=parseInt(rangeMinEl.value,10);
+  let max=parseInt(rangeMaxEl.value,10);
 
-let min=
-parseInt(
-rangeMinEl.value,
-10
-)
+  if(min>max){
+    const tmp=min;
+    min=max;
+    max=tmp;
+  }
 
-let max=
-parseInt(
-rangeMaxEl.value,
-10
-)
-
-if(min>max){
-
-const tmp=min
-
-min=max
-max=tmp
-
+  updateSliderVisual();
+  renderChart(min,max);
+  renderTable(min,max);
 }
 
-updateSliderVisual()
+rangeMinEl.addEventListener('input',()=>{
+  if(parseInt(rangeMinEl.value,10)>parseInt(rangeMaxEl.value,10)){
+    rangeMinEl.value=rangeMaxEl.value;
+  }
 
-renderChart(
-min,
-max
-)
+  refreshView();
+});
 
-renderTable(
-min,
-max
-)
+rangeMaxEl.addEventListener('input',()=>{
+  if(parseInt(rangeMaxEl.value,10)<parseInt(rangeMinEl.value,10)){
+    rangeMaxEl.value=rangeMinEl.value;
+  }
 
-}
+  refreshView();
+});
 
-rangeMinEl.addEventListener(
-'input',
-()=>{
+resetBtn.addEventListener('click',()=>{
+  rangeMinEl.value=1;
+  rangeMaxEl.value=totalMatchdays;
+  refreshView();
+});
 
-if(
-parseInt(rangeMinEl.value,10)>
-parseInt(rangeMaxEl.value,10)
-){
+window.addEventListener('resize',()=>{
+  renderChart(currentRange.start,currentRange.end);
+});
 
-rangeMinEl.value=
-rangeMaxEl.value
-
-}
-
-refreshView()
-
-}
-)
-
-rangeMaxEl.addEventListener(
-'input',
-()=>{
-
-if(
-parseInt(rangeMaxEl.value,10)<
-parseInt(rangeMinEl.value,10)
-){
-
-rangeMaxEl.value=
-rangeMinEl.value
-
-}
-
-refreshView()
-
-}
-)
-
-resetBtn.addEventListener(
-'click',
-()=>{
-
-rangeMinEl.value=1
-rangeMaxEl.value=totalMatchdays
-
-refreshView()
-
-}
-)
-
-window.addEventListener(
-'resize',
-()=>{
-
-renderChart(
-currentRange.start,
-currentRange.end
-)
-
-}
-)
-
-buildLegend()
-
-refreshView()
-
-renderStaticTables()
+buildLegend();
+refreshView();
+renderStaticTables();
 
 </script>
 
