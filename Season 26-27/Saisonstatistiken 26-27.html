@@ -1171,28 +1171,25 @@ function segmentPts(
 ){
 
     if(
-        startIdx>
-        arr.length-1
-    )
+        startIdx > arr.length - 1
+    ){
         return 0;
+    }
 
-    const end=
+    const end =
         Math.min(
             endIdx,
-            arr.length-1
+            arr.length - 1
         );
 
-    return
-        arr[end]
-        -
+    return arr[end] -
         (
-            startIdx>0
+            startIdx > 0
             ?
-            arr[startIdx-1]
+            arr[startIdx - 1]
             :
             0
         );
-
 }
 
 
