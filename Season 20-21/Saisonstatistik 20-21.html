@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -540,6 +539,115 @@ tbody tr.rank-1 td{
 }
 
 /* =========================
+   SEASON INFORMATION
+========================= */
+
+.season-info{
+    width:100%;
+    margin-top:55px;
+    padding:26px 28px 28px;
+    background:
+        linear-gradient(
+            145deg,
+            var(--card),
+            var(--card2)
+        );
+    border:1px solid var(--line);
+    border-radius:12px;
+    position:relative;
+    overflow:hidden;
+}
+
+.season-info::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:var(--red);
+}
+
+.season-info-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.season-info-icon{
+    width:28px;
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    background:rgba(227,6,19,.12);
+    color:var(--red);
+    font-size:14px;
+    font-weight:700;
+}
+
+.season-info-title{
+    margin:0;
+    font-size:15px;
+    font-weight:700;
+    color:#f5f5f5;
+    letter-spacing:.3px;
+}
+
+.season-info-text{
+    margin:0;
+    max-width:950px;
+    color:#888;
+    font-size:13px;
+    line-height:1.7;
+}
+
+.standings-note{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+}
+
+.standings-note-title{
+    color:#666;
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    margin-bottom:12px;
+}
+
+.corrected-standings{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.corrected-player{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#191919;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:7px;
+    padding:7px 10px;
+    font-size:12px;
+    color:#aaa;
+}
+
+.corrected-player strong{
+    color:#f5f5f5;
+    font-weight:700;
+}
+
+.corrected-player .player-dot{
+    width:7px;
+    height:7px;
+}
+
+/* =========================
    CHART.JS DARK THEME
 ========================= */
 
@@ -677,6 +785,25 @@ footer{
         font-size:11px;
     }
 
+    .season-info{
+        margin-top:40px;
+        padding:22px 20px 22px;
+    }
+
+    .season-info-text{
+        font-size:12px;
+    }
+
+    .corrected-standings{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+    }
+
+    .corrected-player{
+        padding:7px 8px;
+        font-size:11px;
+    }
+
 }
 
 @media(max-width:900px) and (orientation:landscape){
@@ -694,6 +821,10 @@ footer{
     .chart-container.rank-chart{
         height:480px;
         min-height:480px;
+    }
+
+    .corrected-standings{
+        grid-template-columns:1fr;
     }
 
 }
@@ -720,7 +851,7 @@ footer{
         </a>
 
         <div class="nav-links">
-            <a href="#season">21/22</a>
+            <a href="#season">20/21</a>
             <a href="#points">Points</a>
             <a href="#positions">Positions</a>
             <a href="#tables">Tables</a>
@@ -862,10 +993,95 @@ footer{
 >
 </div>
 
+<!-- =========================
+     SEASON INFORMATION
+========================= -->
+
+<div class="season-info">
+
+    <div class="season-info-header">
+
+        <div class="season-info-icon">
+            i
+        </div>
+
+        <h2 class="season-info-title">
+            Season 20-21 Scoring Correction
+        </h2>
+
+    </div>
+
+    <p class="season-info-text">
+        During the 20-21 season, the scoring system awarded 2 points
+        instead of 4 for a player who started a match, and 1 point
+        instead of 2 for a player who was substituted into a match.
+        I reviewed every matchday individually and corrected the
+        missing points in the all-time standings.
+    </p>
+
+    <div class="standings-note">
+
+        <div class="standings-note-title">
+            Corrected All-Time Standings
+        </div>
+
+        <div class="corrected-standings">
+
+            <div class="corrected-player">
+                <span
+                    class="player-dot"
+                    style="background:#E41A1C"
+                ></span>
+                <span>Markus</span>
+                <strong>648</strong>
+            </div>
+
+            <div class="corrected-player">
+                <span
+                    class="player-dot"
+                    style="background:#377EB8"
+                ></span>
+                <span>Erwin</span>
+                <strong>577</strong>
+            </div>
+
+            <div class="corrected-player">
+                <span
+                    class="player-dot"
+                    style="background:#4DAF4A"
+                ></span>
+                <span>Phil</span>
+                <strong>536</strong>
+            </div>
+
+            <div class="corrected-player">
+                <span
+                    class="player-dot"
+                    style="background:#984EA3"
+                ></span>
+                <span>Didi</span>
+                <strong>546</strong>
+            </div>
+
+            <div class="corrected-player">
+                <span
+                    class="player-dot"
+                    style="background:#FF7F00"
+                ></span>
+                <span>Eirik</span>
+                <strong>558</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 </main>
 
 <footer>
-    Kicker Interactive Stats · Season 21/22
+    Kicker Interactive Stats · Season 20/21
 </footer>
 
 <script>
@@ -879,7 +1095,7 @@ const playerPoints={
     'Erwin':[5,21,42,60,86,109,136,165,197,237,251,260,282,298,309,328,342,407,464,524,574,625,658,675,700,768,802,846,872,893,918,912,930,959],
     'Phil':[45,50,118,164,212,234,288,328,344,342,355,381,416,451,477,501,521,554,611,649,672,715,775,821,878,916,929,962,979,998,1032,1077,1129,1181],
     'Didi':[16,28,55,78,93,118,152,174,211,249,265,279,301,332,343,353,364,444,477,498,536,558,574,608,619,649,666,710,738,773,798,819,810,845],
-     Eirik':[41,51,81,108,167,200,224,282,318,351,375,393,416,426,429,452,474,536,600,652,689,750,803,876,920,981,1028,1066,1097,1130,1070,1184,1230,1288],
+    'Eirik':[41,51,81,108,167,200,224,282,318,351,375,393,416,426,429,452,474,536,600,652,689,750,803,876,920,981,1028,1066,1097,1130,1070,1184,1230,1288],
     'Steffo':[],
     'Basti':[],
     'Emil':[],
@@ -3193,4 +3409,3 @@ window.addEventListener(
 
 </body>
 </html>
-```
