@@ -1,65 +1,372 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fieberkurve & Season Placements</title>
+<title>Performance Curve & Season Placements</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 2rem 1rem 3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(135deg, #e9eff5, #f9fafc);
-    min-height: 100vh;
-    color: #222;
+
+:root{
+    --bg:#050505;
+    --card:#101010;
+    --card2:#151515;
+    --line:rgba(255,255,255,.09);
+    --text:#f5f5f5;
+    --muted:#858585;
+    --red:#e30613;
+    --red-dark:#a9000b;
 }
 
-h1 {
-    margin: 0 0 1rem;
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(90deg, #004e92, #000428);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-align: center;
-    width: 100%;
-    max-width: 1200px;
+*{
+    box-sizing:border-box;
 }
 
-.chart-container {
-    width: 90%;
-    max-width: 1200px;
-    height: 70vh;
-    min-height: 500px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-    padding: 1rem 1.5rem;
-    position: relative;
-    margin-bottom: 40px;
-    box-sizing: border-box;
+html{
+    scroll-behavior:smooth;
 }
 
-.chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',Roboto,Arial,sans-serif;
+    line-height:1.5;
 }
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:64px;
+    background:rgba(5,5,5,.92);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+    z-index:1000;
+}
+
+.nav-inner{
+    max-width:1400px;
+    height:100%;
+    margin:auto;
+    padding:0 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.logo{
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:.5px;
+}
+
+.logo span{
+    color:var(--red);
+}
+
+.nav-links{
+    display:flex;
+    gap:28px;
+}
+
+.nav-links a{
+    color:#aaa;
+    text-decoration:none;
+    font-size:14px;
+    transition:.2s;
+}
+
+.nav-links a:hover{
+    color:white;
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+section{
+    max-width:1400px;
+    margin:0 auto;
+    padding:110px 30px 70px;
+}
+
+.section-title{
+    margin:0 0 10px;
+    font-size:38px;
+    font-weight:700;
+    letter-spacing:-1px;
+}
+
+.section-subtitle{
+    margin:0 0 40px;
+    color:var(--muted);
+    font-size:15px;
+}
+
+.red{
+    color:var(--red);
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.page-header{
+    border-bottom:1px solid var(--line);
+    padding-top:130px;
+    padding-bottom:45px;
+}
+
+.page-header-inner{
+    max-width:1400px;
+    margin:0 auto;
+    padding:0 30px;
+}
+
+.page-label{
+    color:var(--red);
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    margin-bottom:15px;
+}
+
+h1{
+    margin:0;
+    font-size:52px;
+    line-height:1;
+    font-weight:700;
+    letter-spacing:-2px;
+}
+
+.page-description{
+    margin:18px 0 0;
+    color:var(--muted);
+    font-size:15px;
+}
+
+
+/* =========================
+   CHART CARD
+========================= */
+
+.chart-section{
+    padding-top:45px;
+}
+
+.chart-container{
+    width:100%;
+    height:70vh;
+    min-height:500px;
+    background:linear-gradient(
+        145deg,
+        var(--card),
+        var(--card2)
+    );
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:30px;
+    position:relative;
+    box-sizing:border-box;
+}
+
+.chart-container canvas{
+    width:100% !important;
+    height:100% !important;
+}
+
+
+/* =========================
+   CHART.JS
+========================= */
+
+.chart-container .chartjs-render-monitor{
+    background:transparent;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+    border-top:1px solid var(--line);
+    padding:35px 30px;
+    text-align:center;
+    color:#555;
+    font-size:12px;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:700px){
+
+    .nav{
+        height:auto;
+    }
+
+    .nav-inner{
+        padding:15px 20px;
+        flex-direction:column;
+        gap:12px;
+    }
+
+    .nav-links{
+        gap:15px;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .page-header{
+        padding-top:150px;
+        padding-bottom:35px;
+    }
+
+    .page-header-inner{
+        padding-left:20px;
+        padding-right:20px;
+    }
+
+    h1{
+        font-size:40px;
+        letter-spacing:-1.5px;
+    }
+
+    .chart-section{
+        padding-left:20px;
+        padding-right:20px;
+        padding-top:30px;
+    }
+
+    .chart-container{
+        height:70vh;
+        min-height:500px;
+        padding:20px;
+    }
+
+}
+
+
+/* =========================
+   SCROLL ANIMATION
+========================= */
+
+.reveal{
+    opacity:0;
+    transform:translateY(25px);
+    transition:
+        opacity .7s ease,
+        transform .7s ease;
+}
+
+.reveal.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+
 </style>
 </head>
 
+
 <body>
 
-<h1>Endplatzierungen</h1>
 
-<div class="chart-container">
-    <canvas id="endplatzierungChart"></canvas>
-</div>
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<nav class="nav">
+
+    <div class="nav-inner">
+
+        <a class="logo" href="index.html">
+            Kicker <span>Stats</span>
+        </a>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="#chart">Statistics</a>
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     PAGE HEADER
+========================= -->
+
+<header class="page-header">
+
+    <div class="page-header-inner reveal">
+
+        <div class="page-label">
+            Historical Results
+        </div>
+
+        <h1>
+            Final Standings
+        </h1>
+
+        <p class="page-description">
+            Historical finishing positions across all seasons.
+        </p>
+
+    </div>
+
+</header>
+
+
+<!-- =========================
+     CHART
+========================= -->
+
+<section class="chart-section" id="chart">
+
+    <div class="section-title reveal">
+        Season <span class="red">Placements</span>
+    </div>
+
+    <p class="section-subtitle reveal">
+        Final league positions for every player across all seasons.
+    </p>
+
+    <div class="chart-container reveal">
+
+        <canvas id="finalPlacementChart"></canvas>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+    Kicker Interactive Stats
+</footer>
+
 
 <script>
 
@@ -165,7 +472,6 @@ const datasets = Object.entries(finalPlacements).map(
             pointRadius: 4,
             pointHoverRadius: 7,
 
-            /* Circle markers */
             pointStyle: 'circle',
 
             borderWidth: 2
@@ -179,7 +485,7 @@ const datasets = Object.entries(finalPlacements).map(
 ========================= */
 
 const ctx = document
-    .getElementById('endplatzierungChart')
+    .getElementById('finalPlacementChart')
     .getContext('2d');
 
 
@@ -219,7 +525,16 @@ const chart = new Chart(ctx, {
 
                 title: {
                     display: true,
-                    text: 'Saison'
+                    text: 'Season',
+                    color: '#858585'
+                },
+
+                ticks: {
+                    color: '#858585'
+                },
+
+                grid: {
+                    color: 'rgba(255,255,255,.07)'
                 }
 
             },
@@ -231,12 +546,18 @@ const chart = new Chart(ctx, {
                 beginAtZero: false,
 
                 ticks: {
-                    stepSize: 1
+                    stepSize: 1,
+                    color: '#858585'
                 },
 
                 title: {
                     display: true,
-                    text: 'Endplatzierung'
+                    text: 'Final Placement',
+                    color: '#858585'
+                },
+
+                grid: {
+                    color: 'rgba(255,255,255,.07)'
                 }
 
             }
@@ -262,9 +583,13 @@ const chart = new Chart(ctx, {
 
                 labels: {
 
+                    color: '#f5f5f5',
+
                     usePointStyle: true,
 
-                    pointStyle: 'circle'
+                    pointStyle: 'circle',
+
+                    padding: 18
 
                 },
 
@@ -321,10 +646,10 @@ const chart = new Chart(ctx, {
                         } else {
 
                             ds.borderColor =
-                                '#cccccc';
+                                '#555555';
 
                             ds.backgroundColor =
-                                '#cccccc';
+                                '#555555';
 
                             ds.borderWidth = 1;
 
@@ -351,10 +676,6 @@ const chart = new Chart(ctx, {
                 mode: 'index',
 
                 intersect: false,
-
-                /* =========================
-                   CIRCLE MARKERS IN TOOLTIP
-                ========================= */
 
                 usePointStyle: true,
 
@@ -386,11 +707,6 @@ const chart = new Chart(ctx, {
                         ][seasonIndex];
 
 
-                    /*
-                     * Players without points
-                     * go to the bottom
-                     */
-
                     if (
                         pointsA === null ||
                         pointsA === undefined
@@ -406,10 +722,6 @@ const chart = new Chart(ctx, {
                         return -1;
                     }
 
-
-                    /*
-                     * Highest points first
-                     */
 
                     return pointsB - pointsA;
 
@@ -447,12 +759,6 @@ const chart = new Chart(ctx, {
                             seasonPoints[player][seasonIndex];
 
 
-                        /*
-                         * Don't display players
-                         * who weren't active
-                         * that season
-                         */
-
                         if (
                             points === null ||
                             points === undefined
@@ -473,9 +779,6 @@ const chart = new Chart(ctx, {
 
                     /* =========================
                        FORCE CIRCLE POINT STYLE
-                       (per-item, overrides
-                       Chart.js' per-dataset
-                       pointStyle lookup)
                     ========================= */
 
                     labelPointStyle: function(context) {
@@ -497,7 +800,39 @@ const chart = new Chart(ctx, {
 
 });
 
+
+/* =========================
+   SCROLL ANIMATION
+========================= */
+
+const observer = new IntersectionObserver(
+    entries => {
+
+        entries.forEach(entry => {
+
+            if(entry.isIntersecting){
+
+                entry.target.classList.add("visible");
+
+            }
+
+        });
+
+    },
+    {
+        threshold:0.12
+    }
+);
+
+
+document.querySelectorAll(".reveal").forEach(element => {
+
+    observer.observe(element);
+
+});
+
 </script>
 
 </body>
 </html>
+```
