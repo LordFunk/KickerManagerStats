@@ -1,11 +1,5 @@
-Implemented everything — all six refinements and all nine stat ideas. Ran it through a full logic check (tie-sharing, ranks, head-to-head, projections, title defense) before handing it over. Two things surfaced during testing that you should know about:
-
-1. **Two more data mismatches**, same nature as the Phil one you fixed: **Markus** and **Kempka**'s raw 25/26 (`s6`) matchday arrays produce totals that don't match your old Fiebertabelle aggregate — Markus is 27 points too high (2009 vs. an implied 1982), Kempka is 54 points too low (1823 vs. an implied 1877). Unlike Phil's case this isn't a flat end-of-season bonus — it's likely one mistyped value somewhere inside those 34-number arrays, so I didn't guess-fix it. Let me know if you want to dig into the source data for those two.
-2. **Design choice worth flagging**: since Eirik's 20/21 title comes from your override (not from points), he now also shows up as that season's **Vizemeister** — because by raw points he actually finished 2nd (behind Markus). So he gets credit for both "won the title" and "was runner-up by points" in the same season. That's intentional (they're tracking different things), but tell me if you'd rather the override suppress the points-based awards for that one season.
-
-Everything else checked out exactly against your old totals. Full code:```html
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,8 +34,8 @@ body{
 }
 .logo{ color:white; text-decoration:none; font-size:18px; font-weight:700; letter-spacing:.5px; }
 .logo span{ color:var(--red); }
-.nav-links{ display:flex; gap:22px; flex-wrap:wrap; }
-.nav-links a{ color:#aaa; text-decoration:none; font-size:13px; transition:.2s; white-space:nowrap; }
+.nav-links{ display:flex; gap:28px; }
+.nav-links a{ color:#aaa; text-decoration:none; font-size:14px; transition:.2s; }
 .nav-links a:hover{ color:white; }
 .page-header{ max-width:1400px; margin:0 auto; padding:145px 30px 65px; position:relative; text-align:left; }
 .page-label{ color:var(--red); font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; }
@@ -64,14 +58,7 @@ main{ max-width:1400px; margin:0 auto; padding:0 30px 80px; }
 }
 .season-tab-btn:hover{ border-color:var(--red); color:#fff; }
 .season-tab-btn.active{ background:var(--red); border-color:var(--red); color:#fff; }
-.season-current-label{ color:var(--muted); font-size:.8rem; margin-bottom:14px; }
-
-.projection-panel{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
-.projection-chip{
-    background:var(--card2); border:1px solid var(--line); border-radius:8px;
-    padding:6px 12px; font-size:.75rem; color:#bbb;
-}
-.projection-chip b{ color:#fff; }
+.season-current-label{ color:var(--muted); font-size:.8rem; margin-bottom:16px; }
 
 .table-responsive{
     width:100%; overflow-x:auto;
@@ -82,7 +69,7 @@ main{ max-width:1400px; margin:0 auto; padding:0 30px 80px; }
     content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
     border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
 }
-table{ border-collapse:collapse; width:100%; min-width:1300px; background:transparent; }
+table{ border-collapse:collapse; width:100%; min-width:850px; background:transparent; }
 thead{ background:#181818; color:#777; font-weight:600; font-size:.7rem; text-align:left; position:sticky; top:0; z-index:2; }
 thead th{
     padding:11px 14px; cursor:pointer; user-select:none; position:relative; white-space:nowrap;
@@ -96,24 +83,6 @@ tbody tr:hover{ background:rgba(227,6,19,.035); }
 tbody td{ padding:10px 14px; font-size:.85rem; border-bottom:1px solid rgba(255,255,255,.055); white-space:nowrap; color:#ddd; }
 tbody tr:last-child td{ border-bottom:none; }
 
-.stat-card{
-    width:100%; background:linear-gradient(145deg,var(--card),var(--card2));
-    border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:35px; position:relative; overflow:hidden;
-}
-.stat-card::before{
-    content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
-    border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
-}
-.h2h-selectors{ display:flex; align-items:center; gap:14px; margin-bottom:16px; position:relative; z-index:2; flex-wrap:wrap; }
-.h2h-selectors select{
-    background:#181818; color:#eee; border:1px solid var(--line); border-radius:8px;
-    padding:8px 12px; font-size:.85rem; font-family:inherit; cursor:pointer;
-}
-.h2h-selectors span{ color:#666; font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; }
-.h2h-result{ position:relative; z-index:2; color:#ccc; font-size:.92rem; line-height:1.7; }
-.h2h-result b{ color:#fff; }
-ul#title-defense-list{ position:relative; z-index:2; margin:0; padding:0; list-style:inside disc; color:#aaa; font-size:.88rem; line-height:1.7; }
-
 .chart-container{
     width:100%; height:460px; background:linear-gradient(145deg,var(--card),var(--card2));
     border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:35px; position:relative; overflow:hidden;
@@ -123,6 +92,7 @@ ul#title-defense-list{ position:relative; z-index:2; margin:0; padding:0; list-s
     border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
 }
 .chart-container canvas{ position:relative; z-index:2; }
+
 .highlight-container{
     width:100%; background:linear-gradient(145deg,var(--card),var(--card2));
     border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:35px; position:relative; overflow:hidden;
@@ -141,39 +111,59 @@ ul#highlight-list li.highlight-header{
     letter-spacing:1px; text-transform:uppercase;
 }
 ul#highlight-list li.highlight-header:first-child{ margin-top:0; }
-footer{ border-top:1px solid var(--line); padding:35px 30px; text-align:center; color:#555; font-size:12px; }
+
+footer{
+    border-top:1px solid var(--line);
+    padding:35px 30px;
+    text-align:center;
+    color:#555;
+    font-size:12px;
+}
 
 @media(max-width:700px){
     .nav{ height:auto; }
     .nav-inner{ padding:14px 20px; flex-direction:column; gap:10px; }
-    .nav-links{ gap:12px; flex-wrap:wrap; justify-content:center; }
+    .nav-links{ gap:15px; flex-wrap:wrap; justify-content:center; }
     .page-header{ padding:150px 20px 50px; }
     h1{ font-size:48px; letter-spacing:-3px; }
     main{ padding-left:20px; padding-right:20px; }
     .table-responsive{ border-radius:10px; margin-bottom:25px; }
-    table{ min-width:1300px; }
+    table{ min-width:850px; }
     thead th{ padding:8px 8px; font-size:.62rem; }
     tbody td{ padding:7px 8px; font-size:.78rem; }
-    .chart-container{ width:100%; height:320px; padding:12px 10px; margin-bottom:25px; border-radius:10px; }
-    .highlight-container, .stat-card{ padding:15px 16px; border-radius:10px; margin-bottom:25px; }
+    .chart-container{
+        width:100%;
+        height:320px;
+        padding:12px 10px;
+        margin-bottom:25px;
+        border-radius:10px;
+    }
+    .highlight-container{
+        padding:15px 16px;
+        border-radius:10px;
+        margin-bottom:25px;
+    }
     ul#highlight-list{ font-size:.8rem; line-height:1.6; }
     ul#highlight-list li.highlight-header{ font-size:11px; margin-top:18px; }
     .section-label{ font-size:11px; }
     .season-tab-btn{ padding:7px 13px; font-size:.68rem; }
 }
-@media(max-width:400px){ .chart-container{ height:300px; } }
+
+@media(max-width:400px){
+    .chart-container{ height:300px; }
+}
 </style>
 </head>
+
 <body>
 
 <nav class="nav">
     <div class="nav-inner">
         <a class="logo" href="#">Kicker <span>Stats</span></a>
+
         <div class="nav-links">
             <a href="#leaderboard-section">All-Time Table</a>
-            <a href="#title-defense-section">Titelverteidigung</a>
-            <a href="#h2h-section">Kopf-an-Kopf</a>
-            <a href="#fieberkurve">Fiebertabelle</a>
+            <a href="#fever-chart">Fever Chart</a>
             <a href="#highlights">Highlights</a>
         </div>
     </div>
@@ -181,909 +171,1973 @@ footer{ border-top:1px solid var(--line); padding:35px 30px; text-align:center; 
 
 <header class="page-header">
     <div class="page-label">Kicker Interactive Statistics</div>
-    <h1>Every season.<br>Every <span>point.</span></h1>
-    <div class="page-description">Season archives, all-time statistics and historical highlights.</div>
+
+    <h1>
+        All-Time Standings<br>
+        <span>As of Today</span>
+    </h1>
+
+    <div class="page-description">
+        Season archives, all-time statistics and historical highlights.
+    </div>
 </header>
 
 <main>
 
-<div class="section-label" id="leaderboard-section">All-Time Statistics</div>
+<div class="section-label" id="leaderboard-section">
+    All-Time Statistics
+</div>
 
 <div class="season-tabs" id="season-tabs"></div>
+
 <div class="season-current-label" id="season-current-label"></div>
-<div class="projection-panel" id="projection-panel"></div>
 
 <div class="table-responsive">
     <table id="leaderboard" aria-label="Leaderboard">
         <thead>
             <tr>
-                <th data-key="platz">Platz</th>
-                <th data-key="spieler">Spieler</th>
-                <th data-key="spiele">Spiele</th>
-                <th data-key="punkte">Punkte</th>
-                <th data-key="avg">ø P.p.S</th>
-                <th data-key="meister">Meister</th>
-                <th data-key="vizemeister">Vizemeister</th>
-                <th data-key="podium">Podium</th>
-                <th data-key="avgplatz">ø Platzierung</th>
-                <th data-key="letzter">Letzter</th>
-                <th data-key="spieltagssiege">Spieltagssiege</th>
-                <th data-key="spieltagsletzter">Spieltagsletzter</th>
-                <th data-key="tabellenerster">Tabellenerster</th>
-                <th data-key="tabellenletzter">Tabellenletzter</th>
-                <th data-key="wtw">Wire-to-Wire</th>
-                <th data-key="volatilitaet">Volatilität</th>
+                <th data-key="position">Position</th>
+                <th data-key="player">Player</th>
+                <th data-key="games">Games</th>
+                <th data-key="points">Points</th>
+                <th data-key="avg">Avg. PpG</th>
+                <th data-key="champion">Champion</th>
+                <th data-key="last_place">Last Place</th>
+                <th data-key="matchday_wins">Matchday Wins</th>
+                <th data-key="matchday_last">Matchday Last</th>
+                <th data-key="table_first">Table First</th>
+                <th data-key="table_last">Table Last</th>
             </tr>
         </thead>
+
         <tbody></tbody>
     </table>
 </div>
 
-<div class="section-label" id="title-defense-section">Titelverteidigung</div>
-<div class="stat-card">
-    <ul id="title-defense-list"></ul>
+<div class="section-label" id="fever-chart">
+    Fever Chart
 </div>
 
-<div class="section-label" id="h2h-section">Kopf-an-Kopf</div>
-<div class="stat-card">
-    <div class="h2h-selectors">
-        <select id="h2h-a"></select>
-        <span>vs</span>
-        <select id="h2h-b"></select>
-    </div>
-    <div class="h2h-result" id="h2h-result"></div>
+<div class="chart-container">
+    <canvas id="feverChart"></canvas>
 </div>
 
-<div class="section-label" id="fieberkurve">Fiebertabelle</div>
-<div class="chart-container"><canvas id="fieberkurveChart"></canvas></div>
+<div class="section-label" id="highlights">
+    Highlights
+</div>
 
-<div class="section-label" id="highlights">Highlights</div>
-<div class="highlight-container"><ul id="highlight-list"></ul></div>
+<div class="highlight-container">
+    <ul id="highlight-list"></ul>
+</div>
 
 </main>
 
-<footer>Kicker Interactive Stats · All-Time Statistics</footer>
+<footer>
+    Kicker Interactive Stats · All-Time Statistics
+</footer>
 
 <script>
 
 /* =========================================================
-   BASE DATA (legacy aggregate S1-S6) — used ONLY by the
-   Fiebertabelle. Left completely untouched.
+   BASE DATA (legacy aggregate S1-S6)
+   Used ONLY by the Fever Chart.
+   Left completely untouched.
 ========================================================= */
+
 const base = {
-  'Markus': { spiele:204, punkte:11269, meister:2, letzter:0, spieltagssiege:49, spieltagsletzter:11, tabellenerster:70, tabellenletzter:3 },
-  'Erwin':  { spiele:204, punkte:10534, meister:1, letzter:0, spieltagssiege:27, spieltagsletzter:13, tabellenerster:34, tabellenletzter:19 },
-  'Phil':   { spiele:204, punkte:10399, meister:1, letzter:0, spieltagssiege:38, spieltagsletzter:32, tabellenerster:50, tabellenletzter:2 },
-  'Eirik':  { spiele:204, punkte:9438,  meister:1, letzter:1, spieltagssiege:25, spieltagsletzter:29, tabellenerster:6,  tabellenletzter:34 },
-  'Didi':   { spiele:204, punkte:9269,  meister:0, letzter:3, spieltagssiege:23, spieltagsletzter:38, tabellenerster:5,  tabellenletzter:79 },
-  'Basti':  { spiele:170, punkte:7673,  meister:0, letzter:0, spieltagssiege:16, spieltagsletzter:21, tabellenerster:1,  tabellenletzter:2 },
-  'Steffo': { spiele:170, punkte:7062,  meister:0, letzter:1, spieltagssiege:5,  spieltagsletzter:34, tabellenerster:0,  tabellenletzter:33 },
-  'Emil':   { spiele:102, punkte:5245,  meister:0, letzter:0, spieltagssiege:8,  spieltagsletzter:9,  tabellenerster:3,  tabellenletzter:14 },
-  'Espen':  { spiele:68,  punkte:3167,  meister:1, letzter:1, spieltagssiege:12, spieltagsletzter:10, tabellenerster:34, tabellenletzter:17 },
-  'Kempka': { spiele:68,  punkte:3627,  meister:0, letzter:0, spieltagssiege:7,  spieltagsletzter:5,  tabellenerster:0,  tabellenletzter:1 },
-  'Alex':   { spiele:34,  punkte:1660,  meister:0, letzter:0, spieltagssiege:3,  spieltagsletzter:4,  tabellenerster:0,  tabellenletzter:0 }
+    'Markus': {
+        games:204,
+        points:11269,
+        champion:2,
+        last_place:0,
+        matchday_wins:49,
+        matchday_last:11,
+        table_first:70,
+        table_last:3
+    },
+
+    'Erwin': {
+        games:204,
+        points:10534,
+        champion:1,
+        last_place:0,
+        matchday_wins:27,
+        matchday_last:13,
+        table_first:34,
+        table_last:19
+    },
+
+    'Phil': {
+        games:204,
+        points:10399,
+        champion:1,
+        last_place:0,
+        matchday_wins:38,
+        matchday_last:32,
+        table_first:50,
+        table_last:2
+    },
+
+    'Eirik': {
+        games:204,
+        points:9438,
+        champion:1,
+        last_place:1,
+        matchday_wins:25,
+        matchday_last:29,
+        table_first:6,
+        table_last:34
+    },
+
+    'Didi': {
+        games:204,
+        points:9269,
+        champion:0,
+        last_place:3,
+        matchday_wins:23,
+        matchday_last:38,
+        table_first:5,
+        table_last:79
+    },
+
+    'Basti': {
+        games:170,
+        points:7673,
+        champion:0,
+        last_place:0,
+        matchday_wins:16,
+        matchday_last:21,
+        table_first:1,
+        table_last:2
+    },
+
+    'Steffo': {
+        games:170,
+        points:7062,
+        champion:0,
+        last_place:1,
+        matchday_wins:5,
+        matchday_last:34,
+        table_first:0,
+        table_last:33
+    },
+
+    'Emil': {
+        games:102,
+        points:5245,
+        champion:0,
+        last_place:0,
+        matchday_wins:8,
+        matchday_last:9,
+        table_first:3,
+        table_last:14
+    },
+
+    'Espen': {
+        games:68,
+        points:3167,
+        champion:1,
+        last_place:1,
+        matchday_wins:12,
+        matchday_last:10,
+        table_first:34,
+        table_last:17
+    },
+
+    'Kempka': {
+        games:68,
+        points:3627,
+        champion:0,
+        last_place:0,
+        matchday_wins:7,
+        matchday_last:5,
+        table_first:0,
+        table_last:1
+    },
+
+    'Alex': {
+        games:34,
+        points:1660,
+        champion:0,
+        last_place:0,
+        matchday_wins:3,
+        matchday_last:4,
+        table_first:0,
+        table_last:0
+    }
 };
 
+
 /* =========================================================
-   FIEBERTABELLE BASE DATA — untouched
+   FEVER CHART BASE DATA
+   Untouched
 ========================================================= */
-const fiebertabelleBase = {
-  'Markus':[1923,3656,5302,7526,9287,11269],
-  'Erwin':[1536,3107,5064,6909,8812,10534],
-  'Phil':[1717,3543,4973,6644,8432,10399],
-  'Didi':[1391,3126,4393,6060,7272,9269],
-  'Eirik':[1846,2953,4583,6004,7585,9438],
-  'Steffo':[null,957,2515,4135,5573,7062],
-  'Basti':[null,1441,2744,4668,6180,7673],
-  'Emil':[null,null,null,2014,3887,5245],
-  'Kempka':[null,null,null,null,1750,3627],
-  'Espen':[null,null,null,null,2042,3167],
-  'Alex':[null,null,null,null,null,1660]
+
+const feverChartBase = {
+    'Markus':[1923,3656,5302,7526,9287,11269],
+    'Erwin':[1536,3107,5064,6909,8812,10534],
+    'Phil':[1717,3543,4973,6644,8432,10399],
+    'Didi':[1391,3126,4393,6060,7272,9269],
+    'Eirik':[1846,2953,4583,6004,7585,9438],
+    'Steffo':[null,957,2515,4135,5573,7062],
+    'Basti':[null,1441,2744,4668,6180,7673],
+    'Emil':[null,null,null,2014,3887,5245],
+    'Kempka':[null,null,null,null,1750,3627],
+    'Espen':[null,null,null,null,2042,3167],
+    'Alex':[null,null,null,null,null,1660]
 };
 
+
 /* =========================================================
-   PER-MATCHDAY RAW DATA — SEASONS 1-6 (20/21 - 25/26)
+   PER-MATCHDAY RAW DATA — SEASONS 1-6
    Used for the interactive All-Time Standings table.
-   Does NOT touch base / fiebertabelleBase / Fiebertabelle.
 ========================================================= */
+
 const s1 = {
-  'Markus':[46,55,93,102,157,185,236,320,359,392,438,452,449,475,514,520,537,607,672,710,757,819,880,921,959,1016,1031,1071,1085,1117,1170,1180,1220,1275],
-  'Erwin':[5,21,42,60,86,109,136,165,197,237,251,260,282,298,309,328,342,407,464,524,574,625,658,675,700,768,802,846,872,893,918,912,930,959],
-  'Phil':[45,50,118,164,212,234,288,328,344,342,355,381,416,451,477,501,521,554,611,649,672,715,775,821,878,916,929,962,979,998,1032,1077,1129,1181],
-  'Didi':[16,28,55,78,93,118,152,174,211,249,265,279,301,332,343,353,364,444,477,498,536,558,574,608,619,649,666,710,738,773,798,819,810,845],
-  'Eirik':[41,51,81,108,167,200,224,282,318,351,375,393,416,426,429,452,474,536,600,652,689,750,803,876,920,981,1028,1066,1097,1130,1170,1184,1230,1288]
+    'Markus':[46,55,93,102,157,185,236,320,359,392,438,452,449,475,514,520,537,607,672,710,757,819,880,921,959,1016,1031,1071,1085,1117,1170,1180,1220,1275],
+    'Erwin':[5,21,42,60,86,109,136,165,197,237,251,260,282,298,309,328,342,407,464,524,574,625,658,675,700,768,802,846,872,893,918,912,930,959],
+    'Phil':[45,50,118,164,212,234,288,328,344,342,355,381,416,451,477,501,521,554,611,649,672,715,775,821,878,916,929,962,979,998,1032,1077,1129,1181],
+    'Didi':[16,28,55,78,93,118,152,174,211,249,265,279,301,332,343,353,364,444,477,498,536,558,574,608,619,649,666,710,738,773,798,819,810,845],
+    'Eirik':[41,51,81,108,167,200,224,282,318,351,375,393,416,426,429,452,474,536,600,652,689,750,803,876,920,981,1028,1066,1097,1130,1170,1184,1230,1288]
 };
 
 const s2 = {
-  'Markus':[24,81,128,151,191,246,320,368,402,423,459,505,536,564,627,686,704,793,862,923,986,1045,1132,1185,1231,1327,1362,1417,1475,1519,1556,1621,1701,1733],
-  'Erwin':[66,120,162,208,270,292,331,385,432,471,489,532,560,590,611,656,665,741,817,856,918,981,1041,1086,1109,1165,1194,1226,1280,1338,1375,1449,1523,1571],
-  'Phil':[68,104,182,260,320,360,420,516,564,618,655,698,747,807,843,906,945,996,1053,1105,1166,1216,1287,1336,1371,1425,1490,1518,1555,1626,1666,1746,1775,1826],
-  'Didi':[80,122,185,238,294,318,354,427,473,503,546,570,608,675,720,794,821,855,927,989,1043,1110,1183,1229,1270,1321,1384,1407,1438,1502,1532,1621,1676,1735],
-  'Steffo':[28,56,80,123,147,169,199,223,244,266,296,305,338,380,423,444,476,510,541,565,595,626,667,699,727,752,789,793,809,847,879,913,927,957],
-  'Basti':[54,127,182,220,291,318,347,414,465,473,502,526,583,613,655,722,783,837,886,942,968,991,1030,1057,1075,1123,1151,1186,1218,1259,1314,1354,1392,1441],
-  'Eirik':[63,98,151,181,239,274,319,352,378,389,407,430,459,474,490,517,519,541,571,633,675,692,720,755,780,818,828,853,872,928,961,1019,1067,1107]
+    'Markus':[24,81,128,151,191,246,320,368,402,423,459,505,536,564,627,686,704,793,862,923,986,1045,1132,1185,1231,1327,1362,1417,1475,1519,1556,1621,1701,1733],
+    'Erwin':[66,120,162,208,270,292,331,385,432,471,489,532,560,590,611,656,665,741,817,856,918,981,1041,1086,1109,1165,1194,1226,1280,1338,1375,1449,1523,1571],
+    'Phil':[68,104,182,260,320,360,420,516,564,618,655,698,747,807,843,906,945,996,1053,1105,1166,1216,1287,1336,1371,1425,1490,1518,1555,1626,1666,1746,1775,1826],
+    'Didi':[80,122,185,238,294,318,354,427,473,503,546,570,608,675,720,794,821,855,927,989,1043,1110,1183,1229,1270,1321,1384,1407,1438,1502,1532,1621,1676,1735],
+    'Steffo':[28,56,80,123,147,169,199,223,244,266,296,305,338,380,423,444,476,510,541,565,595,626,667,699,727,752,789,793,809,847,879,913,927,957],
+    'Basti':[54,127,182,220,291,318,347,414,465,473,502,526,583,613,655,722,783,837,886,942,968,991,1030,1057,1075,1123,1151,1186,1218,1259,1314,1354,1392,1441],
+    'Eirik':[63,98,151,181,239,274,319,352,378,389,407,430,459,474,490,517,519,541,571,633,675,692,720,755,780,818,828,853,872,928,961,1019,1067,1107]
 };
 
 const s3 = {
-  'Markus':[52,80,100,137,166,229,241,268,313,337,373,410,458,496,548,597,705,750,806,883,927,975,1068,1126,1180,1248,1318,1375,1419,1461,1500,1535,1589,1646],
-  'Erwin':[98,141,181,242,297,353,418,490,545,581,672,763,835,891,959,998,1040,1100,1146,1209,1263,1318,1390,1426,1477,1537,1594,1636,1687,1716,1758,1831,1878,1957],
-  'Phil':[35,47,67,93,104,160,166,206,252,305,334,393,467,545,578,669,756,786,838,877,879,948,995,1035,1085,1111,1141,1171,1250,1343,1334,1369,1385,1430],
-  'Didi':[19,40,52,81,112,139,151,210,232,264,327,386,442,492,573,600,631,676,720,761,801,867,906,948,971,989,1019,1031,1053,1081,1104,1156,1192,1267],
-  'Steffo':[66,111,151,196,215,272,309,359,404,429,462,510,600,667,738,792,836,864,922,970,989,1047,1113,1152,1205,1237,1279,1301,1375,1439,1459,1505,1527,1558],
-  'Basti':[48,73,91,142,183,224,253,306,367,411,460,521,575,636,662,706,736,760,790,832,868,898,931,949,991,1011,1033,1058,1106,1147,1179,1228,1254,1303],
-  'Eirik':[0,62,84,144,178,236,271,346,403,451,482,529,621,675,745,764,792,857,896,936,990,1026,1080,1133,1191,1242,1284,1318,1334,1372,1412,1480,1532,1630]
+    'Markus':[52,80,100,137,166,229,241,268,313,337,373,410,458,496,548,597,705,750,806,883,927,975,1068,1126,1180,1248,1318,1375,1419,1461,1500,1535,1589,1646],
+    'Erwin':[98,141,181,242,297,353,418,490,545,581,672,763,835,891,959,998,1040,1100,1146,1209,1263,1318,1390,1426,1477,1537,1594,1636,1687,1716,1758,1831,1878,1957],
+    'Phil':[35,47,67,93,104,160,166,206,252,305,334,393,467,545,578,669,756,786,838,877,879,948,995,1035,1085,1111,1141,1171,1250,1343,1334,1369,1385,1430],
+    'Didi':[19,40,52,81,112,139,151,210,232,264,327,386,442,492,573,600,631,676,720,761,801,867,906,948,971,989,1019,1031,1053,1081,1104,1156,1192,1267],
+    'Steffo':[66,111,151,196,215,272,309,359,404,429,462,510,600,667,738,792,836,864,922,970,989,1047,1113,1152,1205,1237,1279,1301,1375,1439,1459,1505,1527,1558],
+    'Basti':[48,73,91,142,183,224,253,306,367,411,460,521,575,636,662,706,736,760,790,832,868,898,931,949,991,1011,1033,1058,1106,1147,1179,1228,1254,1303],
+    'Eirik':[0,62,84,144,178,236,271,346,403,451,482,529,621,675,745,764,792,857,896,936,990,1026,1080,1133,1191,1242,1284,1318,1334,1372,1412,1480,1532,1630]
 };
 
 const s4 = {
-  'Markus':[55,128,175,260,343,405,462,518,587,654,708,756,798,892,947,1006,1068,1147,1189,1245,1318,1388,1437,1512,1575,1655,1724,1814,1894,1960,2035,2094,2147,2224],
-  'Erwin':[62,144,206,265,305,371,413,473,542,598,646,691,741,782,847,904,972,1037,1067,1131,1186,1252,1300,1380,1413,1490,1558,1621,1656,1705,1756,1797,1820,1845],
-  'Phil':[86,170,216,256,306,376,433,478,534,585,604,648,688,715,797,844,906,956,1011,1065,1115,1150,1204,1244,1300,1346,1361,1393,1427,1469,1540,1601,1634,1671],
-  'Didi':[70,157,189,216,250,292,313,358,420,469,509,551,593,646,724,790,881,934,965,1006,1043,1087,1135,1172,1252,1323,1372,1415,1483,1532,1592,1643,1647,1667],
-  'Steffo':[56,131,205,272,338,376,433,476,550,609,642,665,701,742,823,867,903,948,979,1036,1078,1126,1169,1215,1259,1320,1364,1398,1442,1483,1532,1566,1585,1620],
-  'Basti':[53,119,185,213,267,335,399,450,516,553,610,665,726,783,841,870,924,976,1025,1090,1163,1212,1267,1344,1410,1469,1515,1574,1626,1683,1729,1800,1862,1927],
-  'Eirik':[69,112,173,221,247,274,300,333,395,429,449,475,493,530,553,585,641,694,705,742,771,807,854,926,976,1052,1083,1124,1185,1220,1253,1302,1351,1421],
-  'Emil':[60,173,230,290,332,385,412,441,498,535,595,642,678,725,776,828,906,991,1079,1140,1210,1264,1320,1362,1413,1479,1517,1583,1658,1718,1814,1879,1926,2014]
+    'Markus':[55,128,175,260,343,405,462,518,587,654,708,756,798,892,947,1006,1068,1147,1189,1245,1318,1388,1437,1512,1575,1655,1724,1814,1894,1960,2035,2094,2147,2224],
+    'Erwin':[62,144,206,265,305,371,413,473,542,598,646,691,741,782,847,904,972,1037,1067,1131,1186,1252,1300,1380,1413,1490,1558,1621,1656,1705,1756,1797,1820,1845],
+    'Phil':[86,170,216,256,306,376,433,478,534,585,604,648,688,715,797,844,906,956,1011,1065,1115,1150,1204,1244,1300,1346,1361,1393,1427,1469,1540,1601,1634,1671],
+    'Didi':[70,157,189,216,250,292,313,358,420,469,509,551,593,646,724,790,881,934,965,1006,1043,1087,1135,1172,1252,1323,1372,1415,1483,1532,1592,1643,1647,1667],
+    'Steffo':[56,131,205,272,338,376,433,476,550,609,642,665,701,742,823,867,903,948,979,1036,1078,1126,1169,1215,1259,1320,1364,1398,1442,1483,1532,1566,1585,1620],
+    'Basti':[53,119,185,213,267,335,399,450,516,553,610,665,726,783,841,870,924,976,1025,1090,1163,1212,1267,1344,1410,1469,1515,1574,1626,1683,1729,1800,1862,1927],
+    'Eirik':[69,112,173,221,247,274,300,333,395,429,449,475,493,530,553,585,641,694,705,742,771,807,854,926,976,1052,1083,1124,1185,1220,1253,1302,1351,1421],
+    'Emil':[60,173,230,290,332,385,412,441,498,535,595,642,678,725,776,828,906,991,1079,1140,1210,1264,1320,1362,1413,1479,1517,1583,1658,1718,1814,1879,1926,2014]
 };
 
 const s5 = {
-  'Markus':[59,141,206,239,298,365,401,427,472,513,525,554,607,646,662,722,788,844,908,950,1017,1049,1101,1165,1219,1286,1333,1380,1447,1490,1547,1626,1673,1761],
-  'Erwin':[51,132,190,261,316,356,405,435,504,547,609,657,707,744,787,853,898,963,1044,1090,1174,1219,1281,1335,1360,1426,1463,1519,1579,1623,1684,1765,1815,1903],
-  'Phil':[61,131,157,232,289,372,373,409,443,502,551,655,715,792,808,872,960,999,1069,1108,1177,1227,1265,1329,1373,1421,1444,1482,1547,1599,1630,1650,1699,1788],
-  'Didi':[40,60,92,110,178,190,223,245,255,290,325,355,382,412,426,469,504,536,587,618,662,702,728,764,807,850,884,933,983,1032,1074,1124,1167,1212],
-  'Steffo':[49,105,169,223,260,307,327,373,408,473,529,579,642,664,696,724,761,792,832,872,931,947,973,1012,1036,1070,1109,1166,1221,1252,1306,1342,1384,1438],
-  'Basti':[52,98,121,135,206,247,293,322,357,403,421,468,524,570,613,682,725,752,798,830,893,948,994,1044,1098,1140,1181,1241,1293,1325,1339,1401,1438,1512],
-  'Eirik':[66,108,164,192,250,295,337,387,432,463,519,556,594,618,649,688,726,787,835,884,932,966,1044,1091,1120,1161,1231,1300,1346,1378,1406,1443,1517,1581],
-  'Emil':[67,154,208,265,327,375,421,464,539,592,652,686,724,783,818,885,954,1017,1079,1116,1171,1226,1269,1320,1366,1417,1460,1523,1566,1603,1660,1747,1806,1873],
-  'Kempka':[47,91,164,256,309,374,403,437,467,497,519,566,639,703,742,815,880,934,988,1022,1072,1130,1201,1227,1268,1325,1347,1386,1432,1480,1536,1583,1672,1750],
-  'Espen':[92,189,252,313,366,440,505,573,676,748,814,882,918,991,1014,1093,1170,1219,1287,1320,1367,1438,1491,1545,1612,1688,1728,1767,1806,1858,1885,1929,1989,2042],
-  'Alex':[]
+    'Markus':[59,141,206,239,298,365,401,427,472,513,525,554,607,646,662,722,788,844,908,950,1017,1049,1101,1165,1219,1286,1333,1380,1447,1490,1547,1626,1673,1761],
+    'Erwin':[51,132,190,261,316,356,405,435,504,547,609,657,707,744,787,853,898,963,1044,1090,1174,1219,1281,1335,1360,1426,1463,1519,1579,1623,1684,1765,1815,1903],
+    'Phil':[61,131,157,232,289,372,373,409,443,502,551,655,715,792,808,872,960,999,1069,1108,1177,1227,1265,1329,1373,1421,1444,1482,1547,1599,1630,1650,1699,1788],
+    'Didi':[40,60,92,110,178,190,223,245,255,290,325,355,382,412,426,469,504,536,587,618,662,702,728,764,807,850,884,933,983,1032,1074,1124,1167,1212],
+    'Steffo':[49,105,169,223,260,307,327,373,408,473,529,579,642,664,696,724,761,792,832,872,931,947,973,1012,1036,1070,1109,1166,1221,1252,1306,1342,1384,1438],
+    'Basti':[52,98,121,135,206,247,293,322,357,403,421,468,524,570,613,682,725,752,798,830,893,948,994,1044,1098,1140,1181,1241,1293,1325,1339,1401,1438,1512],
+    'Eirik':[66,108,164,192,250,295,337,387,432,463,519,556,594,618,649,688,726,787,835,884,932,966,1044,1091,1120,1161,1231,1300,1346,1378,1406,1443,1517,1581],
+    'Emil':[67,154,208,265,327,375,421,464,539,592,652,686,724,783,818,885,954,1017,1079,1116,1171,1226,1269,1320,1366,1417,1460,1523,1566,1603,1660,1747,1806,1873],
+    'Kempka':[47,91,164,256,309,374,403,437,467,497,519,566,639,703,742,815,880,934,988,1022,1072,1130,1201,1227,1268,1325,1347,1386,1432,1480,1536,1583,1672,1750],
+    'Espen':[92,189,252,313,366,440,505,573,676,748,814,882,918,991,1014,1093,1170,1219,1287,1320,1367,1438,1491,1545,1612,1688,1728,1767,1806,1858,1885,1929,1989,2042],
+    'Alex':[]
 };
 
 const s6 = {
-  'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
-  'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
-  'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
-  'Didi':[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
-  'Steffo':[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
-  'Basti':[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
-  'Eirik':[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
-  'Emil':[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
-  'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
-  'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
-  'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
+    'Markus':[63,131,214,277,355,395,411,493,568,613,657,683,750,798,838,907,980,1012,1055,1087,1189,1262,1327,1379,1455,1495,1607,1666,1736,1796,1849,1899,1960,2009],
+    'Erwin':[48,118,169,247,285,295,352,417,447,488,541,600,620,684,740,807,860,878,909,943,1044,1068,1132,1162,1221,1264,1320,1382,1433,1501,1530,1582,1617,1722],
+    'Phil':[76,148,212,270,363,405,439,482,516,571,623,643,713,805,881,932,994,1012,1065,1113,1176,1242,1317,1351,1413,1454,1535,1604,1666,1741,1796,1852,1896,1967],
+    'Didi':[50,110,195,265,310,348,392,463,491,515,566,629,685,748,789,876,958,989,1036,1083,1187,1257,1336,1415,1456,1519,1588,1643,1716,1757,1811,1881,1928,1997],
+    'Steffo':[53,108,158,202,252,274,302,347,402,456,509,564,591,628,668,715,743,772,819,883,914,960,982,1006,1075,1109,1160,1219,1257,1321,1356,1382,1432,1489],
+    'Basti':[47,100,144,206,273,301,338,377,423,454,493,546,597,625,665,735,766,799,813,855,908,971,997,1025,1073,1095,1145,1173,1208,1278,1330,1352,1406,1490],
+    'Eirik':[46,82,116,180,217,282,356,428,492,526,602,650,706,725,752,796,828,854,893,934,983,1025,1091,1156,1217,1268,1352,1448,1534,1614,1667,1739,1774,1853],
+    'Emil':[61,118,136,171,210,212,238,248,262,295,349,395,414,481,543,618,664,704,744,775,844,885,929,992,1059,1081,1138,1160,1184,1247,1276,1290,1324,1358],
+    'Kempka':[36,99,131,186,241,269,324,389,429,454,518,564,606,662,672,715,767,798,855,902,978,1026,1106,1158,1208,1256,1337,1417,1502,1574,1649,1703,1736,1823],
+    'Espen':[57,102,149,198,249,251,292,353,410,422,474,499,528,575,591,632,665,678,706,741,792,821,854,850,870,909,913,931,953,969,1001,1032,1057,1125],
+    'Alex':[55,121,169,194,245,322,344,395,443,507,543,585,611,641,688,746,795,847,893,949,1016,1057,1134,1173,1230,1273,1338,1395,1448,1511,1546,1602,1626,1660]
 };
 
+
 /* =========================================================
-   SEASON 7/8/9 — untouched (still power the Fiebertabelle)
+   SEASONS 7-9
+   Used by the Fever Chart
 ========================================================= */
+
 const s7 = {
-  'Markus':[83,193,291,380], 'Erwin':[58,86,124,154], 'Phil':[59,77,116,186], 'Didi':[68,141,212,272],
-  'Eirik':[69,75,108,170], 'Basti':[62,93,131,194], 'Steffo':[59,106,177,250], 'Emil':[51,75,75,145],
-  'Espen':[64,124,213,285], 'Kempka':[49,84,129,170], 'Alex':[42,90,141,184]
+    'Markus':[83,193,291,380],
+    'Erwin':[58,86,124,154],
+    'Phil':[59,77,116,186],
+    'Didi':[68,141,212,272],
+    'Eirik':[69,75,108,170],
+    'Basti':[62,93,131,194],
+    'Steffo':[59,106,177,250],
+    'Emil':[51,75,75,145],
+    'Espen':[64,124,213,285],
+    'Kempka':[49,84,129,170],
+    'Alex':[42,90,141,184]
 };
-const s8 = { 'Markus':[],'Erwin':[],'Phil':[],'Didi':[],'Eirik':[],'Basti':[],'Steffo':[],'Emil':[],'Espen':[],'Kempka':[],'Alex':[] };
-const s9 = { 'Markus':[],'Erwin':[],'Phil':[],'Didi':[],'Eirik':[],'Basti':[],'Steffo':[],'Emil':[],'Espen':[],'Kempka':[],'Alex':[] };
+
+const s8 = {
+    'Markus':[],
+    'Erwin':[],
+    'Phil':[],
+    'Didi':[],
+    'Eirik':[],
+    'Basti':[],
+    'Steffo':[],
+    'Emil':[],
+    'Espen':[],
+    'Kempka':[],
+    'Alex':[]
+};
+
+const s9 = {
+    'Markus':[],
+    'Erwin':[],
+    'Phil':[],
+    'Didi':[],
+    'Eirik':[],
+    'Basti':[],
+    'Steffo':[],
+    'Emil':[],
+    'Espen':[],
+    'Kempka':[],
+    'Alex':[]
+};
+
 
 /* =========================================================
-   STATIC HIGHLIGHTS — untouched
+   STATIC HIGHLIGHTS
 ========================================================= */
+
 const staticHighlights = [
-  "","","","",
-  "=== Ewige Bestplatzierungen ===",
-  "27. Markus mit 108 Punkten 22/23",
-  "36. Phil mit 93 Punkten 22/23",
-  "108. Phil mit 104 Punkten 24/25",
-  "278. Phil mit 91 Punkten 22/23",
-  "444. Markus mit 104 Punkten 20/21",
-  "614. Phil mit 87 Punkten 22/23",
-  "739. Eirik mit 93* Punkten 20/21",
-  "766. Phil mit 96 Punkten 21/22",
-  "807. Phil mit 92 Punkten 25/26",
-  "982. Eirik mit 96 Punkten 25/26",
-  "984. Didi mit 91 Punkten 23/24",
-  "989. Markus mit 94 Punkten 23/24",
-  "","","","",
-  "=== Ewige Statistiken ===",
-  "- Meiste Spieltagssiege in einer Saison: Markus mit 13 Spieltagssiegen (21/22)",
-  "- Meiste Spieltagssiege in Folge: Espen mit 5 Spieltagssiegen hintereinander (24/25)",
-  "- Meiste Spieltagsniederlagen in einer Saison: Steffo mit 15 Niederlagen (21/22)",
-  "- Niedrigste Punktzahl für einen Spieltagssieg: Erwin mit 31 Punkten (20/21)",
-  "- Niedrigste jemals erzielte Punktzahl: Phil mit -9 Punkten (22/23)",
-  "- Höchste jemals erzielte Punktzahl: Emil mit 113 Punkten (23/24)",
-  "- Beste Gesamtplatzierung während einer Saison: Espen auf Platz 302 nach Spieltag 14 der Saison 24/25",
-  "- Beste Gesamtendplatzierung: Espen auf Platz 6.066 in der Saison 24/25",
-  "- Größter Vorsprung zwischen Meister und Vizemeister: Erwin vor Markus mit 311 Punkten (22/23)",
-  "- Engster Vorsprung zwischen Meister und Vizemeister: Markus vor Didi mit 12 Punkten (25/26)",
-  "- Start-Ziel-Siege: Erwin (22/23) und Espen (24/25)",
-  "- Meiste Punkte auf der Bank gelassen: Didi mit 582 Punkten (24/25)",
-  "- Wenigste Tabellenführungen auf dem Weg zur Meisterschaft: Eirik mit 6 Tabellenführungen (20/21)",
-  "- Größter Punktezuwachs aller Zeiten: Didi mit +785 Punkten (S5 → S6)",
-  "- Größter Punkteverlust aller Zeiten: Espen mit −917 Punkten (S5 → S6)",
-  "- Konstantester Spieler aller Zeiten: Erwin mit einer Differenz von nur 421 Punkten zwischen seiner höchsten und niedrigsten Punktzahl",
-  "","","","",
-  "=== Meister ===",
-  "- Meister 2021: Eirik mit 1847* Punkten (1609 Ø Punkte in der Liga, 47,32 ø Punkte pro Spiel)",
-  "- Meister 2022: Phil mit 1826 Punkten (1481 Ø Punkte in der Liga, 43,56 ø Punkte pro Spiel)",
-  "- Meister 2023: Erwin mit 1957 Punkten (1541 Ø Punkte in der Liga, 45,32 ø Punkte pro Spiel)",
-  "- Meister 2024: Markus mit 2224 Punkten (1799 Ø Punkte in der Liga, 52,91 ø Punkte pro Spiel)",
-  "- Meister 2025: Espen mit 2042 Punkten (1686 Ø Punkte in der Liga, 49,59 ø Punkte pro Spiel)",
-  "- Meister 2026: Markus mit 2009 Punkten (1681 Ø Punkte in der Liga, 49,45 Ø Punkte pro Spiel)",
-  "","","",
-  "=== Fussnoten ===",
-  "-*in der Saison 20/21 gab es nur zwei Punkte für Startelf und einen für Einwechslung, habe alles nachgeschaut und an die fehlende Punkte addiert",
-  "-Seit der Saison 24/25 gibt es 2 Punkte anstelle von einem für eine Vorlage. Ist mir Wurst, werde das nicht alles neu nachrechnen!"
+    "","","","",
+
+    "=== All-Time Best Matchday Placements ===",
+    "27. Markus with 108 points 22/23",
+    "36. Phil with 93 points 22/23",
+    "108. Phil with 104 points 24/25",
+    "278. Phil with 91 points 22/23",
+    "444. Markus with 104 points 20/21",
+    "614. Phil with 87 points 22/23",
+    "739. Eirik with 93* points 20/21",
+    "766. Phil with 96 points 21/22",
+    "807. Phil with 92 points 25/26",
+    "982. Eirik with 96 points 25/26",
+    "984. Didi with 91 points 23/24",
+    "989. Markus with 94 points 23/24",
+
+    "","","","",
+
+    "=== All-Time Statistics ===",
+    "- Most matchday wins in a season: Markus with 13 matchday wins (21/22)",
+    "- Most consecutive matchday wins: Espen with 5 consecutive matchday wins (24/25)",
+    "- Most matchday losses in a season: Steffo with 15 losses (21/22)",
+    "- Lowest score for a matchday win: Erwin with 31 points (20/21)",
+    "- Lowest score ever recorded: Phil with -9 points (22/23)",
+    "- Highest score ever recorded: Emil with 113 points (23/24)",
+    "- Best overall position during a season: Espen in 302nd place after Matchday 14 of season 24/25",
+    "- Best final overall position: Espen in 6,066th place in season 24/25",
+    "- Largest lead between champion and runner-up: Erwin ahead of Markus by 311 points (22/23)",
+    "- Smallest lead between champion and runner-up: Markus ahead of Didi by 12 points (25/26)",
+    "- Start-to-finish wins: Erwin (22/23) and Espen (24/25)",
+    "- Most points left on the bench: Didi with 582 points (24/25)",
+    "- Fewest times leading the table on the way to the championship: Eirik with 6 table leads (20/21)",
+    "- Largest points increase ever: Didi with +785 points (S5 → S6)",
+    "- Largest points decrease ever: Espen with −917 points (S5 → S6)",
+    "- Most consistent player ever: Erwin with a difference of only 421 points between his highest and lowest score",
+
+    "","","","",
+
+    "=== Champions ===",
+    "- Champion 2021: Eirik with 1847* points (1609 average points in the league, 47.32 average points per game)",
+    "- Champion 2022: Phil with 1826 points (1481 average points in the league, 43.56 average points per game)",
+    "- Champion 2023: Erwin with 1957 points (1541 average points in the league, 45.32 average points per game)",
+    "- Champion 2024: Markus with 2224 points (1799 average points in the league, 52.91 average points per game)",
+    "- Champion 2025: Espen with 2042 points (1686 average points in the league, 49.59 average points per game)",
+    "- Champion 2026: Markus with 2009 points (1681 average points in the league, 49.45 average points per game)",
+
+    "","","",
+
+    "=== Footnotes ===",
+    "-*In the 20/21 season there were only two points for starting lineup appearances and one for substitutions. I checked everything and added the missing points.",
+    "-Since the 24/25 season, assists are worth 2 points instead of 1. I am not recalculating everything."
 ];
 
-/* =========================================================
-   AUTO CALCULATION ENGINE — untouched (drives Fiebertabelle
-   and Highlights, exactly as before)
-========================================================= */
-const allSeasons = [ s7, s8, s9 ];
-const seasonLabels = [ '20/21','21/22','22/23','23/24','24/25','25/26','26/27','27/28','28/29' ];
-
-let currentSeasonIdx=-1;
-for( let i=allSeasons.length-1; i>=0; i-- ){
-    if( Object.values( allSeasons[i] ).some( arr=>arr.length>0 ) ){ currentSeasonIdx=i; break; }
-}
-const numActiveSeasons = currentSeasonIdx+1;
 
 /* =========================================================
-   SHARED STAT ENGINE (unchanged) — used by the All-Time
-   Standings table, the new stat panels, and Highlights.
+   AUTOMATIC CALCULATION ENGINE
+   Used by the Fever Chart
 ========================================================= */
-function deriveGains( cumulativeArr ){
-    return cumulativeArr.map( (v,i)=> i===0 ? v : v-cumulativeArr[i-1] );
-}
 
-function computeSeasonStats( seasonData ){
-    const players = Object.keys(base);
-    const numMatchdays = Math.max( ...players.map( p=>( seasonData[p]||[] ).length ), 0 );
-    const stats={};
-    players.forEach( p=>{ stats[p]={ spieltagssiege:0, spieltagsletzter:0, tabellenerster:0, tabellenletzter:0 }; } );
-    const gains={};
-    players.forEach( p=>{ gains[p]=deriveGains( seasonData[p]||[] ); } );
+const allSeasons = [s7, s8, s9];
 
-    for( let md=0; md<numMatchdays; md++ ){
-        const active = players.filter( p=>( seasonData[p]||[] ).length>md );
-        if(active.length===0) continue;
-        const mdGains = active.map( p=>({ p, g:gains[p][md] }) );
-        const maxGain = Math.max( ...mdGains.map( x=>x.g ) );
-        const minGain = Math.min( ...mdGains.map( x=>x.g ) );
-        mdGains.forEach( ({p,g})=>{
-            if(g===maxGain) stats[p].spieltagssiege++;
-            if(g===minGain) stats[p].spieltagsletzter++;
-        } );
-        const cumuls = active.map( p=>({ p, c:seasonData[p][md] }) );
-        const maxC = Math.max( ...cumuls.map( x=>x.c ) );
-        const minC = Math.min( ...cumuls.map( x=>x.c ) );
-        cumuls.forEach( ({p,c})=>{
-            if(c===maxC) stats[p].tabellenerster++;
-            if(c===minC) stats[p].tabellenletzter++;
-        } );
+const seasonLabels = [
+    '20/21',
+    '21/22',
+    '22/23',
+    '23/24',
+    '24/25',
+    '25/26',
+    '26/27',
+    '27/28',
+    '28/29'
+];
+
+let currentSeasonIdx = -1;
+
+for(let i = allSeasons.length - 1; i >= 0; i--){
+    if(Object.values(allSeasons[i]).some(arr => arr.length > 0)){
+        currentSeasonIdx = i;
+        break;
     }
-    return{ stats, numMatchdays };
 }
 
-function stddev( arr ){
-    if(!arr || arr.length<2) return 0;
-    const mean = arr.reduce( (a,b)=>a+b, 0 ) / arr.length;
-    const variance = arr.reduce( (a,b)=>a+Math.pow(b-mean,2), 0 ) / arr.length;
-    return Math.sqrt(variance);
-}
+const numActiveSeasons = currentSeasonIdx + 1;
+
 
 /* =========================================================
-   SEASON META — single source of truth per season.
-   Adding a new season / closing out the current one is a
-   one-line change here (and adding its raw data above).
-   20/21 used a different scoring system: matchday gains and
-   wins are correct as-is, but final season totals need a
-   flat bonus added, and Eirik is fixed as champion of that
-   season regardless of the resulting point totals.
+   SHARED STATISTICS ENGINE
 ========================================================= */
-const season1Bonus = { Markus:648, Erwin:577, Phil:536, Didi:546, Eirik:558 };
 
-const seasonMeta = [
-  { data:s1, complete:true,  championOverride:'Eirik', bonus:season1Bonus },
-  { data:s2, complete:true },
-  { data:s3, complete:true },
-  { data:s4, complete:true },
-  { data:s5, complete:true },
-  { data:s6, complete:true },
-  { data:s7, complete:false },
-  { data:s8, complete:false },
-  { data:s9, complete:false }
-];
-
-let currentAbsoluteSeasonIdx = 0;
-for( let i=seasonMeta.length-1; i>=0; i-- ){
-    if( Object.values( seasonMeta[i].data ).some( arr=>arr.length>0 ) ){ currentAbsoluteSeasonIdx=i; break; }
-}
-const completedIndices = seasonMeta.map( (m,i)=>i ).filter( i=>seasonMeta[i].complete );
-
-function getSeasonFinalPoints( seasonIdx ){
-    const meta = seasonMeta[seasonIdx];
-    const seasonData = meta.data;
-    const activePlayers = Object.keys(base).filter( p=>( seasonData[p]||[] ).length>0 );
-    const points={};
-    activePlayers.forEach( p=>{
-        const arr = seasonData[p];
-        let pts = arr[arr.length-1];
-        if( meta.bonus && meta.bonus[p] ) pts += meta.bonus[p];
-        points[p]=pts;
-    } );
-    return { activePlayers, points };
+function deriveGains(cumulativeArr){
+    return cumulativeArr.map(
+        (value,index) => index === 0
+            ? value
+            : value - cumulativeArr[index - 1]
+    );
 }
 
-function seasonRankFromTop( seasonIdx, player ){
-    const { activePlayers, points } = getSeasonFinalPoints(seasonIdx);
-    if(!activePlayers.includes(player)) return null;
-    return activePlayers.filter( o=>points[o]>points[player] ).length + 1;
+function computeSeasonStats(seasonData){
+
+    const players = Object.keys(base);
+
+    const numMatchdays = Math.max(
+        ...players.map(
+            player => (seasonData[player] || []).length
+        ),
+        0
+    );
+
+    const stats = {};
+
+    players.forEach(player => {
+        stats[player] = {
+            matchday_wins:0,
+            matchday_last:0,
+            table_first:0,
+            table_last:0
+        };
+    });
+
+    const gains = {};
+
+    players.forEach(player => {
+        gains[player] = deriveGains(
+            seasonData[player] || []
+        );
+    });
+
+    for(let md = 0; md < numMatchdays; md++){
+
+        const active = players.filter(
+            player => (seasonData[player] || []).length > md
+        );
+
+        if(active.length === 0) continue;
+
+        const mdGains = active.map(
+            player => ({
+                player,
+                gain:gains[player][md]
+            })
+        );
+
+        const maxGain = Math.max(
+            ...mdGains.map(x => x.gain)
+        );
+
+        const minGain = Math.min(
+            ...mdGains.map(x => x.gain)
+        );
+
+        mdGains.forEach(({player,gain}) => {
+
+            if(gain === maxGain){
+                stats[player].matchday_wins++;
+            }
+
+            if(gain === minGain){
+                stats[player].matchday_last++;
+            }
+        });
+
+        const cumulative = active.map(
+            player => ({
+                player,
+                cumulative:seasonData[player][md]
+            })
+        );
+
+        const maxC = Math.max(
+            ...cumulative.map(x => x.cumulative)
+        );
+
+        const minC = Math.min(
+            ...cumulative.map(x => x.cumulative)
+        );
+
+        cumulative.forEach(({player,cumulative}) => {
+
+            if(cumulative === maxC){
+                stats[player].table_first++;
+            }
+
+            if(cumulative === minC){
+                stats[player].table_last++;
+            }
+        });
+    }
+
+    return {
+        stats,
+        numMatchdays
+    };
 }
 
-function getSeasonChampions( seasonIdx ){
-    const meta = seasonMeta[seasonIdx];
-    if(!meta.complete) return [];
-    if(meta.championOverride) return [meta.championOverride];
-    const { activePlayers, points } = getSeasonFinalPoints(seasonIdx);
-    if(activePlayers.length===0) return [];
-    const maxPts = Math.max( ...activePlayers.map(p=>points[p]) );
-    return activePlayers.filter( p=>points[p]===maxPts );
-}
 
 /* =========================================================
    INTERACTIVE ALL-TIME STANDINGS
-   Ties: Meister/Vizemeister/Podium/Letzter/Spieltagssiege/
-   Spieltagsletzter/Tabellenerster/Tabellenletzter all credit
-   EVERY player tied for that spot (not just one) — the same
-   rule used everywhere else in this table. The only override
-   is the explicit 20/21 championOverride above.
 ========================================================= */
-function computeStandingsThroughSeason( uptoIdx ){
+
+const season1Bonus = {
+    Markus:648,
+    Erwin:577,
+    Phil:536,
+    Didi:546,
+    Eirik:558
+};
+
+const seasonChampionOverride = {
+    0:'Eirik'
+};
+
+const completedSeasonsCount = 6;
+
+const allSeasonsRaw = [
+    s1,
+    s2,
+    s3,
+    s4,
+    s5,
+    s6,
+    s7,
+    s8,
+    s9
+];
+
+const currentAbsoluteSeasonIdx =
+    currentSeasonIdx >= 0
+        ? 6 + currentSeasonIdx
+        : completedSeasonsCount - 1;
+
+
+function computeStandingsThroughSeason(uptoIdx){
+
     const playersList = Object.keys(base);
+
     const combined = {};
-    playersList.forEach( p=>{
-        combined[p] = {
-            spiele:0, punkte:0, meister:0, vizemeister:0, podium:0, letzter:0,
-            spieltagssiege:0, spieltagsletzter:0, tabellenerster:0, tabellenletzter:0,
-            wtw:0, _rankSum:0, _rankCount:0, _gains:[]
+
+    playersList.forEach(player => {
+
+        combined[player] = {
+            games:0,
+            points:0,
+            champion:0,
+            last_place:0,
+            matchday_wins:0,
+            matchday_last:0,
+            table_first:0,
+            table_last:0
         };
-    } );
+    });
 
-    for( let idx=0; idx<=uptoIdx; idx++ ){
-        const meta = seasonMeta[idx];
-        if(!meta) continue;
-        const seasonData = meta.data;
-        const activePlayers = playersList.filter( p=>( seasonData[p]||[] ).length>0 );
-        if(activePlayers.length===0) continue;
 
-        const { stats, numMatchdays } = computeSeasonStats( seasonData );
-        const { points } = getSeasonFinalPoints( idx );
+    for(let idx = 0; idx <= uptoIdx; idx++){
 
-        let championsThisSeason=[], lastPlaceThisSeason=[];
-        if(meta.complete){
-            const minPts = Math.min( ...activePlayers.map(p=>points[p]) );
-            lastPlaceThisSeason = activePlayers.filter( p=>points[p]===minPts );
-            championsThisSeason = getSeasonChampions(idx);
+        const seasonData = allSeasonsRaw[idx];
+
+        if(!seasonData) continue;
+
+        const activePlayers = playersList.filter(
+            player => (seasonData[player] || []).length > 0
+        );
+
+        if(activePlayers.length === 0) continue;
+
+        const {stats} = computeSeasonStats(seasonData);
+
+        const seasonPoints = {};
+
+        activePlayers.forEach(player => {
+
+            const arr = seasonData[player];
+
+            let points = arr[arr.length - 1];
+
+            if(idx === 0 && season1Bonus[player]){
+                points += season1Bonus[player];
+            }
+
+            seasonPoints[player] = points;
+        });
+
+
+        const isComplete = idx < completedSeasonsCount;
+
+        let champion = null;
+        let lastPlace = null;
+
+        if(isComplete){
+
+            champion =
+                seasonChampionOverride[idx] ||
+                activePlayers.reduce(
+                    (a,b) =>
+                        seasonPoints[a] >= seasonPoints[b]
+                            ? a
+                            : b
+                );
+
+            lastPlace =
+                activePlayers.reduce(
+                    (a,b) =>
+                        seasonPoints[a] <= seasonPoints[b]
+                            ? a
+                            : b
+                );
         }
 
-        activePlayers.forEach( p=>{
-            const rank = activePlayers.filter( o=>points[o]>points[p] ).length + 1;
-            combined[p].spiele += ( seasonData[p]||[] ).length;
-            combined[p].punkte += points[p];
-            combined[p].spieltagssiege += stats[p].spieltagssiege;
-            combined[p].spieltagsletzter += stats[p].spieltagsletzter;
-            combined[p].tabellenerster += stats[p].tabellenerster;
-            combined[p].tabellenletzter += stats[p].tabellenletzter;
-            combined[p]._gains.push( ...deriveGains(seasonData[p]) );
-            if( numMatchdays>0 && stats[p].tabellenerster===numMatchdays ) combined[p].wtw++;
 
-            if(meta.complete){
-                combined[p]._rankSum += rank;
-                combined[p]._rankCount += 1;
-                if(rank===2) combined[p].vizemeister++;
-                if(rank<=3) combined[p].podium++;
-            }
-        } );
+        playersList.forEach(player => {
 
-        championsThisSeason.forEach( p=>combined[p].meister++ );
-        lastPlaceThisSeason.forEach( p=>combined[p].letzter++ );
+            combined[player].games +=
+                (seasonData[player] || []).length;
+
+            combined[player].points +=
+                seasonPoints[player] || 0;
+
+            combined[player].matchday_wins +=
+                stats[player].matchday_wins;
+
+            combined[player].matchday_last +=
+                stats[player].matchday_last;
+
+            combined[player].table_first +=
+                stats[player].table_first;
+
+            combined[player].table_last +=
+                stats[player].table_last;
+        });
+
+
+        if(champion){
+            combined[champion].champion++;
+        }
+
+        if(lastPlace){
+            combined[lastPlace].last_place++;
+        }
     }
 
-    const rows = playersList
-        .filter( p=>combined[p].spiele>0 )
-        .map( p=>{
-            const c = combined[p];
-            return {
-                spieler:p, platz:0,
-                spiele:c.spiele,
-                punkte:c.punkte,
-                avg: c.spiele>0 ? Math.round( (c.punkte/c.spiele)*100 )/100 : 0,
-                meister:c.meister,
-                vizemeister:c.vizemeister,
-                podium:c.podium,
-                avgplatz: c._rankCount>0 ? Math.round( (c._rankSum/c._rankCount)*10 )/10 : null,
-                letzter:c.letzter,
-                spieltagssiege:c.spieltagssiege,
-                spieltagsletzter:c.spieltagsletzter,
-                tabellenerster:c.tabellenerster,
-                tabellenletzter:c.tabellenletzter,
-                wtw:c.wtw,
-                volatilitaet: Math.round( stddev(c._gains)*10 )/10
-            };
-        } );
 
-    rows.sort( (a,b)=> b.punkte-a.punkte );
-    rows.forEach( (r,i)=> r.platz=i+1 );
+    const rows = playersList
+        .filter(
+            player => combined[player].games > 0
+        )
+        .map(player => ({
+            player,
+            position:0,
+            ...combined[player],
+
+            avg:
+                combined[player].games > 0
+                    ? Math.round(
+                        (
+                            combined[player].points /
+                            combined[player].games
+                        ) * 100
+                    ) / 100
+                    : 0
+        }));
+
+
+    rows.sort(
+        (a,b) => b.points - a.points
+    );
+
+    rows.forEach(
+        (row,index) => {
+            row.position = index + 1;
+        }
+    );
+
     return rows;
 }
 
+
 /* =========================================================
    RENDER TABLE
-   Platz always reflects the row's position in whatever the
-   table is currently sorted by. Punkte uses de-DE thousands
-   separators. Ties on the active sort key fall back to
-   Punkte, then ø P.p.S, for a stable, meaningful order.
 ========================================================= */
+
 let leaderboardData = [];
-const LEADERBOARD_COLUMNS = [
-    'platz','spieler','spiele','punkte','avg','meister','vizemeister','podium',
-    'avgplatz','letzter','spieltagssiege','spieltagsletzter','tabellenerster',
-    'tabellenletzter','wtw','volatilitaet'
-];
 
-function renderLeaderboard( data ){
-    const tbody = document.querySelector( '#leaderboard tbody' );
-    tbody.innerHTML='';
-    data.forEach( player=>{
-        const row = document.createElement('tr');
-        LEADERBOARD_COLUMNS.forEach( key=>{
-            const td = document.createElement('td');
-            const val = player[key];
-            if( val===null || val===undefined || val==='' ) td.textContent='-';
-            else if( key==='punkte' ) td.textContent = val.toLocaleString('de-DE');
-            else td.textContent = val;
+function renderLeaderboard(data){
+
+    const tbody =
+        document.querySelector(
+            '#leaderboard tbody'
+        );
+
+    tbody.innerHTML = '';
+
+    data.forEach(player => {
+
+        const row =
+            document.createElement('tr');
+
+        [
+            'position',
+            'player',
+            'games',
+            'points',
+            'avg',
+            'champion',
+            'last_place',
+            'matchday_wins',
+            'matchday_last',
+            'table_first',
+            'table_last'
+        ].forEach(key => {
+
+            const td =
+                document.createElement('td');
+
+            const value = player[key];
+
+            td.textContent =
+                (
+                    value === null ||
+                    value === undefined ||
+                    value === ''
+                )
+                    ? '-'
+                    : value;
+
             row.appendChild(td);
-        } );
+        });
+
         tbody.appendChild(row);
-    } );
+    });
 }
 
-let currentSortKey='punkte';
-let currentSortAsc=false;
 
-function applySortIndicators( key ){
-    document.querySelectorAll('#leaderboard thead th').forEach( th=>{
-        th.classList.remove('sort-asc','sort-desc');
-        th.setAttribute('aria-sort','none');
-    } );
-    const th = document.querySelector( `#leaderboard thead th[data-key="${key}"]` );
-    if(th){
-        th.classList.add( currentSortAsc ? 'sort-asc' : 'sort-desc' );
-        th.setAttribute( 'aria-sort', currentSortAsc ? 'ascending' : 'descending' );
+let currentSortKey = 'points';
+let currentSortAsc = false;
+
+
+function sortAndRender(key){
+
+    if(currentSortKey === key){
+        currentSortAsc = !currentSortAsc;
+    }else{
+        currentSortKey = key;
+        currentSortAsc = false;
     }
-}
 
-function sortAndRender( key ){
-    if(currentSortKey===key) currentSortAsc=!currentSortAsc;
-    else{ currentSortKey=key; currentSortAsc=false; }
 
-    applySortIndicators(key);
+    document
+        .querySelectorAll(
+            '#leaderboard thead th'
+        )
+        .forEach(th =>
+            th.classList.remove(
+                'sort-asc',
+                'sort-desc'
+            )
+        );
 
-    const sorted = [...leaderboardData].sort( (a,b)=>{
-        let va=a[key], vb=b[key];
-        let primary;
-        if( typeof va==='number' && typeof vb==='number' ) primary = currentSortAsc ? va-vb : vb-va;
-        else primary = currentSortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-        if(primary!==0) return primary;
-        if(b.punkte!==a.punkte) return b.punkte-a.punkte;
-        return b.avg-a.avg;
-    } );
-    sorted.forEach( (r,i)=> r.platz=i+1 );
+
+    const th =
+        document.querySelector(
+            `#leaderboard thead th[data-key="${key}"]`
+        );
+
+    if(th){
+
+        th.classList.add(
+            currentSortAsc
+                ? 'sort-asc'
+                : 'sort-desc'
+        );
+    }
+
+
+    const sorted =
+        [...leaderboardData].sort((a,b) => {
+
+            const va = a[key];
+            const vb = b[key];
+
+            if(
+                typeof va === 'number' &&
+                typeof vb === 'number'
+            ){
+
+                return currentSortAsc
+                    ? va - vb
+                    : vb - va;
+            }
+
+            return currentSortAsc
+                ? String(va).localeCompare(String(vb))
+                : String(vb).localeCompare(String(va));
+        });
+
+
     renderLeaderboard(sorted);
 }
 
-document.querySelectorAll('#leaderboard thead th').forEach( th=>{
-    th.addEventListener( 'click', ()=>{ if(th.dataset.key) sortAndRender(th.dataset.key); } );
-} );
 
-/* =========================================================
-   PROJECTION PANEL ("on pace for...") — shown only on the
-   Aktuell tab, while the newest season is still in progress.
-========================================================= */
-function computeProjections( currentIdx ){
-    const meta = seasonMeta[currentIdx];
-    if(!meta) return [];
-    const seasonData = meta.data;
-    const completedLengths = seasonMeta
-        .filter( m=>m.complete )
-        .flatMap( m=>Object.values(m.data).map(a=>a.length) )
-        .filter( n=>n>0 );
-    const typicalLength = completedLengths.length ? Math.max(...completedLengths) : 0;
-    if(typicalLength===0) return [];
+document
+    .querySelectorAll(
+        '#leaderboard thead th'
+    )
+    .forEach(th => {
 
-    const activePlayers = Object.keys(base).filter( p=>( seasonData[p]||[] ).length>0 );
-    return activePlayers.map( p=>{
-        const arr = seasonData[p];
-        const perGame = arr.length>0 ? arr[arr.length-1]/arr.length : 0;
-        return { player:p, projected: Math.round(perGame*typicalLength) };
-    } ).sort( (a,b)=>b.projected-a.projected );
-}
+        th.addEventListener(
+            'click',
+            () => {
 
-function renderProjectionPanel( t ){
-    const panel = document.getElementById('projection-panel');
-    panel.innerHTML='';
-    if(!t.isCurrent){ return; }
-    const projections = computeProjections(t.idx);
-    if(projections.length===0) return;
-    projections.forEach( pr=>{
-        const chip = document.createElement('div');
-        chip.className='projection-chip';
-        chip.innerHTML = `${pr.player}: <b>~${pr.projected.toLocaleString('de-DE')}</b>`;
-        panel.appendChild(chip);
-    } );
-}
-
-/* =========================================================
-   SEASON TABS — newest (Aktuell) left, oldest right.
-   Built from seasonMeta, so a season closing out or a new
-   one starting needs no changes here.
-========================================================= */
-const tabDefs = [ { idx: currentAbsoluteSeasonIdx, label:'Aktuell', isCurrent:true } ];
-for( let i=completedIndices.length-1; i>=0; i-- ){
-    const idx = completedIndices[i];
-    tabDefs.push( { idx, label:seasonLabels[idx], isCurrent:false } );
-}
-
-function showSeasonSnapshot( t, btn ){
-    document.querySelectorAll('.season-tab-btn').forEach( b=>b.classList.remove('active') );
-    if(btn) btn.classList.add('active');
-
-    leaderboardData = computeStandingsThroughSeason( t.idx );
-    currentSortKey='punkte';
-    currentSortAsc=false;
-    applySortIndicators('punkte');
-    renderLeaderboard( [...leaderboardData].sort( (a,b)=>b.punkte-a.punkte ) );
-    renderProjectionPanel(t);
-
-    const labelEl = document.getElementById('season-current-label');
-    if(t.isCurrent){
-        const seasonData = seasonMeta[t.idx] ? seasonMeta[t.idx].data : {};
-        const md = Math.max( 0, ...Object.keys(base).map( p=>( seasonData[p]||[] ).length ) );
-        labelEl.textContent = md>0
-            ? `Aktueller Stand — Saison ${seasonLabels[t.idx]}, nach Spieltag ${md}`
-            : `Aktueller Stand — Saison ${seasonLabels[t.idx]} hat noch nicht begonnen`;
-    }else{
-        labelEl.textContent = `Stand nach Saison ${t.label}`;
-    }
-}
-
-const tabsContainer = document.getElementById('season-tabs');
-const tabButtons = tabDefs.map( (t,i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'season-tab-btn' + (i===0?' active':'');
-    btn.textContent = t.label;
-    btn.addEventListener( 'click', ()=>showSeasonSnapshot(t, btn) );
-    tabsContainer.appendChild(btn);
-    return btn;
-} );
-
-showSeasonSnapshot( tabDefs[0], tabButtons[0] );
-
-/* =========================================================
-   TITELVERTEIDIGUNG — how the reigning champion fared the
-   following season. Built once from completed seasons only;
-   independent of the season tabs above.
-========================================================= */
-function buildTitleDefenseLines(){
-    const lines=[];
-    for( let idx=0; idx<seasonMeta.length-1; idx++ ){
-        if(!seasonMeta[idx].complete || !seasonMeta[idx+1].complete) continue;
-        const champs = getSeasonChampions(idx);
-        champs.forEach( champ=>{
-            const { activePlayers, points } = getSeasonFinalPoints(idx+1);
-            if(!activePlayers.includes(champ)){
-                lines.push( `${seasonLabels[idx]} → ${seasonLabels[idx+1]}: Titelverteidiger ${champ} spielte in der Folgesaison nicht mit.` );
-                return;
+                if(th.dataset.key){
+                    sortAndRender(
+                        th.dataset.key
+                    );
+                }
             }
-            const rank = seasonRankFromTop(idx+1, champ);
-            lines.push( `${seasonLabels[idx]} → ${seasonLabels[idx+1]}: Titelverteidiger ${champ} wurde Platz ${rank} mit ${points[champ].toLocaleString('de-DE')} Punkten.` );
-        } );
-    }
-    return lines.length ? lines : [ "Noch keine abgeschlossene Titelverteidigung." ];
-}
+        );
+    });
 
-(function renderTitleDefense(){
-    const ul = document.getElementById('title-defense-list');
-    buildTitleDefenseLines().forEach( t=>{
-        const li=document.createElement('li');
-        li.textContent=t;
-        ul.appendChild(li);
-    } );
-})();
 
 /* =========================================================
-   KOPF-AN-KOPF — head-to-head across every shared matchday
-   in every season (including the season currently underway).
+   SEASON TABS
+   Newest/current season on the left
+   Oldest season on the right
 ========================================================= */
-function headToHead( playerA, playerB ){
-    let winsA=0, winsB=0, draws=0, common=0;
-    seasonMeta.forEach( meta=>{
-        const arrA = meta.data[playerA] || [];
-        const arrB = meta.data[playerB] || [];
-        const gA = deriveGains(arrA);
-        const gB = deriveGains(arrB);
-        const len = Math.min(arrA.length, arrB.length);
-        for( let md=0; md<len; md++ ){
-            common++;
-            if(gA[md]>gB[md]) winsA++;
-            else if(gB[md]>gA[md]) winsB++;
-            else draws++;
-        }
-    } );
-    return { winsA, winsB, draws, common };
+
+const tabDefs = [
+    {
+        idx:currentAbsoluteSeasonIdx,
+        label:'Current',
+        isCurrent:true
+    }
+];
+
+for(
+    let season = completedSeasonsCount - 1;
+    season >= 0;
+    season--
+){
+
+    tabDefs.push({
+        idx:season,
+        label:seasonLabels[season],
+        isCurrent:false
+    });
 }
 
-function renderHeadToHead(){
-    const a = document.getElementById('h2h-a').value;
-    const b = document.getElementById('h2h-b').value;
-    const result = document.getElementById('h2h-result');
-    if(!a || !b || a===b){
-        result.textContent = 'Bitte zwei unterschiedliche Spieler auswählen.';
-        return;
+
+function showSeasonSnapshot(tab,button){
+
+    document
+        .querySelectorAll('.season-tab-btn')
+        .forEach(btn =>
+            btn.classList.remove('active')
+        );
+
+    if(button){
+        button.classList.add('active');
     }
-    const { winsA, winsB, draws, common } = headToHead(a,b);
-    if(common===0){
-        result.textContent = `${a} und ${b} haben noch keinen gemeinsamen Spieltag bestritten.`;
-        return;
+
+
+    leaderboardData =
+        computeStandingsThroughSeason(
+            tab.idx
+        );
+
+    currentSortKey = 'points';
+    currentSortAsc = false;
+
+
+    document
+        .querySelectorAll(
+            '#leaderboard thead th'
+        )
+        .forEach(th =>
+            th.classList.remove(
+                'sort-asc',
+                'sort-desc'
+            )
+        );
+
+
+    document
+        .querySelector(
+            "#leaderboard thead th[data-key='points']"
+        )
+        .classList.add('sort-desc');
+
+
+    renderLeaderboard(
+        [...leaderboardData].sort(
+            (a,b) => b.points - a.points
+        )
+    );
+
+
+    const labelEl =
+        document.getElementById(
+            'season-current-label'
+        );
+
+
+    if(tab.isCurrent){
+
+        const seasonData =
+            allSeasonsRaw[tab.idx] || {};
+
+        const md =
+            Math.max(
+                0,
+                ...Object.keys(base).map(
+                    player =>
+                        (
+                            seasonData[player] || []
+                        ).length
+                )
+            );
+
+
+        labelEl.textContent =
+            md > 0
+                ? `Current Standings — Season ${seasonLabels[tab.idx]}, after Matchday ${md}`
+                : `Current Standings — Season ${seasonLabels[tab.idx]} has not started yet`;
+
+    }else{
+
+        labelEl.textContent =
+            `Standings after Season ${tab.label}`;
     }
-    result.innerHTML = `<b>${a}</b> ${winsA} : ${winsB} <b>${b}</b> (${draws} Unentschieden) — aus ${common} gemeinsamen Spieltagen.`;
 }
 
-(function initHeadToHead(){
-    const players = Object.keys(base);
-    const selA = document.getElementById('h2h-a');
-    const selB = document.getElementById('h2h-b');
-    players.forEach( p=>{
-        const optA=document.createElement('option'); optA.value=p; optA.textContent=p; selA.appendChild(optA);
-        const optB=document.createElement('option'); optB.value=p; optB.textContent=p; selB.appendChild(optB);
-    } );
-    selA.value = players[0];
-    selB.value = players[1];
-    selA.addEventListener('change', renderHeadToHead);
-    selB.addEventListener('change', renderHeadToHead);
-    renderHeadToHead();
-})();
+
+const tabsContainer =
+    document.getElementById(
+        'season-tabs'
+    );
+
+
+const tabButtons =
+    tabDefs.map((tab,index) => {
+
+        const button =
+            document.createElement('button');
+
+        button.className =
+            'season-tab-btn' +
+            (index === 0 ? ' active' : '');
+
+        button.textContent =
+            tab.label;
+
+        button.addEventListener(
+            'click',
+            () =>
+                showSeasonSnapshot(
+                    tab,
+                    button
+                )
+        );
+
+        tabsContainer.appendChild(button);
+
+        return button;
+    });
+
+
+showSeasonSnapshot(
+    tabDefs[0],
+    tabButtons[0]
+);
+
 
 /* =========================================================
-   FIEBERKURVE — untouched, with a fallback if Chart.js
-   fails to load (e.g. the CDN is blocked).
+   FEVER CHART
 ========================================================= */
-function buildFieberData(){
-    const players = Object.keys(base);
-    const result={};
-    players.forEach( p=>{
-        const base6 = fiebertabelleBase[p];
-        const newSeasonTotals = allSeasons.map( s=>{
-            const arr = s[p]||[];
-            return arr.length>0 ? arr[arr.length-1] : null;
-        } );
-        let running=0;
-        const points=[];
-        base6.forEach( v=>{ if(v!==null){ running=v; points.push(running); }else{ points.push(null); } } );
-        newSeasonTotals.forEach( v=>{ if(v!==null){ running+=v; points.push(running); }else{ points.push(null); } } );
-        result[p]=points;
-    } );
+
+function buildFeverData(){
+
+    const players =
+        Object.keys(base);
+
+    const result = {};
+
+
+    players.forEach(player => {
+
+        const base6 =
+            feverChartBase[player];
+
+        const newSeasonTotals =
+            allSeasons.map(season => {
+
+                const arr =
+                    season[player] || [];
+
+                return arr.length > 0
+                    ? arr[arr.length - 1]
+                    : null;
+            });
+
+
+        let running = 0;
+
+        const points = [];
+
+
+        base6.forEach(value => {
+
+            if(value !== null){
+
+                running = value;
+                points.push(running);
+
+            }else{
+
+                points.push(null);
+            }
+        });
+
+
+        newSeasonTotals.forEach(value => {
+
+            if(value !== null){
+
+                running += value;
+                points.push(running);
+
+            }else{
+
+                points.push(null);
+            }
+        });
+
+
+        result[player] = points;
+    });
+
+
     return result;
 }
 
-const fieberData = buildFieberData();
-const colors={
-    'Markus':'#E41A1C','Erwin':'#377EB8','Phil':'#4DAF4A','Didi':'#984EA3','Eirik':'#F781BF',
-    'Steffo':'#FF7F00','Basti':'#A65628','Emil':'#888888','Kempka':'#66C2A5','Espen':'#CC9900','Alex':'#999999'
+
+const feverData =
+    buildFeverData();
+
+
+const colors = {
+    'Markus':'#E41A1C',
+    'Erwin':'#377EB8',
+    'Phil':'#4DAF4A',
+    'Didi':'#984EA3',
+    'Eirik':'#F781BF',
+    'Steffo':'#FF7F00',
+    'Basti':'#A65628',
+    'Emil':'#888888',
+    'Kempka':'#66C2A5',
+    'Espen':'#CC9900',
+    'Alex':'#FFFFFF'
 };
-const players = Object.keys(base);
-const datasets = players.map( name=>({
-    label:name, data:fieberData[name], borderColor:colors[name]||'#999', backgroundColor:colors[name]||'#999',
-    fill:false,
-    pointRadius: window.innerWidth<=700 ? 2 : 4,
-    pointHoverRadius: window.innerWidth<=700 ? 4 : 6,
-    borderWidth: window.innerWidth<=700 ? 1.5 : 2,
-    spanGaps:true
-}) );
 
-const selectedIdx = new Set();
-const allColors = players.map( n=>colors[n]||'#999' );
-const displayedSlots = 6+numActiveSeasons;
-const displayedLabels = seasonLabels.slice(0,displayedSlots);
-datasets.forEach( ds=>{ ds.data = ds.data.slice(0,displayedSlots); } );
 
-let fieberChart = null;
+const players =
+    Object.keys(base);
 
-if( typeof Chart === 'undefined' ){
-    const cc = document.querySelector('.chart-container');
-    if(cc) cc.innerHTML = '<p style="color:#777;padding:20px;position:relative;z-index:2;">Chart.js konnte nicht geladen werden — die Fiebertabelle ist gerade nicht verfügbar.</p>';
-}else{
-    const ctx = document.getElementById('fieberkurveChart').getContext('2d');
-    fieberChart = new Chart( ctx, {
+
+const datasets =
+    players.map(name => ({
+
+        label:name,
+
+        data:feverData[name],
+
+        borderColor:
+            colors[name] || '#999',
+
+        backgroundColor:
+            colors[name] || '#999',
+
+        fill:false,
+
+        pointRadius:
+            window.innerWidth <= 700
+                ? 2
+                : 4,
+
+        pointHoverRadius:
+            window.innerWidth <= 700
+                ? 4
+                : 6,
+
+        borderWidth:
+            window.innerWidth <= 700
+                ? 1.5
+                : 2,
+
+        spanGaps:true
+    }));
+
+
+const selectedIdx =
+    new Set();
+
+
+const allColors =
+    players.map(
+        player =>
+            colors[player] || '#999'
+    );
+
+
+const displayedSlots =
+    6 + numActiveSeasons;
+
+
+const displayedLabels =
+    seasonLabels.slice(
+        0,
+        displayedSlots
+    );
+
+
+datasets.forEach(dataset => {
+
+    dataset.data =
+        dataset.data.slice(
+            0,
+            displayedSlots
+        );
+});
+
+
+const ctx =
+    document
+        .getElementById(
+            'feverChart'
+        )
+        .getContext('2d');
+
+
+const feverChart =
+    new Chart(ctx, {
+
         type:'line',
-        data:{ labels:displayedLabels, datasets },
+
+        data:{
+            labels:displayedLabels,
+            datasets
+        },
+
         options:{
-            responsive:true, maintainAspectRatio:false,
-            interaction:{ mode:'index', intersect:false },
-            plugins:{
-                legend:{
-                    display:true, position:'bottom',
-                    labels:{
-                        usePointStyle:true, pointStyle:'circle', color:'#888', boxWidth:8, boxHeight:8,
-                        padding: window.innerWidth<=700 ? 8 : 14,
-                        font:{ size: window.innerWidth<=700 ? 10 : 12 }
-                    },
-                    onClick: (e,item)=>{
-                        const i=item.datasetIndex;
-                        selectedIdx.has(i) ? selectedIdx.delete(i) : selectedIdx.add(i);
-                        datasets.forEach( (ds,j)=>{
-                            if(selectedIdx.size===0){
-                                ds.borderColor=allColors[j]; ds.backgroundColor=allColors[j];
-                                ds.borderWidth = window.innerWidth<=700 ? 1.5 : 2;
-                            }else if(selectedIdx.has(j)){
-                                ds.borderColor=allColors[j]; ds.backgroundColor=allColors[j];
-                                ds.borderWidth = window.innerWidth<=700 ? 3 : 4;
-                            }else{
-                                ds.borderColor='#333'; ds.backgroundColor='#333'; ds.borderWidth=1;
-                            }
-                        } );
-                        fieberChart.update();
-                    }
-                },
-                tooltip:{
-                    mode:'index', intersect:false, usePointStyle:true, boxWidth:8, boxHeight:8,
-                    itemSort: (a,b)=>( b.parsed.y??-Infinity )-( a.parsed.y??-Infinity ),
-                    callbacks:{
-                        label: c=>`${c.dataset.label}: ${c.parsed.y ?? '–'}`,
-                        labelPointStyle: ()=>({ pointStyle:'circle', rotation:0 })
-                    }
-                },
-                title:{ display:false }
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            interaction:{
+                mode:'index',
+                intersect:false
             },
-            scales:{
-                y:{
-                    beginAtZero:false,
-                    title:{ display: window.innerWidth>700, text:'Kumulative Punkte', color:'#777' },
-                    ticks:{ color:'#777', font:{ size: window.innerWidth<=700 ? 9 : 11 } },
-                    grid:{ color:'rgba(255,255,255,.06)' }
+
+            plugins:{
+
+                legend:{
+
+                    display:true,
+
+                    position:'bottom',
+
+                    labels:{
+
+                        usePointStyle:true,
+
+                        pointStyle:'circle',
+
+                        color:'#888',
+
+                        boxWidth:8,
+
+                        boxHeight:8,
+
+                        padding:
+                            window.innerWidth <= 700
+                                ? 8
+                                : 14,
+
+                        font:{
+                            size:
+                                window.innerWidth <= 700
+                                    ? 10
+                                    : 12
+                        }
+                    },
+
+
+                    onClick:(event,item) => {
+
+                        const index =
+                            item.datasetIndex;
+
+
+                        selectedIdx.has(index)
+                            ? selectedIdx.delete(index)
+                            : selectedIdx.add(index);
+
+
+                        datasets.forEach(
+                            (dataset,j) => {
+
+                                if(
+                                    selectedIdx.size === 0
+                                ){
+
+                                    dataset.borderColor =
+                                        allColors[j];
+
+                                    dataset.backgroundColor =
+                                        allColors[j];
+
+                                    dataset.borderWidth =
+                                        window.innerWidth <= 700
+                                            ? 1.5
+                                            : 2;
+
+                                }else if(
+                                    selectedIdx.has(j)
+                                ){
+
+                                    dataset.borderColor =
+                                        allColors[j];
+
+                                    dataset.backgroundColor =
+                                        allColors[j];
+
+                                    dataset.borderWidth =
+                                        window.innerWidth <= 700
+                                            ? 3
+                                            : 4;
+
+                                }else{
+
+                                    dataset.borderColor =
+                                        '#333';
+
+                                    dataset.backgroundColor =
+                                        '#333';
+
+                                    dataset.borderWidth = 1;
+                                }
+                            }
+                        );
+
+
+                        feverChart.update();
+                    }
                 },
+
+
+                tooltip:{
+
+                    mode:'index',
+
+                    intersect:false,
+
+                    usePointStyle:true,
+
+                    boxWidth:8,
+
+                    boxHeight:8,
+
+                    itemSort:
+                        (a,b) =>
+                            (
+                                b.parsed.y ?? -Infinity
+                            ) -
+                            (
+                                a.parsed.y ?? -Infinity
+                            ),
+
+                    callbacks:{
+
+                        label:
+                            context =>
+                                `${context.dataset.label}: ${context.parsed.y ?? '–'}`,
+
+                        labelPointStyle:
+                            () => ({
+                                pointStyle:'circle',
+                                rotation:0
+                            })
+                    }
+                },
+
+
+                title:{
+                    display:false
+                }
+            },
+
+
+            scales:{
+
+                y:{
+
+                    beginAtZero:false,
+
+                    title:{
+                        display:
+                            window.innerWidth > 700,
+
+                        text:'Cumulative Points',
+
+                        color:'#777'
+                    },
+
+                    ticks:{
+                        color:'#777',
+
+                        font:{
+                            size:
+                                window.innerWidth <= 700
+                                    ? 9
+                                    : 11
+                        }
+                    },
+
+                    grid:{
+                        color:
+                            'rgba(255,255,255,.06)'
+                    }
+                },
+
+
                 x:{
-                    title:{ display: window.innerWidth>700, text:'Saison', color:'#777' },
-                    ticks:{ color:'#777', font:{ size: window.innerWidth<=700 ? 9 : 11 } },
-                    grid:{ color:'rgba(255,255,255,.06)' }
+
+                    title:{
+                        display:
+                            window.innerWidth > 700,
+
+                        text:'Season',
+
+                        color:'#777'
+                    },
+
+                    ticks:{
+                        color:'#777',
+
+                        font:{
+                            size:
+                                window.innerWidth <= 700
+                                    ? 9
+                                    : 11
+                        }
+                    },
+
+                    grid:{
+                        color:
+                            'rgba(255,255,255,.06)'
+                    }
                 }
             }
         }
-    } );
-}
+    });
+
 
 /* =========================================================
-   HIGHLIGHTS — untouched
+   HIGHLIGHTS
 ========================================================= */
-function fmtNames( arr ){
-    const uniq=[...new Set(arr)];
-    if(uniq.length===0) return '–';
-    if(uniq.length===1) return uniq[0];
-    return( uniq.slice(0,-1).join(', ') + ' & ' + uniq[uniq.length-1] );
-}
 
-function computeSeasonHighlights( seasonData ){
-    const players = Object.keys(base).filter( p=>( seasonData[p]||[] ).length>0 );
-    if(players.length===0){ return[ "- Diese Saison hat noch nicht begonnen." ]; }
+function formatNames(array){
 
-    const numMatchdays = Math.max( ...players.map( p=>seasonData[p].length ) );
-    const gains={};
-    players.forEach( p=>{ gains[p]=deriveGains(seasonData[p]); } );
+    const unique =
+        [...new Set(array)];
 
-    const winCount={}, lossCount={};
-    players.forEach( p=>{ winCount[p]=0; lossCount[p]=0; } );
-
-    let highestScore={ val:-Infinity, players:[], md:0 };
-    let lowestScore={ val:Infinity, players:[], md:0 };
-    let worstWinner={ val:Infinity, players:[], md:0 };
-    let bestLoser={ val:-Infinity, players:[], md:0 };
-    const curWinStreak={}, curLossStreak={};
-    let bestWinStreak={ val:0, players:[] };
-    let bestLossStreak={ val:0, players:[] };
-    players.forEach( p=>{ curWinStreak[p]=0; curLossStreak[p]=0; } );
-
-    for( let md=0; md<numMatchdays; md++ ){
-        const active = players.filter( p=>seasonData[p].length>md );
-        if(active.length===0) continue;
-        const dayGains = active.map( p=>({ p, g:gains[p][md] }) );
-        const maxG = Math.max( ...dayGains.map(x=>x.g) );
-        const minG = Math.min( ...dayGains.map(x=>x.g) );
-        const winners = dayGains.filter(x=>x.g===maxG).map(x=>x.p);
-        const losers = dayGains.filter(x=>x.g===minG).map(x=>x.p);
-        winners.forEach( p=>winCount[p]++ );
-        losers.forEach( p=>lossCount[p]++ );
-
-        dayGains.forEach( ({p,g})=>{
-            if(g>highestScore.val){ highestScore={ val:g, players:[p], md:md+1 }; }
-            else if(g===highestScore.val){ highestScore.players.push(p); }
-            if(g<lowestScore.val){ lowestScore={ val:g, players:[p], md:md+1 }; }
-            else if(g===lowestScore.val){ lowestScore.players.push(p); }
-        } );
-
-        if(maxG<worstWinner.val){ worstWinner={ val:maxG, players:[...winners], md:md+1 }; }
-        else if(maxG===worstWinner.val){ worstWinner.players.push(...winners); }
-
-        if(minG>bestLoser.val){ bestLoser={ val:minG, players:[...losers], md:md+1 }; }
-        else if(minG===bestLoser.val){ bestLoser.players.push(...losers); }
-
-        active.forEach( p=>{
-            if(winners.includes(p)){ curWinStreak[p]++; } else { curWinStreak[p]=0; }
-            if(losers.includes(p)){ curLossStreak[p]++; } else { curLossStreak[p]=0; }
-            if(curWinStreak[p]>bestWinStreak.val){ bestWinStreak={ val:curWinStreak[p], players:[p] }; }
-            else if(curWinStreak[p]>0 && curWinStreak[p]===bestWinStreak.val && !bestWinStreak.players.includes(p)){ bestWinStreak.players.push(p); }
-            if(curLossStreak[p]>bestLossStreak.val){ bestLossStreak={ val:curLossStreak[p], players:[p] }; }
-            else if(curLossStreak[p]>0 && curLossStreak[p]===bestLossStreak.val && !bestLossStreak.players.includes(p)){ bestLossStreak.players.push(p); }
-        } );
+    if(unique.length === 0){
+        return '–';
     }
 
-    const maxWinCount = Math.max( ...players.map(p=>winCount[p]) );
-    const topWinners = players.filter( p=>winCount[p]===maxWinCount && maxWinCount>0 );
-    const noWins = players.filter( p=>winCount[p]===0 );
-    const noLosses = players.filter( p=>lossCount[p]===0 );
+    if(unique.length === 1){
+        return unique[0];
+    }
 
-    const lines=[];
-    lines.push( maxWinCount>0 ? `- Meiste Spieltagssiege von ${fmtNames(topWinners)} mit ${maxWinCount} Spieltagssiegen` : `- Noch keine Spieltagssiege verteilt` );
-    lines.push( noWins.length ? `- Keine Spieltagssiege in der Saison von ${fmtNames(noWins)}` : `- Alle Spieler hatten bereits mindestens einen Spieltagssieg` );
-    lines.push( noLosses.length ? `- Keine Spieltagsniederlagen in der Saison von ${fmtNames(noLosses)}` : `- Alle Spieler hatten bereits mindestens eine Spieltagsniederlage` );
-    lines.push( `- Höchste Spieltagspunktzahl von ${fmtNames(highestScore.players)} mit ${highestScore.val} Punkten (${highestScore.md}. Spieltag)` );
-    lines.push( `- Niedrigste Spieltagspunktzahl von ${fmtNames(lowestScore.players)} mit ${lowestScore.val} Punkten (${lowestScore.md}. Spieltag)` );
-    lines.push( `- Längste Serie von Spieltagssiegen in Folge von ${fmtNames(bestWinStreak.players)} mit ${bestWinStreak.val}` );
-    lines.push( `- Längste Serie von Spieltagsniederlagen in Folge von ${fmtNames(bestLossStreak.players)} mit ${bestLossStreak.val}` );
-    lines.push( `- Schlechtester Spieltagssieger: ${fmtNames(worstWinner.players)} mit ${worstWinner.val} Punkten (${worstWinner.md}. Spieltag)` );
-    lines.push( `- Bester Spieltagsletzter: ${fmtNames(bestLoser.players)} mit ${bestLoser.val} Punkten (${bestLoser.md}. Spieltag)` );
+    return (
+        unique
+            .slice(0,-1)
+            .join(', ')
+        +
+        ' & '
+        +
+        unique[unique.length - 1]
+    );
+}
+
+
+function computeSeasonHighlights(seasonData){
+
+    const players =
+        Object.keys(base)
+            .filter(
+                player =>
+                    (
+                        seasonData[player] || []
+                    ).length > 0
+            );
+
+
+    if(players.length === 0){
+
+        return [
+            "- This season has not started yet."
+        ];
+    }
+
+
+    const numMatchdays =
+        Math.max(
+            ...players.map(
+                player =>
+                    seasonData[player].length
+            )
+        );
+
+
+    const gains = {};
+
+
+    players.forEach(player => {
+
+        gains[player] =
+            deriveGains(
+                seasonData[player]
+            );
+    });
+
+
+    const winCount = {};
+    const lossCount = {};
+
+
+    players.forEach(player => {
+
+        winCount[player] = 0;
+        lossCount[player] = 0;
+    });
+
+
+    let highestScore = {
+        value:-Infinity,
+        players:[],
+        matchday:0
+    };
+
+
+    let lowestScore = {
+        value:Infinity,
+        players:[],
+        matchday:0
+    };
+
+
+    let worstWinner = {
+        value:Infinity,
+        players:[],
+        matchday:0
+    };
+
+
+    let bestLoser = {
+        value:-Infinity,
+        players:[],
+        matchday:0
+    };
+
+
+    const currentWinStreak = {};
+    const currentLossStreak = {};
+
+
+    let bestWinStreak = {
+        value:0,
+        players:[]
+    };
+
+
+    let bestLossStreak = {
+        value:0,
+        players:[]
+    };
+
+
+    players.forEach(player => {
+
+        currentWinStreak[player] = 0;
+        currentLossStreak[player] = 0;
+    });
+
+
+    for(
+        let md = 0;
+        md < numMatchdays;
+        md++
+    ){
+
+        const active =
+            players.filter(
+                player =>
+                    seasonData[player].length > md
+            );
+
+
+        if(active.length === 0){
+            continue;
+        }
+
+
+        const dayGains =
+            active.map(player => ({
+                player,
+                gain:gains[player][md]
+            }));
+
+
+        const maxGain =
+            Math.max(
+                ...dayGains.map(
+                    x => x.gain
+                )
+            );
+
+
+        const minGain =
+            Math.min(
+                ...dayGains.map(
+                    x => x.gain
+                )
+            );
+
+
+        const winners =
+            dayGains
+                .filter(
+                    x => x.gain === maxGain
+                )
+                .map(
+                    x => x.player
+                );
+
+
+        const losers =
+            dayGains
+                .filter(
+                    x => x.gain === minGain
+                )
+                .map(
+                    x => x.player
+                );
+
+
+        winners.forEach(
+            player => winCount[player]++
+        );
+
+
+        losers.forEach(
+            player => lossCount[player]++
+        );
+
+
+        dayGains.forEach(
+            ({player,gain}) => {
+
+                if(gain > highestScore.value){
+
+                    highestScore = {
+                        value:gain,
+                        players:[player],
+                        matchday:md + 1
+                    };
+
+                }else if(
+                    gain === highestScore.value
+                ){
+
+                    highestScore.players.push(
+                        player
+                    );
+                }
+
+
+                if(gain < lowestScore.value){
+
+                    lowestScore = {
+                        value:gain,
+                        players:[player],
+                        matchday:md + 1
+                    };
+
+                }else if(
+                    gain === lowestScore.value
+                ){
+
+                    lowestScore.players.push(
+                        player
+                    );
+                }
+            }
+        );
+
+
+        if(maxGain < worstWinner.value){
+
+            worstWinner = {
+                value:maxGain,
+                players:[...winners],
+                matchday:md + 1
+            };
+
+        }else if(
+            maxGain === worstWinner.value
+        ){
+
+            worstWinner.players.push(
+                ...winners
+            );
+        }
+
+
+        if(minGain > bestLoser.value){
+
+            bestLoser = {
+                value:minGain,
+                players:[...losers],
+                matchday:md + 1
+            };
+
+        }else if(
+            minGain === bestLoser.value
+        ){
+
+            bestLoser.players.push(
+                ...losers
+            );
+        }
+
+
+        active.forEach(player => {
+
+            if(winners.includes(player)){
+
+                currentWinStreak[player]++;
+
+            }else{
+
+                currentWinStreak[player] = 0;
+            }
+
+
+            if(losers.includes(player)){
+
+                currentLossStreak[player]++;
+
+            }else{
+
+                currentLossStreak[player] = 0;
+            }
+
+
+            if(
+                currentWinStreak[player] >
+                bestWinStreak.value
+            ){
+
+                bestWinStreak = {
+                    value:currentWinStreak[player],
+                    players:[player]
+                };
+
+            }else if(
+                currentWinStreak[player] > 0 &&
+                currentWinStreak[player] === bestWinStreak.value &&
+                !bestWinStreak.players.includes(player)
+            ){
+
+                bestWinStreak.players.push(
+                    player
+                );
+            }
+
+
+            if(
+                currentLossStreak[player] >
+                bestLossStreak.value
+            ){
+
+                bestLossStreak = {
+                    value:currentLossStreak[player],
+                    players:[player]
+                };
+
+            }else if(
+                currentLossStreak[player] > 0 &&
+                currentLossStreak[player] === bestLossStreak.value &&
+                !bestLossStreak.players.includes(player)
+            ){
+
+                bestLossStreak.players.push(
+                    player
+                );
+            }
+        });
+    }
+
+
+    const maxWinCount =
+        Math.max(
+            ...players.map(
+                player => winCount[player]
+            )
+        );
+
+
+    const topWinners =
+        players.filter(
+            player =>
+                winCount[player] === maxWinCount &&
+                maxWinCount > 0
+        );
+
+
+    const noWins =
+        players.filter(
+            player =>
+                winCount[player] === 0
+        );
+
+
+    const noLosses =
+        players.filter(
+            player =>
+                lossCount[player] === 0
+        );
+
+
+    const lines = [];
+
+
+    lines.push(
+        maxWinCount > 0
+            ? `- Most matchday wins: ${formatNames(topWinners)} with ${maxWinCount} matchday wins`
+            : `- No matchday wins have been awarded yet`
+    );
+
+
+    lines.push(
+        noWins.length
+            ? `- No matchday wins this season: ${formatNames(noWins)}`
+            : `- All players have had at least one matchday win`
+    );
+
+
+    lines.push(
+        noLosses.length
+            ? `- No matchday losses this season: ${formatNames(noLosses)}`
+            : `- All players have had at least one matchday loss`
+    );
+
+
+    lines.push(
+        `- Highest matchday score: ${formatNames(highestScore.players)} with ${highestScore.value} points (Matchday ${highestScore.matchday})`
+    );
+
+
+    lines.push(
+        `- Lowest matchday score: ${formatNames(lowestScore.players)} with ${lowestScore.value} points (Matchday ${lowestScore.matchday})`
+    );
+
+
+    lines.push(
+        `- Longest matchday win streak: ${formatNames(bestWinStreak.players)} with ${bestWinStreak.value}`
+    );
+
+
+    lines.push(
+        `- Longest matchday losing streak: ${formatNames(bestLossStreak.players)} with ${bestLossStreak.value}`
+    );
+
+
+    lines.push(
+        `- Lowest-scoring matchday winner: ${formatNames(worstWinner.players)} with ${worstWinner.value} points (Matchday ${worstWinner.matchday})`
+    );
+
+
+    lines.push(
+        `- Highest-scoring matchday last place: ${formatNames(bestLoser.players)} with ${bestLoser.value} points (Matchday ${bestLoser.matchday})`
+    );
+
+
     return lines;
 }
 
-const highlightSeasonIdx = currentSeasonIdx>=0 ? currentSeasonIdx : 0;
-const currentSeasonLabel = seasonLabels[6+highlightSeasonIdx].replace('/','-');
+
+const highlightSeasonIdx =
+    currentSeasonIdx >= 0
+        ? currentSeasonIdx
+        : 0;
+
+
+const currentSeasonLabel =
+    seasonLabels[
+        6 + highlightSeasonIdx
+    ].replace('/','-');
+
+
 const highlights = [
-    `=== Highlights der Saison ${currentSeasonLabel} ===`,
-    ...computeSeasonHighlights( allSeasons[highlightSeasonIdx] ),
+
+    `=== Season ${currentSeasonLabel} Highlights ===`,
+
+    ...computeSeasonHighlights(
+        allSeasons[highlightSeasonIdx]
+    ),
+
     ...staticHighlights
 ];
 
-const ul = document.getElementById('highlight-list');
-highlights.forEach( t=>{
-    const li = document.createElement('li');
-    const isHeader = /^===.*===$/.test( t.trim() );
-    if(isHeader) li.classList.add('highlight-header');
-    li.textContent=t;
+
+const ul =
+    document.getElementById(
+        'highlight-list'
+    );
+
+
+highlights.forEach(text => {
+
+    const li =
+        document.createElement('li');
+
+
+    const isHeader =
+        /^===.*===$/.test(
+            text.trim()
+        );
+
+
+    if(isHeader){
+        li.classList.add(
+            'highlight-header'
+        );
+    }
+
+
+    li.textContent = text;
+
     ul.appendChild(li);
-} );
+});
+
 
 /* =========================================================
-   RESPONSIVE CHART UPDATE — untouched (guarded for the
-   Chart.js-unavailable fallback above)
+   RESPONSIVE CHART UPDATE
 ========================================================= */
-window.addEventListener( 'resize', ()=>{
-    if(!fieberChart) return;
-    const mobile = window.innerWidth<=700;
-    fieberChart.data.datasets.forEach( ds=>{
-        const index = players.indexOf(ds.label);
-        const selected = selectedIdx.has(index);
-        if(selected){ ds.pointRadius = mobile?4:6; ds.pointHoverRadius = mobile?5:7; }
-        else{ ds.pointRadius = mobile?2:4; ds.pointHoverRadius = mobile?4:6; }
-    } );
-    fieberChart.options.scales.x.title.display = !mobile;
-    fieberChart.options.scales.y.title.display = !mobile;
-    fieberChart.options.scales.x.ticks.font.size = mobile?9:11;
-    fieberChart.options.scales.y.ticks.font.size = mobile?9:11;
-    fieberChart.options.plugins.legend.labels.padding = mobile?8:14;
-    fieberChart.options.plugins.legend.labels.font.size = mobile?10:12;
-    fieberChart.update();
-} );
+
+window.addEventListener(
+    'resize',
+    () => {
+
+        const mobile =
+            window.innerWidth <= 700;
+
+
+        feverChart.data.datasets.forEach(
+            dataset => {
+
+                const index =
+                    players.indexOf(
+                        dataset.label
+                    );
+
+
+                const selected =
+                    selectedIdx.has(index);
+
+
+                if(selected){
+
+                    dataset.pointRadius =
+                        mobile ? 4 : 6;
+
+                    dataset.pointHoverRadius =
+                        mobile ? 5 : 7;
+
+                }else{
+
+                    dataset.pointRadius =
+                        mobile ? 2 : 4;
+
+                    dataset.pointHoverRadius =
+                        mobile ? 4 : 6;
+                }
+            }
+        );
+
+
+        feverChart.options.scales.x.title.display =
+            !mobile;
+
+        feverChart.options.scales.y.title.display =
+            !mobile;
+
+
+        feverChart.options.scales.x.ticks.font.size =
+            mobile ? 9 : 11;
+
+        feverChart.options.scales.y.ticks.font.size =
+            mobile ? 9 : 11;
+
+
+        feverChart.options.plugins.legend.labels.padding =
+            mobile ? 8 : 14;
+
+        feverChart.options.plugins.legend.labels.font.size =
+            mobile ? 10 : 12;
+
+
+        feverChart.update();
+    }
+);
 
 </script>
+
 </body>
 </html>
-```
