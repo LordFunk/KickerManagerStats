@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Kicker Interactive Stats</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -49,6 +49,16 @@ main{ max-width:1400px; margin:0 auto; padding:0 30px 80px; }
 }
 .section-label::after{ content:""; height:1px; background:var(--line); flex:1; }
 
+/* Shared decorative card backdrop (was duplicated 4x) */
+.panel{
+    background:linear-gradient(145deg,var(--card),var(--card2));
+    border:1px solid var(--line); border-radius:12px; position:relative; overflow:hidden;
+}
+.panel::before{
+    content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
+    border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
+}
+
 /* Season tabs */
 .season-tabs{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
 .season-tab-btn{
@@ -61,13 +71,7 @@ main{ max-width:1400px; margin:0 auto; padding:0 30px 80px; }
 .season-current-label{ color:var(--muted); font-size:.8rem; margin-bottom:16px; }
 
 .table-responsive{
-    width:100%; overflow-x:auto;
-    background:linear-gradient(145deg,var(--card),var(--card2));
-    border:1px solid var(--line); border-radius:12px; margin-bottom:35px; position:relative;
-}
-.table-responsive::before{
-    content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
-    border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
+    width:100%; overflow-x:auto; margin-bottom:35px;
 }
 table{ border-collapse:collapse; width:100%; min-width:850px; background:transparent; }
 thead{ background:#181818; color:#777; font-weight:600; font-size:.7rem; text-align:left; position:sticky; top:0; z-index:2; }
@@ -84,22 +88,12 @@ tbody td{ padding:10px 14px; font-size:.85rem; border-bottom:1px solid rgba(255,
 tbody tr:last-child td{ border-bottom:none; }
 
 .chart-container{
-    width:100%; height:460px; background:linear-gradient(145deg,var(--card),var(--card2));
-    border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:35px; position:relative; overflow:hidden;
-}
-.chart-container::before{
-    content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
-    border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
+    width:100%; height:460px; padding:20px; margin-bottom:35px;
 }
 .chart-container canvas{ position:relative; z-index:2; }
 
 .highlight-container{
-    width:100%; background:linear-gradient(145deg,var(--card),var(--card2));
-    border:1px solid var(--line); border-radius:12px; padding:20px 24px; margin-bottom:35px; position:relative; overflow:hidden;
-}
-.highlight-container::before{
-    content:""; position:absolute; width:250px; height:250px; right:-130px; top:-130px;
-    border-radius:50%; background:rgba(227,6,19,.045); pointer-events:none;
+    width:100%; padding:20px 24px; margin-bottom:35px;
 }
 ul#highlight-list{
     position:relative; z-index:2; width:100%; margin:0; padding:0; list-style:inside disc;
@@ -111,6 +105,22 @@ ul#highlight-list li.highlight-header{
     letter-spacing:1px; text-transform:uppercase;
 }
 ul#highlight-list li.highlight-header:first-child{ margin-top:0; }
+
+/* Head to head */
+.h2h-container{ width:100%; padding:24px; margin-bottom:24px; }
+.h2h-selectors{ display:flex; align-items:center; gap:16px; margin-bottom:22px; position:relative; z-index:2; flex-wrap:wrap; }
+.h2h-select{
+    background:#181818; border:1px solid var(--line); color:#fff; font-size:.85rem; font-weight:600;
+    padding:9px 14px; border-radius:8px; font-family:inherit; cursor:pointer;
+}
+.h2h-select:focus{ outline:none; border-color:var(--red); }
+.h2h-vs{ color:var(--red); font-weight:800; font-size:.8rem; letter-spacing:1px; }
+.h2h-stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px; position:relative; z-index:2; }
+.h2h-stat{ background:#161616; border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
+.h2h-stat .label{ color:var(--muted); font-size:.65rem; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+.h2h-stat .value{ font-size:1.2rem; font-weight:800; }
+.h2h-stat .value.win{ color:var(--red); }
+.h2h-note{ color:var(--muted); font-size:.8rem; position:relative; z-index:2; }
 
 footer{
     border-top:1px solid var(--line);
@@ -127,7 +137,8 @@ footer{
     .page-header{ padding:150px 20px 50px; }
     h1{ font-size:48px; letter-spacing:-3px; }
     main{ padding-left:20px; padding-right:20px; }
-    .table-responsive{ border-radius:10px; margin-bottom:25px; }
+    .table-responsive{ margin-bottom:25px; }
+    .panel{ border-radius:10px; }
     table{ min-width:850px; }
     thead th{ padding:8px 8px; font-size:.62rem; }
     tbody td{ padding:7px 8px; font-size:.78rem; }
@@ -136,17 +147,17 @@ footer{
         height:320px;
         padding:12px 10px;
         margin-bottom:25px;
-        border-radius:10px;
     }
     .highlight-container{
         padding:15px 16px;
-        border-radius:10px;
         margin-bottom:25px;
     }
     ul#highlight-list{ font-size:.8rem; line-height:1.6; }
     ul#highlight-list li.highlight-header{ font-size:11px; margin-top:18px; }
     .section-label{ font-size:11px; }
     .season-tab-btn{ padding:7px 13px; font-size:.68rem; }
+    .h2h-container{ padding:16px; }
+    .h2h-select{ font-size:.8rem; padding:8px 12px; }
 }
 
 @media(max-width:400px){
@@ -159,11 +170,12 @@ footer{
 
 <nav class="nav">
     <div class="nav-inner">
-        <a class="logo" href="#">Kicker <span>Stats</span></a>
+        <a class="logo" href="https://REPLACE-WITH-YOUR-MAIN-SITE.example">Kicker <span>Stats</span></a>
 
         <div class="nav-links">
             <a href="#leaderboard-section">All-Time Table</a>
             <a href="#fever-chart">Fever Chart</a>
+            <a href="#h2h-section">Head to Head</a>
             <a href="#highlights">Highlights</a>
         </div>
     </div>
@@ -192,7 +204,7 @@ footer{
 
 <div class="season-current-label" id="season-current-label"></div>
 
-<div class="table-responsive">
+<div class="table-responsive panel">
     <table id="leaderboard" aria-label="Leaderboard">
         <thead>
             <tr>
@@ -218,15 +230,37 @@ footer{
     Fever Chart
 </div>
 
-<div class="chart-container">
+<div class="chart-container panel">
     <canvas id="feverChart"></canvas>
+</div>
+
+<div class="section-label" id="h2h-section">
+    Head to Head
+</div>
+
+<div class="h2h-container panel">
+    <div class="h2h-selectors">
+        <label for="h2h-player-a" style="color:#777;font-size:.75rem;">Player</label>
+        <select class="h2h-select" id="h2h-player-a" aria-label="First player"></select>
+        <span class="h2h-vs">VS</span>
+        <label for="h2h-player-b" style="color:#777;font-size:.75rem;">Player</label>
+        <select class="h2h-select" id="h2h-player-b" aria-label="Second player"></select>
+    </div>
+
+    <div class="h2h-stats" id="h2h-stats"></div>
+
+    <div class="h2h-note" id="h2h-note"></div>
+</div>
+
+<div class="chart-container panel" id="h2h-chart-container">
+    <canvas id="h2hChart"></canvas>
 </div>
 
 <div class="section-label" id="highlights">
     Highlights
 </div>
 
-<div class="highlight-container">
+<div class="highlight-container panel">
     <ul id="highlight-list"></ul>
 </div>
 
@@ -462,8 +496,26 @@ const s6 = {
 
 
 /* =========================================================
-   SEASONS 7-9
-   Used by the Fever Chart
+   SEASON 7 ONWARDS
+   Used by the Fever Chart, the standings table, and now the
+   auto-computed All-Time Statistics too.
+
+   HOW TO START A NEW SEASON:
+   The next empty object below (currently s8) is already wired
+   up everywhere — season labels, the standings table, the fever
+   chart, the head-to-head tool, and the all-time stats all pick
+   it up automatically the moment it has data in it. Just fill in
+   that season's arrays matchday by matchday as the season goes.
+
+   WHEN YOU RUN OUT OF EMPTY PLACEHOLDERS:
+   If every object below already has data (i.e. you're about to
+   start a season with no empty "sN" object left to fill), add a
+   new one following the same pattern (empty array per player)
+   and add its name to the allSeasonsRaw list further down. That
+   second step is the only manual wiring left — everything else
+   (labels, charts, tables, stats) is generated automatically from
+   however many seasons exist in allSeasonsRaw, so there's no more
+   fixed cap to run into.
 ========================================================= */
 
 const s7 = {
@@ -508,12 +560,40 @@ const s9 = {
     'Alex':[]
 };
 
+const s10 = {
+    'Markus':[], 'Erwin':[], 'Phil':[], 'Didi':[], 'Eirik':[],
+    'Basti':[], 'Steffo':[], 'Emil':[], 'Espen':[], 'Kempka':[], 'Alex':[]
+};
+
+const s11 = {
+    'Markus':[], 'Erwin':[], 'Phil':[], 'Didi':[], 'Eirik':[],
+    'Basti':[], 'Steffo':[], 'Emil':[], 'Espen':[], 'Kempka':[], 'Alex':[]
+};
+
+const s12 = {
+    'Markus':[], 'Erwin':[], 'Phil':[], 'Didi':[], 'Eirik':[],
+    'Basti':[], 'Steffo':[], 'Emil':[], 'Espen':[], 'Kempka':[], 'Alex':[]
+};
+
 
 /* =========================================================
    STATIC HIGHLIGHTS
 ========================================================= */
 
-const staticHighlights = [
+// This block covers stats that genuinely can't be derived from the
+// per-matchday data in this file — they depend on the full public
+// Kicker league table (thousands of participants), which isn't stored
+// here. These stay manually maintained; everything else that used to
+// live in this array is now computed automatically by
+// computeAllTimeStats() further down, from the same per-matchday data
+// that drives the standings table and the fever chart.
+const manualOnlyAllTimeStats = [
+    "- Best overall position during a season: Espen in 302nd place after Matchday 14 of season 24/25 (manual — needs the full public league table, not tracked in this file)",
+    "- Best final overall position: Espen in 6,066th place in season 24/25 (manual — needs the full public league table, not tracked in this file)",
+    "- Most points left on the bench: Didi with 582 points (24/25) (manual — bench points aren't recorded in this file, only starting-lineup totals)"
+];
+
+const staticHighlightsBefore = [
     "","","","",
 
     "=== All-Time Best Matchday Placements ===",
@@ -529,29 +609,10 @@ const staticHighlights = [
     "982. Eirik with 96 points 25/26",
     "984. Didi with 91 points 23/24",
     "989. Markus with 94 points 23/24",
+    "(Also manual — global gameweek rank, not stored in this file.)"
+];
 
-    "","","","",
-
-    "=== All-Time Statistics ===",
-    "- Most matchday wins in a season: Markus with 13 matchday wins (21/22)",
-    "- Most consecutive matchday wins: Espen with 5 consecutive matchday wins (24/25)",
-    "- Most matchday losses in a season: Steffo with 15 losses (21/22)",
-    "- Lowest score for a matchday win: Erwin with 31 points (20/21)",
-    "- Lowest score ever recorded: Phil with -9 points (22/23)",
-    "- Highest score ever recorded: Emil with 113 points (23/24)",
-    "- Best overall position during a season: Espen in 302nd place after Matchday 14 of season 24/25",
-    "- Best final overall position: Espen in 6,066th place in season 24/25",
-    "- Largest lead between champion and runner-up: Erwin ahead of Markus by 311 points (22/23)",
-    "- Smallest lead between champion and runner-up: Markus ahead of Didi by 12 points (25/26)",
-    "- Start-to-finish wins: Erwin (22/23) and Espen (24/25)",
-    "- Most points left on the bench: Didi with 582 points (24/25)",
-    "- Fewest times leading the table on the way to the championship: Eirik with 6 table leads (20/21)",
-    "- Largest points increase ever: Didi with +785 points (S5 → S6)",
-    "- Largest points decrease ever: Espen with −917 points (S5 → S6)",
-    "- Most consistent player ever: Erwin with a difference of only 421 points between his highest and lowest score",
-
-    "","","","",
-
+const staticHighlightsAfter = [
     "=== Champions ===",
     "- Champion 2021: Eirik with 1847* points (1609 average points in the league, 47.32 average points per game)",
     "- Champion 2022: Phil with 1826 points (1481 average points in the league, 43.56 average points per game)",
@@ -570,22 +631,40 @@ const staticHighlights = [
 
 /* =========================================================
    AUTOMATIC CALCULATION ENGINE
-   Used by the Fever Chart
+   Used by the Fever Chart, standings table and all-time stats.
+
+   Season labels used to be a fixed 9-entry list ('20/21' through
+   '28/29'), hardcoded separately from the list of season data
+   objects — so the two could silently fall out of sync, and the
+   label list would simply run out once a 10th season arrived.
+   Both are now derived from a single source (allSeasonsRaw,
+   defined right below) so there's no fixed season count baked in
+   anywhere and nothing to keep in sync by hand.
 ========================================================= */
 
-const allSeasons = [s7, s8, s9];
+const completedSeasonsCount = 6;
 
-const seasonLabels = [
-    '20/21',
-    '21/22',
-    '22/23',
-    '23/24',
-    '24/25',
-    '25/26',
-    '26/27',
-    '27/28',
-    '28/29'
+// The single source of truth for "which seasons exist". Add a new
+// season's data object here (see the instructions above s7) and
+// everything else in the file — labels, charts, tables, head-to-head,
+// all-time stats — follows automatically.
+const allSeasonsRaw = [
+    s1, s2, s3, s4, s5, s6,
+    s7, s8, s9, s10, s11, s12
 ];
+
+function seasonLabelFor(idx){
+    const pad = n => String(n % 100).padStart(2,'0');
+    return `${pad(20 + idx)}/${pad(21 + idx)}`;
+}
+
+const seasonLabels = allSeasonsRaw.map((_, idx) => seasonLabelFor(idx));
+
+// "Current + future" seasons — everything from the first season after
+// the completed ones onward. This used to be a separately hardcoded
+// [s7, s8, s9] array that had to be kept in sync with allSeasonsRaw
+// by hand; now it's just derived, so it can never drift out of sync.
+const allSeasons = allSeasonsRaw.slice(completedSeasonsCount);
 
 let currentSeasonIdx = -1;
 
@@ -725,27 +804,23 @@ const seasonChampionOverride = {
     0:'Eirik'
 };
 
-const completedSeasonsCount = 6;
-
-const allSeasonsRaw = [
-    s1,
-    s2,
-    s3,
-    s4,
-    s5,
-    s6,
-    s7,
-    s8,
-    s9
-];
-
 const currentAbsoluteSeasonIdx =
     currentSeasonIdx >= 0
-        ? 6 + currentSeasonIdx
+        ? completedSeasonsCount + currentSeasonIdx
         : completedSeasonsCount - 1;
 
 
+// Cache of computed standings, keyed by season index. The result for a
+// given "uptoIdx" never changes once the underlying season arrays are
+// fixed, so re-clicking the same tab no longer re-runs the full
+// computation every time.
+const standingsCache = {};
+
 function computeStandingsThroughSeason(uptoIdx){
+
+    if(standingsCache[uptoIdx]){
+        return standingsCache[uptoIdx];
+    }
 
     const playersList = Object.keys(base);
 
@@ -884,6 +959,8 @@ function computeStandingsThroughSeason(uptoIdx){
             row.position = index + 1;
         }
     );
+
+    standingsCache[uptoIdx] = rows;
 
     return rows;
 }
@@ -1323,7 +1400,7 @@ const allColors =
 
 
 const displayedSlots =
-    6 + numActiveSeasons;
+    completedSeasonsCount + numActiveSeasons;
 
 
 const displayedLabels =
@@ -1574,6 +1651,278 @@ const feverChart =
             }
         }
     });
+
+
+/* =========================================================
+   HEAD TO HEAD COMPARISON
+
+   Compares two players across every matchday where BOTH of
+   them were active in the same season (using the same
+   per-matchday raw data — allSeasonsRaw — as the standings
+   table, so it stays consistent with everything above).
+========================================================= */
+
+const h2hPlayers = Object.keys(base);
+
+const selA = document.getElementById('h2h-player-a');
+const selB = document.getElementById('h2h-player-b');
+
+h2hPlayers.forEach(p => {
+
+    const optA = document.createElement('option');
+    optA.value = p;
+    optA.textContent = p;
+    selA.appendChild(optA);
+
+    const optB = document.createElement('option');
+    optB.value = p;
+    optB.textContent = p;
+    selB.appendChild(optB);
+});
+
+selA.value = h2hPlayers[0];
+selB.value = h2hPlayers[1] || h2hPlayers[0];
+
+function computeH2H(playerA, playerB){
+
+    let matchdaysShared = 0;
+    let winsA = 0, winsB = 0, ties = 0;
+    let pointsA = 0, pointsB = 0;
+
+    let bestMarginA = {value:-Infinity, season:null, md:null};
+    let bestMarginB = {value:-Infinity, season:null, md:null};
+
+    const seriesA = [];
+    const seriesB = [];
+    const seriesLabels = [];
+
+    let runningA = 0, runningB = 0;
+
+    allSeasonsRaw.forEach((seasonData, idx) => {
+
+        const arrA = seasonData[playerA] || [];
+        const arrB = seasonData[playerB] || [];
+
+        const shared = Math.min(arrA.length, arrB.length);
+
+        if(shared === 0) return;
+
+        const gainsA = deriveGains(arrA);
+        const gainsB = deriveGains(arrB);
+
+        for(let md = 0; md < shared; md++){
+
+            const gA = gainsA[md];
+            const gB = gainsB[md];
+
+            matchdaysShared++;
+            pointsA += gA;
+            pointsB += gB;
+
+            if(gA > gB) winsA++;
+            else if(gB > gA) winsB++;
+            else ties++;
+
+            const margin = gA - gB;
+
+            if(margin > bestMarginA.value){
+                bestMarginA = {value:margin, season:seasonLabels[idx], md:md + 1};
+            }
+
+            if(-margin > bestMarginB.value){
+                bestMarginB = {value:-margin, season:seasonLabels[idx], md:md + 1};
+            }
+
+            runningA += gA;
+            runningB += gB;
+
+            seriesA.push(runningA);
+            seriesB.push(runningB);
+            seriesLabels.push(`${seasonLabels[idx]} MD${md + 1}`);
+        }
+    });
+
+    return {
+        matchdaysShared, winsA, winsB, ties, pointsA, pointsB,
+        bestMarginA, bestMarginB, seriesA, seriesB, seriesLabels
+    };
+}
+
+let h2hChart = null;
+
+function renderH2H(){
+
+    const playerA = selA.value;
+    const playerB = selB.value;
+
+    const statsEl = document.getElementById('h2h-stats');
+    const noteEl = document.getElementById('h2h-note');
+
+    if(playerA === playerB){
+
+        statsEl.innerHTML = '';
+        noteEl.textContent = 'Pick two different players to compare.';
+
+        if(h2hChart){
+            h2hChart.destroy();
+            h2hChart = null;
+        }
+
+        return;
+    }
+
+    const h2h = computeH2H(playerA, playerB);
+
+    if(h2h.matchdaysShared === 0){
+
+        statsEl.innerHTML = '';
+        noteEl.textContent = `${playerA} and ${playerB} have never played in the same season.`;
+
+        if(h2hChart){
+            h2hChart.destroy();
+            h2hChart = null;
+        }
+
+        return;
+    }
+
+    const cards = [
+        {label:'Shared Matchdays', value:h2h.matchdaysShared},
+        {label:`${playerA} Wins`, value:h2h.winsA, cls:h2h.winsA > h2h.winsB ? 'win' : ''},
+        {label:`${playerB} Wins`, value:h2h.winsB, cls:h2h.winsB > h2h.winsA ? 'win' : ''},
+        {label:'Ties', value:h2h.ties},
+        {label:`${playerA} Points`, value:h2h.pointsA, cls:h2h.pointsA > h2h.pointsB ? 'win' : ''},
+        {label:`${playerB} Points`, value:h2h.pointsB, cls:h2h.pointsB > h2h.pointsA ? 'win' : ''},
+        {
+            label:`${playerA} Best Margin`,
+            value:h2h.bestMarginA.value > -Infinity
+                ? `+${h2h.bestMarginA.value} (${h2h.bestMarginA.season} MD${h2h.bestMarginA.md})`
+                : '-'
+        },
+        {
+            label:`${playerB} Best Margin`,
+            value:h2h.bestMarginB.value > -Infinity
+                ? `+${h2h.bestMarginB.value} (${h2h.bestMarginB.season} MD${h2h.bestMarginB.md})`
+                : '-'
+        }
+    ];
+
+    statsEl.innerHTML = '';
+
+    cards.forEach(c => {
+
+        const div = document.createElement('div');
+        div.className = 'h2h-stat';
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'label';
+        labelDiv.textContent = c.label;
+
+        const valueDiv = document.createElement('div');
+        valueDiv.className = 'value' + (c.cls ? ' ' + c.cls : '');
+        valueDiv.textContent = c.value;
+
+        div.appendChild(labelDiv);
+        div.appendChild(valueDiv);
+
+        statsEl.appendChild(div);
+    });
+
+    noteEl.textContent =
+        `Based on points scored during matchdays where both ${playerA} and ${playerB} were active in the same season (${h2h.matchdaysShared} shared matchdays).`;
+
+    const ctxH2H = document.getElementById('h2hChart').getContext('2d');
+
+    if(h2hChart){
+        h2hChart.destroy();
+    }
+
+    h2hChart = new Chart(ctxH2H, {
+
+        type:'line',
+
+        data:{
+            labels:h2h.seriesLabels,
+            datasets:[
+                {
+                    label:playerA,
+                    data:h2h.seriesA,
+                    borderColor:colors[playerA] || '#e30613',
+                    backgroundColor:colors[playerA] || '#e30613',
+                    fill:false,
+                    pointRadius:0,
+                    borderWidth:2
+                },
+                {
+                    label:playerB,
+                    data:h2h.seriesB,
+                    borderColor:colors[playerB] || '#377EB8',
+                    backgroundColor:colors[playerB] || '#377EB8',
+                    fill:false,
+                    pointRadius:0,
+                    borderWidth:2
+                }
+            ]
+        },
+
+        options:{
+
+            responsive:true,
+            maintainAspectRatio:false,
+
+            interaction:{
+                mode:'index',
+                intersect:false
+            },
+
+            plugins:{
+
+                legend:{
+                    display:true,
+                    position:'bottom',
+                    labels:{
+                        color:'#888',
+                        usePointStyle:true,
+                        pointStyle:'circle',
+                        boxWidth:8,
+                        boxHeight:8
+                    }
+                },
+
+                tooltip:{
+                    mode:'index',
+                    intersect:false
+                }
+            },
+
+            scales:{
+
+                y:{
+                    title:{
+                        display:window.innerWidth > 700,
+                        text:'Points (shared matchdays only)',
+                        color:'#777'
+                    },
+                    ticks:{ color:'#777' },
+                    grid:{ color:'rgba(255,255,255,.06)' }
+                },
+
+                x:{
+                    ticks:{
+                        color:'#777',
+                        maxTicksLimit:8
+                    },
+                    grid:{ color:'rgba(255,255,255,.06)' }
+                }
+            }
+        }
+    });
+}
+
+selA.addEventListener('change', renderH2H);
+selB.addEventListener('change', renderH2H);
+
+renderH2H();
 
 
 /* =========================================================
@@ -2012,6 +2361,277 @@ function computeSeasonHighlights(seasonData){
 }
 
 
+/* =========================================================
+   ALL-TIME STATISTICS (AUTO-COMPUTED)
+
+   Everything below is derived from the same per-matchday data
+   (allSeasonsRaw) that drives the standings table and fever chart,
+   so it updates on its own as new matchdays and seasons are filled
+   in — nothing here needs to be edited by hand.
+
+   Ties are reported in full (e.g. two players sharing a record)
+   rather than picking one arbitrarily, using the same "Player (A)
+   & Player (B)" formatting as the season highlights above.
+========================================================= */
+
+function computeSeasonRawStats(seasonData){
+
+    const players = Object.keys(base).filter(
+        p => (seasonData[p] || []).length > 0
+    );
+
+    if(players.length === 0) return null;
+
+    const numMatchdays = Math.max(
+        ...players.map(p => seasonData[p].length)
+    );
+
+    const gains = {};
+    players.forEach(p => { gains[p] = deriveGains(seasonData[p]); });
+
+    const winCount = {}, lossCount = {};
+    players.forEach(p => { winCount[p] = 0; lossCount[p] = 0; });
+
+    let highestScore = {value:-Infinity, players:[], matchday:0};
+    let lowestScore = {value:Infinity, players:[], matchday:0};
+    let worstWinner = {value:Infinity, players:[], matchday:0};
+
+    const curWin = {}, curLoss = {};
+    let bestWinStreak = {value:0, players:[]};
+    players.forEach(p => { curWin[p] = 0; curLoss[p] = 0; });
+
+    for(let md = 0; md < numMatchdays; md++){
+
+        const active = players.filter(p => seasonData[p].length > md);
+        if(active.length === 0) continue;
+
+        const dayGains = active.map(p => ({player:p, gain:gains[p][md]}));
+        const maxGain = Math.max(...dayGains.map(x => x.gain));
+        const minGain = Math.min(...dayGains.map(x => x.gain));
+
+        const winners = dayGains.filter(x => x.gain === maxGain).map(x => x.player);
+        const losers = dayGains.filter(x => x.gain === minGain).map(x => x.player);
+
+        winners.forEach(p => winCount[p]++);
+        losers.forEach(p => lossCount[p]++);
+
+        dayGains.forEach(({player, gain}) => {
+
+            if(gain > highestScore.value){
+                highestScore = {value:gain, players:[player], matchday:md + 1};
+            }else if(gain === highestScore.value){
+                highestScore.players.push(player);
+            }
+
+            if(gain < lowestScore.value){
+                lowestScore = {value:gain, players:[player], matchday:md + 1};
+            }else if(gain === lowestScore.value){
+                lowestScore.players.push(player);
+            }
+        });
+
+        if(maxGain < worstWinner.value){
+            worstWinner = {value:maxGain, players:[...winners], matchday:md + 1};
+        }else if(maxGain === worstWinner.value){
+            worstWinner.players.push(...winners);
+        }
+
+        active.forEach(p => {
+
+            curWin[p] = winners.includes(p) ? curWin[p] + 1 : 0;
+            curLoss[p] = losers.includes(p) ? curLoss[p] + 1 : 0;
+
+            if(curWin[p] > bestWinStreak.value){
+                bestWinStreak = {value:curWin[p], players:[p]};
+            }else if(curWin[p] > 0 && curWin[p] === bestWinStreak.value && !bestWinStreak.players.includes(p)){
+                bestWinStreak.players.push(p);
+            }
+        });
+    }
+
+    return {players, numMatchdays, winCount, lossCount, highestScore, lowestScore, worstWinner, bestWinStreak};
+}
+
+function finalPointsForSeason(seasonData, idx){
+
+    const players = Object.keys(base).filter(p => (seasonData[p] || []).length > 0);
+    const pts = {};
+
+    players.forEach(p => {
+        const arr = seasonData[p];
+        let val = arr[arr.length - 1];
+        if(idx === 0 && season1Bonus[p]) val += season1Bonus[p];
+        pts[p] = val;
+    });
+
+    return pts;
+}
+
+function computeAllTimeStats(){
+
+    const perSeasonRaw = allSeasonsRaw.map(computeSeasonRawStats);
+
+    // ---- Most matchday wins in a season ----
+    let maxWins = -Infinity;
+    perSeasonRaw.forEach(raw => { if(raw) raw.players.forEach(p => { if(raw.winCount[p] > maxWins) maxWins = raw.winCount[p]; }); });
+    const winHolders = [];
+    perSeasonRaw.forEach((raw, idx) => { if(raw) raw.players.forEach(p => { if(raw.winCount[p] === maxWins) winHolders.push(`${p} (${seasonLabels[idx]})`); }); });
+
+    // ---- Longest matchday win streak ----
+    let maxStreak = -Infinity;
+    perSeasonRaw.forEach(raw => { if(raw && raw.bestWinStreak.value > maxStreak) maxStreak = raw.bestWinStreak.value; });
+    const streakHolders = [];
+    perSeasonRaw.forEach((raw, idx) => {
+        if(raw && raw.bestWinStreak.value === maxStreak){
+            raw.bestWinStreak.players.forEach(p => streakHolders.push(`${p} (${seasonLabels[idx]})`));
+        }
+    });
+
+    // ---- Most matchday losses in a season ----
+    let maxLosses = -Infinity;
+    perSeasonRaw.forEach(raw => { if(raw) raw.players.forEach(p => { if(raw.lossCount[p] > maxLosses) maxLosses = raw.lossCount[p]; }); });
+    const lossHolders = [];
+    perSeasonRaw.forEach((raw, idx) => { if(raw) raw.players.forEach(p => { if(raw.lossCount[p] === maxLosses) lossHolders.push(`${p} (${seasonLabels[idx]})`); }); });
+
+    // ---- Lowest score for a matchday win ----
+    // Season 20/21's own per-matchday numbers don't cleanly reflect a
+    // scoring-rule fix that was applied after the fact (see the footnote
+    // below), so that season isn't compared using its raw numbers. Instead
+    // its known, corrected record — Erwin winning a matchday with just 31
+    // points — is used as the starting record for that season, and every
+    // OTHER season is still compared automatically each time this runs. If
+    // any future matchday produces a genuinely lower winning score, it
+    // takes over here on its own — no manual edit needed.
+    const SEASON1_IDX = 0;
+    const SEASON1_CORRECTED_LOWEST_WIN = 31;
+
+    let worstWinVal = SEASON1_CORRECTED_LOWEST_WIN;
+    let worstWinHolders = [`Erwin (${seasonLabels[SEASON1_IDX]})`];
+
+    perSeasonRaw.forEach((raw, idx) => {
+        if(!raw || idx === SEASON1_IDX) return;
+
+        if(raw.worstWinner.value < worstWinVal){
+            worstWinVal = raw.worstWinner.value;
+            worstWinHolders = raw.worstWinner.players.map(p => `${p} (${seasonLabels[idx]}, MD${raw.worstWinner.matchday})`);
+        }else if(raw.worstWinner.value === worstWinVal){
+            raw.worstWinner.players.forEach(p => worstWinHolders.push(`${p} (${seasonLabels[idx]}, MD${raw.worstWinner.matchday})`));
+        }
+    });
+
+    // ---- Highest / lowest single-matchday score ever ----
+    let highestVal = -Infinity, lowestVal = Infinity;
+    perSeasonRaw.forEach(raw => {
+        if(!raw) return;
+        if(raw.highestScore.value > highestVal) highestVal = raw.highestScore.value;
+        if(raw.lowestScore.value < lowestVal) lowestVal = raw.lowestScore.value;
+    });
+    const highestHolders = [], lowestHolders = [];
+    perSeasonRaw.forEach((raw, idx) => {
+        if(!raw) return;
+        if(raw.highestScore.value === highestVal){
+            raw.highestScore.players.forEach(p => highestHolders.push(`${p} (${seasonLabels[idx]}, MD${raw.highestScore.matchday})`));
+        }
+        if(raw.lowestScore.value === lowestVal){
+            raw.lowestScore.players.forEach(p => lowestHolders.push(`${p} (${seasonLabels[idx]}, MD${raw.lowestScore.matchday})`));
+        }
+    });
+
+    // ---- Champion vs runner-up gap, and fewest table leads by a champion (completed seasons only) ----
+    let largestLead = {value:-Infinity, champ:null, runnerUp:null, season:null};
+    let smallestLead = {value:Infinity, champ:null, runnerUp:null, season:null};
+    let fewestLeads = {value:Infinity, players:[]};
+    const startToFinish = [];
+
+    for(let idx = 0; idx < completedSeasonsCount; idx++){
+
+        const raw = perSeasonRaw[idx];
+        if(!raw) continue;
+
+        const pts = finalPointsForSeason(allSeasonsRaw[idx], idx);
+        const sorted = raw.players.map(p => ({p, v:pts[p]})).sort((a,b) => b.v - a.v);
+        if(sorted.length < 2) continue;
+
+        const gap = sorted[0].v - sorted[1].v;
+        if(gap > largestLead.value) largestLead = {value:gap, champ:sorted[0].p, runnerUp:sorted[1].p, season:seasonLabels[idx]};
+        if(gap < smallestLead.value) smallestLead = {value:gap, champ:sorted[0].p, runnerUp:sorted[1].p, season:seasonLabels[idx]};
+
+        const champion = seasonChampionOverride[idx] || sorted[0].p;
+        const champLeads = computeSeasonStats(allSeasonsRaw[idx]).stats[champion].table_first;
+
+        if(champLeads === raw.numMatchdays){
+            startToFinish.push(`${champion} (${seasonLabels[idx]})`);
+        }
+
+        if(champLeads < fewestLeads.value){
+            fewestLeads = {value:champLeads, players:[`${champion} (${seasonLabels[idx]})`]};
+        }else if(champLeads === fewestLeads.value){
+            fewestLeads.players.push(`${champion} (${seasonLabels[idx]})`);
+        }
+    }
+
+    // ---- Largest points swing season-to-season (completed seasons only) ----
+    let biggestIncrease = {value:-Infinity, players:[]};
+    let biggestDecrease = {value:Infinity, players:[]};
+
+    for(let idx = 0; idx < completedSeasonsCount - 1; idx++){
+
+        const ptsA = finalPointsForSeason(allSeasonsRaw[idx], idx);
+        const ptsB = finalPointsForSeason(allSeasonsRaw[idx + 1], idx + 1);
+
+        Object.keys(base).forEach(p => {
+            if(ptsA[p] === undefined || ptsB[p] === undefined) return;
+            const diff = ptsB[p] - ptsA[p];
+            const tag = `${p} (${seasonLabels[idx]} → ${seasonLabels[idx + 1]})`;
+
+            if(diff > biggestIncrease.value) biggestIncrease = {value:diff, players:[tag]};
+            else if(diff === biggestIncrease.value) biggestIncrease.players.push(tag);
+
+            if(diff < biggestDecrease.value) biggestDecrease = {value:diff, players:[tag]};
+            else if(diff === biggestDecrease.value) biggestDecrease.players.push(tag);
+        });
+    }
+
+    // ---- Most consistent player ever ----
+    // Defined as the smallest spread between a player's best and worst
+    // FULL SEASON total, among players who have completed every one of
+    // the completed seasons (so nobody wins this just by having played
+    // one lucky season).
+    let mostConsistent = {value:Infinity, players:[]};
+
+    Object.keys(base).forEach(p => {
+
+        const totals = [];
+        for(let idx = 0; idx < completedSeasonsCount; idx++){
+            const pts = finalPointsForSeason(allSeasonsRaw[idx], idx);
+            if(pts[p] === undefined) return; // didn't play every completed season — skip
+            totals.push(pts[p]);
+        }
+
+        const range = Math.max(...totals) - Math.min(...totals);
+
+        if(range < mostConsistent.value) mostConsistent = {value:range, players:[p]};
+        else if(range === mostConsistent.value) mostConsistent.players.push(p);
+    });
+
+    return [
+        `- Most matchday wins in a season: ${formatNames(winHolders)} with ${maxWins} matchday wins`,
+        `- Most consecutive matchday wins: ${formatNames(streakHolders)} with ${maxStreak} consecutive matchday wins`,
+        `- Most matchday losses in a season: ${formatNames(lossHolders)} with ${maxLosses} losses`,
+        `- Lowest score for a matchday win: ${formatNames(worstWinHolders)} with ${worstWinVal} points`,
+        `- Lowest score ever recorded: ${formatNames(lowestHolders)} with ${lowestVal} points`,
+        `- Highest score ever recorded: ${formatNames(highestHolders)} with ${highestVal} points`,
+        `- Largest lead between champion and runner-up: ${largestLead.champ} ahead of ${largestLead.runnerUp} by ${largestLead.value} points (${largestLead.season})`,
+        `- Smallest lead between champion and runner-up: ${smallestLead.champ} ahead of ${smallestLead.runnerUp} by ${smallestLead.value} points (${smallestLead.season})`,
+        `- Start-to-finish wins: ${startToFinish.length ? formatNames(startToFinish) : '–'}`,
+        `- Fewest times leading the table on the way to the championship: ${formatNames(fewestLeads.players)} with ${fewestLeads.value} table leads`,
+        `- Largest points increase ever: ${formatNames(biggestIncrease.players)} with +${biggestIncrease.value} points`,
+        `- Largest points decrease ever: ${formatNames(biggestDecrease.players)} with ${biggestDecrease.value} points`,
+        `- Most consistent player ever (min. one full season each): ${formatNames(mostConsistent.players)} with a difference of only ${mostConsistent.value} points between their best and worst season`
+    ];
+}
+
+
 const highlightSeasonIdx =
     currentSeasonIdx >= 0
         ? currentSeasonIdx
@@ -2020,7 +2640,7 @@ const highlightSeasonIdx =
 
 const currentSeasonLabel =
     seasonLabels[
-        6 + highlightSeasonIdx
+        completedSeasonsCount + highlightSeasonIdx
     ].replace('/','-');
 
 
@@ -2032,7 +2652,19 @@ const highlights = [
         allSeasons[highlightSeasonIdx]
     ),
 
-    ...staticHighlights
+    ...staticHighlightsBefore,
+
+    "","","","",
+
+    "=== All-Time Statistics ===",
+
+    ...computeAllTimeStats(),
+
+    ...manualOnlyAllTimeStats,
+
+    "","","","",
+
+    ...staticHighlightsAfter
 ];
 
 
@@ -2134,6 +2766,11 @@ window.addEventListener(
 
 
         feverChart.update();
+
+        if(h2hChart){
+            h2hChart.options.scales.y.title.display = !mobile;
+            h2hChart.update();
+        }
     }
 );
 
