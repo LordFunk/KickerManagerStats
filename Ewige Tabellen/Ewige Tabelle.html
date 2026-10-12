@@ -816,11 +816,22 @@ function computeStandingsThroughSeason(uptoIdx){
             avg:Math.round((totals[p].points / totals[p].games) * 100) / 100
         }));
 
-    rows.sort((a, b) => b.points - a.points);
+    rows.sort((a, b) =>
+    b.points - a.points ||
+    PLAYERS.indexOf(a.player) - PLAYERS.indexOf(b.player)
+);
 
-    rows.forEach((row, index) => {
-        row.position = index + 1;
-    });
+let position = 0;
+let previousPoints = null;
+
+rows.forEach((row, index) => {
+    if (row.points !== previousPoints) {
+        position = index + 1;
+        previousPoints = row.points;
+    }
+
+    row.position = position;
+});
 
     standingsCache[uptoIdx] = rows;
 
