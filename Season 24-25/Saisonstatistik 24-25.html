@@ -1125,10 +1125,15 @@ function leaguePos(data){
             );
 
 
-        ranked.forEach(
-            (x,r)=>
-                out[x.p].push(r+1)
-        );
+      let currentRank = 0;
+
+ranked.forEach((x, r) => {
+    if (r === 0 || x.pts !== ranked[r - 1].pts) {
+        currentRank = r + 1;
+    }
+
+    out[x.p].push(currentRank);
+});
 
 
         players
@@ -1189,10 +1194,15 @@ function mdRank(data){
             );
 
 
-        ranked.forEach(
-            (x,r)=>
-                out[x.p].push(r+1)
-        );
+        let currentRank = 0;
+
+ranked.forEach((x, r) => {
+    if (r === 0 || x.pts !== ranked[r - 1].pts) {
+        currentRank = r + 1;
+    }
+
+    out[x.p].push(currentRank);
+});
 
 
         players
