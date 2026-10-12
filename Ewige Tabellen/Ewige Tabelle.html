@@ -2559,17 +2559,17 @@ function computeTableDroughtRecords(){
         }
     });
 
-    const buildLine = (title, rec, counter) => {
+        const buildLine = (title, rec, counter) => {
 
         if(rec.value === 0) return null;
 
         const holders = rec.players.map(p =>
             counter[p] === rec.value
-                ? `${p} (still counting)`
-                : p
+                ? `${p} since ${rec.value} matchdays`
+                : `${p} with ${rec.value} matchdays`
         );
 
-        return `- ${title}: ${formatNames(holders)} with ${rec.value} matchdays`;
+        return `- ${title}: ${formatNames(holders)}`;
     };
 
     return [
