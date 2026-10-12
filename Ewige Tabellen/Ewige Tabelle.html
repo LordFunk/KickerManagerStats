@@ -2466,6 +2466,127 @@ function finalPointsForSeason(seasonData, idx){
     return pts;
 }
 
+
+/* =========================================================
+   LONGEST DROUGHT RECORDS (table first / table last)
+
+   For every player a counter tracks how many matchdays have
+   passed since they were last table first (and, separately,
+   last table last). The counter runs across season boundaries
+   and only counts matchdays in which the player was active
+   (a player who has never been table first counts from their
+   first matchday).
+
+   The all-time RECORD is the highest value any counter has
+   ever reached:
+   - While the record holder's drought is still going, the
+     record keeps growing with it ("still counting").
+   - When the holder becomes table first / last again, the
+     record freezes at that value and stays until another
+     player's drought gets longer.
+   - Once another player's counter passes the record, that
+     player becomes the new holder and the record counts on
+     for them.
+   - If a player's drought equals the record, they share it.
+
+   "Table first / last" uses the same rule as the Table First
+   and Table Last columns (ties count for everyone tied).
+========================================================= */
+
+function computeTableDroughtRecords(){
+
+    const playersList = Object.keys(base);
+
+    const sinceFirst = {};
+    const sinceLast = {};
+
+    const recFirst = {value:0, players:[]};
+    const recLast = {value:0, players:[]};
+
+    const update = (rec, player, value) => {
+
+        if(value > rec.value){
+            rec.value = value;
+            rec.players = [player];
+        }else if(
+            value === rec.value &&
+            value > 0 &&
+            !rec.players.includes(player)
+        ){
+            rec.players.push(player);
+        }
+    };
+
+    allSeasonsRaw.forEach(seasonData => {
+
+        const seasonPlayers = playersList.filter(
+            p => (seasonData[p] || []).length > 0
+        );
+
+        if(seasonPlayers.length === 0) return;
+
+        const numMd = Math.max(
+            ...seasonPlayers.map(p => seasonData[p].length)
+        );
+
+        for(let md = 0; md < numMd; md++){
+
+            const active = seasonPlayers.filter(
+                p => seasonData[p].length > md
+            );
+
+            if(active.length === 0) continue;
+
+            const values = active.map(p => seasonData[p][md]);
+            const maxV = Math.max(...values);
+            const minV = Math.min(...values);
+
+            active.forEach(p => {
+
+                if(sinceFirst[p] === undefined){
+                    sinceFirst[p] = 0;
+                    sinceLast[p] = 0;
+                }
+
+                const v = seasonData[p][md];
+
+                sinceFirst[p] = (v === maxV) ? 0 : sinceFirst[p] + 1;
+                sinceLast[p] = (v === minV) ? 0 : sinceLast[p] + 1;
+
+                update(recFirst, p, sinceFirst[p]);
+                update(recLast, p, sinceLast[p]);
+            });
+        }
+    });
+
+    const buildLine = (title, rec, counter) => {
+
+        if(rec.value === 0) return null;
+
+        const holders = rec.players.map(p =>
+            counter[p] === rec.value
+                ? `${p} (still counting)`
+                : p
+        );
+
+        return `- ${title}: ${formatNames(holders)} with ${rec.value} matchdays`;
+    };
+
+    return [
+        buildLine(
+            'Most matchdays since last time table first',
+            recFirst,
+            sinceFirst
+        ),
+        buildLine(
+            'Most matchdays since last time table last',
+            recLast,
+            sinceLast
+        )
+    ].filter(Boolean);
+}
+
+
 function computeAllTimeStats(){
 
     const perSeasonRaw = allSeasonsRaw.map(computeSeasonRawStats);
@@ -2626,7 +2747,8 @@ function computeAllTimeStats(){
         `- Fewest times leading the table on the way to the championship: ${formatNames(fewestLeads.players)} with ${fewestLeads.value} table leads`,
         `- Largest points increase ever: ${formatNames(biggestIncrease.players)} with +${biggestIncrease.value} points`,
         `- Largest points decrease ever: ${formatNames(biggestDecrease.players)} with ${biggestDecrease.value} points`,
-        `- Most consistent player ever (min. one full season each): ${formatNames(mostConsistent.players)} with a difference of only ${mostConsistent.value} points between their best and worst season`
+        `- Most consistent player ever (min. one full season each): ${formatNames(mostConsistent.players)} with a difference of only ${mostConsistent.value} points between their best and worst season`,
+        ...computeTableDroughtRecords()
     ];
 }
 
