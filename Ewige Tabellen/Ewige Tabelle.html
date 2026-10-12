@@ -2584,14 +2584,14 @@ function computeTableDroughtRecords(){
         return `- ${title}: ${parts.join(' & ')}`;
     };
 
-    return [
+        return [
         buildLine(
-            'Most matchdays since last time table first',
+            'Longest drought without being table first',
             recFirst,
             sinceFirst
         ),
         buildLine(
-            'Most matchdays since last time table last',
+            'Longest streak without being table last',
             recLast,
             sinceLast
         )
