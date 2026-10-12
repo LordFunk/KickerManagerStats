@@ -992,10 +992,15 @@ function leaguePos(data){
                 (a,b)=>b.pts-a.pts
             );
 
-        ranked.forEach(
-            (x,r)=>
-                out[x.p].push(r+1)
-        );
+       let currentRank = 0;
+
+ranked.forEach((x, r) => {
+    if (r === 0 || x.pts !== ranked[r - 1].pts) {
+        currentRank = r + 1;
+    }
+
+    out[x.p].push(currentRank);
+});
 
         players
         .filter(
@@ -1050,10 +1055,15 @@ function mdRank(data){
                 (a,b)=>b.pts-a.pts
             );
 
-        ranked.forEach(
-            (x,r)=>
-                out[x.p].push(r+1)
-        );
+       let currentRank = 0;
+
+ranked.forEach((x, r) => {
+    if (r === 0 || x.pts !== ranked[r - 1].pts) {
+        currentRank = r + 1;
+    }
+
+    out[x.p].push(currentRank);
+});
 
         players
         .filter(
