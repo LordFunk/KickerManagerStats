@@ -2559,17 +2559,29 @@ function computeTableDroughtRecords(){
         }
     });
 
-        const buildLine = (title, rec, counter) => {
+    const buildLine = (title, rec, counter) => {
 
         if(rec.value === 0) return null;
 
-        const holders = rec.players.map(p =>
-            counter[p] === rec.value
-                ? `${p} since ${rec.value} matchdays`
-                : `${p} since ${rec.value} matchdays`
-        );
+        const joinNames = names =>
+            names.length > 1
+                ? names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1]
+                : names[0];
 
-        return `- ${title}: ${formatNames(holders)}`;
+        const active = rec.players.filter(p => counter[p] === rec.value);
+        const frozen = rec.players.filter(p => counter[p] !== rec.value);
+
+        const parts = [];
+
+        if(active.length){
+            parts.push(`${joinNames(active)} since ${rec.value} matchdays`);
+        }
+
+        if(frozen.length){
+            parts.push(`${joinNames(frozen)} with ${rec.value} matchdays`);
+        }
+
+        return `- ${title}: ${parts.join(' & ')}`;
     };
 
     return [
