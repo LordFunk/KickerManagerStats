@@ -2566,7 +2566,7 @@ function computeTableDroughtRecords(){
         const holders = rec.players.map(p =>
             counter[p] === rec.value
                 ? `${p} since ${rec.value} matchdays`
-                : `${p} with ${rec.value} matchdays`
+                : `${p} since ${rec.value} matchdays`
         );
 
         return `- ${title}: ${formatNames(holders)}`;
