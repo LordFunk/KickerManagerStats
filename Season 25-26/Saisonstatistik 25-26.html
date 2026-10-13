@@ -754,7 +754,7 @@ footer{
     <div class="controls-top">
 
         <div class="range-label">
-            Spieltage:
+            Matchdays:
             <strong id="rangeMinLabel">1</strong>
             –
             <strong id="rangeMaxLabel">34</strong>
@@ -848,7 +848,7 @@ footer{
     class="section-label"
     id="tables"
 >
-    Hin- & Rückrunde
+    First & Second Half
 </div>
 
 <div
@@ -1649,7 +1649,7 @@ function makeChart(
 
                             title:{
                                 display:!mobile,
-                                text:'Spieltag',
+                                text:'Matchday',
                                 color:'#777'
                             },
 
@@ -2002,7 +2002,7 @@ function createC1(
 
                             display:true,
 
-                            text:'Saisonpunkte 25-26',
+                            text:'Season Points 25-26',
 
                             font:{
                                 size:
@@ -2094,7 +2094,7 @@ function createC1(
 
                                 let html=
                                     `<div class="tooltip-title">
-                                        Spieltag ${mdNumber}
+                                        Matchday ${mdNumber}
                                     </div>`;
 
                                 html+=
@@ -2138,7 +2138,7 @@ function createC1(
 
                             title:{
                                 display:!isMobile(),
-                                text:'Spieltag',
+                                text:'Matchday',
                                 color:'#777'
                             },
 
@@ -2365,7 +2365,7 @@ function updateRangeTable(
     ).innerHTML=`
 
         <div class="range-table-title">
-            Tabelle Spieltag ${start}–${end}
+            Table Matchday ${start}–${end}
         </div>
 
         <table>
@@ -2374,10 +2374,10 @@ function updateRangeTable(
 
                 <tr>
 
-                    <th>Rang</th>
-                    <th>Spieler</th>
-                    <th>Gesamt</th>
-                    <th>Punkte im Bereich</th>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Total</th>
+                    <th>Points in Range</th>
 
                 </tr>
 
@@ -2661,7 +2661,7 @@ document.getElementById(
 
 const avgDataset={
 
-    label:'Ø Punkte',
+    label:'Ø Points',
 
     data:avgMd,
 
@@ -2714,7 +2714,7 @@ const avgDataset={
 
 makeChart(
     'c2',
-    'Punkte je Spieltag',
+    'Points per Matchday',
     md,
     false,
     [avgDataset]
@@ -2723,7 +2723,7 @@ makeChart(
 const c3=
     makeChart(
         'c3',
-        'Tabellenplatzentwicklung',
+        'League Position Development',
         league,
         true
     );
@@ -2731,7 +2731,7 @@ const c3=
 const c4=
     makeChart(
         'c4',
-        'Spieltagsplatzierung',
+        'Matchday Placement',
         rank,
         true
     );
@@ -2903,7 +2903,7 @@ function hinTable(
                     color:#666
                 "
             >
-                (Spieltag 1–${hinEnd})
+                (Matchday 1–${hinEnd})
             </span>
 
         </div>
@@ -2914,9 +2914,9 @@ function hinTable(
 
                 <tr>
 
-                    <th>Rang</th>
-                    <th>Spieler</th>
-                    <th>Punkte</th>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Points</th>
 
                 </tr>
 
@@ -3016,7 +3016,7 @@ function rueckTable(
                     color:#666
                 "
             >
-                (Spieltag ${rueckLabel})
+                (Matchday ${rueckLabel})
             </span>
 
         </div>
@@ -3027,15 +3027,15 @@ function rueckTable(
 
                 <tr>
 
-                    <th>Rang</th>
-                    <th>Spieler</th>
-                    <th>Punkte</th>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Points</th>
 
                     <th
                         title="
-                            Rückrunde MD 1–${rueckPlayed}
+                            Second half MD 1–${rueckPlayed}
                             vs.
-                            Hinrunde MD 1–${rueckPlayed}
+                            First half MD 1–${rueckPlayed}
                         "
                     >
                         Diff*
@@ -3159,9 +3159,9 @@ function rueckTable(
                     text-align:center
                 "
             >
-                * Rück MD 18–${played}
+                * Second half MD 18–${played}
                 vs.
-                Hin MD 1–${rueckPlayed}
+                First half MD 1–${rueckPlayed}
             </p>
 
         `;
@@ -3176,14 +3176,14 @@ function rueckTable(
 
 tablesWrapper.appendChild(
     hinTable(
-        'Hinrunde',
+        'First Half',
         hin
     )
 );
 
 tablesWrapper.appendChild(
     rueckTable(
-        'Rückrunde',
+        'Second Half',
         rueck
     )
 );
