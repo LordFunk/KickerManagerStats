@@ -1731,6 +1731,74 @@ function computeTableDroughtRecords(){
    An active record is marked "and counting"; a completed record is frozen. */
 function computeAllTimeMatchdayStreakRecords(){
 
+
+    
+function computeAllTimeBiggestFirstSecondGap(){
+
+    let record = {
+        gap: -1,
+        matches: []
+    };
+
+    allSeasonsRaw.forEach((seasonData, seasonIdx) => {
+
+        forEachMatchday(seasonData, context => {
+
+            const scores = context.active
+                .map(player => ({
+                    player,
+                    points: Number(context.gain[player])
+                }))
+                .filter(entry => Number.isFinite(entry.points))
+                .sort((a, b) => b.points - a.points);
+
+            // At least two players must have scores.
+            if(scores.length < 2) return;
+
+            const firstPoints = scores[0].points;
+            const secondPoints = scores[1].points;
+            const gap = firstPoints - secondPoints;
+
+            const firstPlayers = scores
+                .filter(entry => entry.points === firstPoints)
+                .map(entry => entry.player);
+
+            const secondPlayers = scores
+                .filter(entry => entry.points === secondPoints)
+                .map(entry => entry.player);
+
+            const match = {
+                seasonIdx,
+                md: context.md + 1,
+                gap,
+                firstPoints,
+                secondPoints,
+                firstPlayers,
+                secondPlayers
+            };
+
+            if(gap > record.gap){
+                record.gap = gap;
+                record.matches = [match];
+            }else if(gap === record.gap){
+                record.matches.push(match);
+            }
+
+        });
+    });
+
+    if(record.gap < 0) return [];
+
+    return [
+        `- Biggest all-time 1st-to-2nd matchday gap: ${record.matches.map(match => {
+            const season = seasonLabels[match.seasonIdx];
+
+            return `${match.firstPlayers.join(' & ')} (${match.firstPoints} points) over ${match.secondPlayers.join(' & ')} (${match.secondPoints} points), gap ${match.gap} points; ${season} MD ${match.md}`;
+        }).join(' | ')}`
+    ];
+}
+
+
     const definitions = [
         {
             key:'score50',
@@ -1868,13 +1936,14 @@ function computeAllTimeStats(){
         .filter(season => season.raw);
 
     return [
-        ...seasonRecordLines(seasons),
-        ...championLines(seasons),
-        ...seasonSwingLines(),
-        consistencyLine(),
-        ...computeTableDroughtRecords(),
-        ...computeAllTimeMatchdayStreakRecords()
-    ];
+    ...seasonRecordLines(seasons),
+    ...championLines(seasons),
+    ...seasonSwingLines(),
+    consistencyLine(),
+    ...computeTableDroughtRecords(),
+    ...computeAllTimeMatchdayStreakRecords(),
+    ...computeAllTimeBiggestFirstSecondGap()
+];
 }
 
 
