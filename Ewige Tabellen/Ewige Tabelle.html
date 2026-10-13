@@ -1718,6 +1718,148 @@ function computeTableDroughtRecords(){
     ].filter(Boolean);
 }
 
+/* Longest all-time matchday streaks.
+
+   These streaks run continuously through all seasons in allSeasonsRaw.
+   A player is counted only on matchdays they actually played. Tied matchday
+   winners count as winners, and tied last places count as finishing last.
+   For top-three places, ties share the rank: rank is one plus the number of
+   players with a strictly higher score.
+
+   Records are recalculated from the full data set on every page load. When a
+   longer streak appears, it replaces the previous record automatically.
+   An active record is marked "and counting"; a completed record is frozen. */
+function computeAllTimeMatchdayStreakRecords(){
+
+    const definitions = [
+        {
+            key:'score50',
+            title:'Longest streak scoring 50+ points',
+            hit:({gain}, p) => gain[p] >= 50
+        },
+        {
+            key:'score30',
+            title:'Longest streak scoring 30 points or fewer',
+            hit:({gain}, p) => gain[p] <= 30
+        },
+        {
+            key:'noWin',
+            title:'Longest streak without winning a matchday',
+            hit:({winners}, p) => !winners.includes(p)
+        },
+        {
+            key:'noLast',
+            title:'Longest streak without finishing last',
+            hit:({losers}, p) => !losers.includes(p)
+        },
+        {
+            key:'top3',
+            title:'Longest streak of top 3 finishes',
+            hit:(context, p) => {
+                const rank = 1 + context.active.filter(
+                    other => context.gain[other] > context.gain[p]
+                ).length;
+                return rank <= 3;
+            }
+        },
+        {
+            key:'outsideTop3',
+            title:'Longest streak outside the top 3',
+            hit:(context, p) => {
+                const rank = 1 + context.active.filter(
+                    other => context.gain[other] > context.gain[p]
+                ).length;
+                return rank > 3;
+            }
+        }
+    ];
+
+    const runs = Object.fromEntries(
+        definitions.map(def => [
+            def.key,
+            Object.fromEntries(PLAYERS.map(p => [p, 0]))
+        ])
+    );
+
+    const runStarts = Object.fromEntries(
+        definitions.map(def => [
+            def.key,
+            Object.fromEntries(PLAYERS.map(p => [p, null]))
+        ])
+    );
+
+    const records = Object.fromEntries(
+        definitions.map(def => [def.key, {value:0, holders:{}}])
+    );
+
+    const formatMatchdayRange = (start, end) => {
+        const startSeason = seasonLabels[start.seasonIdx];
+        const endSeason = seasonLabels[end.seasonIdx];
+
+        if(start.seasonIdx === end.seasonIdx){
+            return `${startSeason} MD ${start.md}–${end.md}`;
+        }
+
+        return `${startSeason} MD ${start.md} – ${endSeason} MD ${end.md}`;
+    };
+
+    allSeasonsRaw.forEach((seasonData, seasonIdx) => {
+
+        forEachMatchday(seasonData, context => {
+
+            const location = {seasonIdx, md:context.md + 1};
+
+            context.active.forEach(p => {
+
+                definitions.forEach(def => {
+
+                    const hit = def.hit(context, p);
+                    const current = runs[def.key];
+                    const starts = runStarts[def.key];
+                    const record = records[def.key];
+
+                    if(hit){
+                        if(current[p] === 0){
+                            starts[p] = location;
+                        }
+
+                        current[p] += 1;
+
+                        if(current[p] > record.value){
+                            record.value = current[p];
+                            record.holders = {
+                                [p]: {start:starts[p], end:location}
+                            };
+                        }else if(current[p] === record.value && record.value > 0){
+                            record.holders[p] = {
+                                start:starts[p],
+                                end:location
+                            };
+                        }
+                    }else{
+                        current[p] = 0;
+                        starts[p] = null;
+                    }
+                });
+            });
+        });
+    });
+
+    return definitions.map(def => {
+
+        const record = records[def.key];
+        if(record.value === 0) return null;
+
+        const parts = Object.entries(record.holders).map(([player, span]) => {
+            const isActive = runs[def.key][player] === record.value;
+            const status = isActive ? ' and counting' : '';
+            return `${player} (${record.value} matchdays${status}; ${formatMatchdayRange(span.start, span.end)})`;
+        });
+
+        return `- ${def.title}: ${parts.join(' & ')}`;
+    }).filter(Boolean);
+}
+
 function computeAllTimeStats(){
 
     // Seasons that have data, in order, with their analysis.
@@ -1730,7 +1872,8 @@ function computeAllTimeStats(){
         ...championLines(seasons),
         ...seasonSwingLines(),
         consistencyLine(),
-        ...computeTableDroughtRecords()
+        ...computeTableDroughtRecords(),
+        ...computeAllTimeMatchdayStreakRecords()
     ];
 }
 
