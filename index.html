@@ -1,9 +1,12 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Interactive football statistics: current season, season archive, all-time tables and historical results.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e30613'/%3E%3Ctext x='16' y='22' font-size='18' font-family='Arial' font-weight='700' text-anchor='middle' fill='white'%3EK%3C/text%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js');</script>
 
 <title>Kicker Interactive Stats</title>
 
@@ -14,9 +17,10 @@
     --card2:#151515;
     --line:rgba(255,255,255,.09);
     --text:#f5f5f5;
-    --muted:#858585;
+    --muted:#8a8a8a;
     --red:#e30613;
     --red-dark:#a9000b;
+    --nav-h:64px;
 }
 
 *{
@@ -25,6 +29,7 @@
 
 html{
     scroll-behavior:smooth;
+    scroll-padding-top:var(--nav-h);
 }
 
 body{
@@ -36,6 +41,34 @@ body{
 }
 
 /* =========================
+   ACCESSIBILITY
+========================= */
+
+.skip-link{
+    position:absolute;
+    left:16px;
+    top:-60px;
+    z-index:2000;
+    padding:10px 16px;
+    background:var(--red);
+    color:white;
+    text-decoration:none;
+    border-radius:6px;
+    font-size:14px;
+    transition:top .2s;
+}
+
+.skip-link:focus{
+    top:12px;
+}
+
+a:focus-visible{
+    outline:2px solid var(--red);
+    outline-offset:3px;
+    border-radius:6px;
+}
+
+/* =========================
    NAVIGATION
 ========================= */
 
@@ -44,7 +77,7 @@ body{
     top:0;
     left:0;
     width:100%;
-    height:64px;
+    height:var(--nav-h);
     background:rgba(5,5,5,.92);
     backdrop-filter:blur(12px);
     border-bottom:1px solid var(--line);
@@ -59,6 +92,7 @@ body{
     display:flex;
     align-items:center;
     justify-content:space-between;
+    gap:20px;
 }
 
 .logo{
@@ -67,6 +101,7 @@ body{
     font-size:18px;
     font-weight:700;
     letter-spacing:.5px;
+    white-space:nowrap;
 }
 
 .logo span{
@@ -82,7 +117,8 @@ body{
     color:#aaa;
     text-decoration:none;
     font-size:14px;
-    transition:.2s;
+    white-space:nowrap;
+    transition:color .2s;
 }
 
 .nav-links a:hover{
@@ -93,10 +129,10 @@ body{
    GENERAL
 ========================= */
 
-section{
+.page-section{
     max-width:1400px;
     margin:0 auto;
-    padding:110px 30px 70px;
+    padding:90px 30px 70px;
 }
 
 .section-title{
@@ -122,7 +158,6 @@ section{
 
 .hero{
     min-height:100vh;
-    max-width:none;
     padding:150px 30px 100px;
     display:flex;
     align-items:center;
@@ -151,7 +186,7 @@ section{
     margin:0;
     font-size:clamp(50px,8vw,105px);
     line-height:.95;
-    letter-spacing:-5px;
+    letter-spacing:-.05em;
     font-weight:800;
     color:var(--red);
 }
@@ -159,8 +194,43 @@ section{
 .hero p{
     max-width:650px;
     margin:30px auto 0;
-    color:#888;
+    color:#9a9a9a;
     font-size:17px;
+}
+
+.hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:14px;
+    margin-top:40px;
+}
+
+.btn{
+    display:inline-block;
+    padding:14px 26px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid var(--line);
+    color:white;
+    transition:background .2s,border-color .2s,transform .2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+    border-color:rgba(227,6,19,.45);
+}
+
+.btn-primary{
+    background:var(--red);
+    border-color:var(--red);
+}
+
+.btn-primary:hover{
+    background:var(--red-dark);
+    border-color:var(--red-dark);
 }
 
 .hero::before{
@@ -168,6 +238,7 @@ section{
     position:absolute;
     width:700px;
     height:700px;
+    max-width:150vw;
     border-radius:50%;
     background:radial-gradient(
         circle,
@@ -223,7 +294,7 @@ section{
 
 .cards{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
     gap:18px;
 }
 
@@ -256,16 +327,18 @@ section{
     bottom:-35px;
     border-radius:50%;
     background:rgba(227,6,19,.08);
-    transition:.25s;
+    transition:transform .25s;
 }
 
-.card:hover{
+.card:hover,
+.card:focus-visible{
     transform:translateY(-5px);
     border-color:rgba(227,6,19,.45);
     background:#141414;
 }
 
-.card:hover::after{
+.card:hover::after,
+.card:focus-visible::after{
     transform:scale(1.5);
 }
 
@@ -294,12 +367,13 @@ section{
     position:absolute;
     right:25px;
     top:25px;
-    color:#555;
+    color:#666;
     font-size:22px;
-    transition:.25s;
+    transition:color .25s,transform .25s;
 }
 
-.card:hover .card-arrow{
+.card:hover .card-arrow,
+.card:focus-visible .card-arrow{
     color:var(--red);
     transform:translateX(4px);
 }
@@ -309,8 +383,13 @@ section{
 ========================= */
 
 .feature-card{
-    grid-column:span 2;
     min-height:230px;
+}
+
+@media(min-width:700px){
+    .feature-card{
+        grid-column:span 2;
+    }
 }
 
 .feature-card h3{
@@ -358,7 +437,7 @@ section{
 
 .archive-grid{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
     gap:14px;
 }
 
@@ -371,10 +450,11 @@ section{
     border-radius:10px;
     color:white;
     text-decoration:none;
-    transition:.2s;
+    transition:transform .2s,border-color .2s,background .2s;
 }
 
-.archive-card:hover{
+.archive-card:hover,
+.archive-card:focus-visible{
     border-color:rgba(227,6,19,.4);
     background:#141414;
     transform:translateY(-3px);
@@ -407,7 +487,7 @@ section{
 
 .all-time-grid{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
     gap:18px;
 }
 
@@ -422,10 +502,11 @@ section{
     border-radius:10px;
     color:white;
     text-decoration:none;
-    transition:.2s;
+    transition:transform .2s,border-color .2s;
 }
 
-.all-time-card:hover{
+.all-time-card:hover,
+.all-time-card:focus-visible{
     border-color:rgba(227,6,19,.4);
     transform:translateY(-3px);
 }
@@ -455,7 +536,7 @@ section{
 
 .history-grid{
     display:grid;
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
     gap:18px;
 }
 
@@ -473,10 +554,11 @@ section{
     border-radius:12px;
     text-decoration:none;
     color:white;
-    transition:.25s;
+    transition:transform .25s,border-color .25s;
 }
 
-.history-card:hover{
+.history-card:hover,
+.history-card:focus-visible{
     transform:translateY(-5px);
     border-color:rgba(227,6,19,.45);
 }
@@ -508,7 +590,7 @@ footer{
     border-top:1px solid var(--line);
     padding:35px 30px;
     text-align:center;
-    color:#555;
+    color:#8a8a8a;
     font-size:12px;
 }
 
@@ -516,41 +598,29 @@ footer{
    RESPONSIVE
 ========================= */
 
-@media(max-width:1000px){
-
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .archive-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .all-time-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-}
-
 @media(max-width:700px){
 
-    .nav{
-        height:auto;
+    :root{
+        --nav-h:56px;
     }
 
     .nav-inner{
-        padding:15px 20px;
-        flex-direction:column;
-        gap:12px;
+        padding:0 20px;
+        gap:14px;
     }
 
+    /* single row, scrolls sideways instead of stacking */
     .nav-links{
-        gap:15px;
-        flex-wrap:wrap;
-        justify-content:center;
+        gap:18px;
+        overflow-x:auto;
+        scrollbar-width:none;
     }
 
-    section{
+    .nav-links::-webkit-scrollbar{
+        display:none;
+    }
+
+    .page-section{
         padding-left:20px;
         padding-right:20px;
     }
@@ -558,11 +628,6 @@ footer{
     .hero{
         padding-left:20px;
         padding-right:20px;
-    }
-
-    .hero h1{
-        font-size:52px;
-        letter-spacing:-3px;
     }
 
     .section-title{
@@ -582,24 +647,14 @@ footer{
         margin-top:15px;
     }
 
-    .cards,
-    .archive-grid,
-    .all-time-grid,
-    .history-grid{
-        grid-template-columns:1fr;
-    }
-
-    .feature-card{
-        grid-column:span 1;
-    }
-
 }
 
 /* =========================
    SCROLL ANIMATION
+   (only active when JS runs, so content is never hidden without it)
 ========================= */
 
-.reveal{
+.js .reveal{
     opacity:0;
     transform:translateY(25px);
     transition:
@@ -607,20 +662,58 @@ footer{
         transform .7s ease;
 }
 
-.reveal.visible{
+.js .reveal.visible{
     opacity:1;
-    transform:translateY(0);
+    transform:none;
+}
+
+/* =========================
+   REDUCED MOTION
+========================= */
+
+@media(prefers-reduced-motion:reduce){
+
+    html{
+        scroll-behavior:auto;
+    }
+
+    *,
+    *::before,
+    *::after{
+        transition:none !important;
+        animation:none !important;
+    }
+
+    .js .reveal{
+        opacity:1;
+        transform:none;
+    }
+
+    .card:hover,
+    .card:focus-visible,
+    .archive-card:hover,
+    .archive-card:focus-visible,
+    .all-time-card:hover,
+    .all-time-card:focus-visible,
+    .history-card:hover,
+    .history-card:focus-visible,
+    .btn:hover{
+        transform:none;
+    }
+
 }
 </style>
 </head>
 
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
+
 <!-- =========================
      NAVIGATION
 ========================= -->
 
-<nav class="nav">
+<nav class="nav" aria-label="Main navigation">
     <div class="nav-inner">
 
         <a class="logo" href="#top">
@@ -628,7 +721,7 @@ footer{
         </a>
 
         <div class="nav-links">
-            <a href="#current">26/27</a>
+            <a href="#current" data-season="text">26/27</a>
             <a href="#archive">Archive</a>
             <a href="#all-time">All-Time Table</a>
             <a href="#history">History</a>
@@ -637,6 +730,7 @@ footer{
     </div>
 </nav>
 
+<main id="main">
 
 <!-- =========================
      HERO
@@ -645,6 +739,10 @@ footer{
 <section class="hero" id="top">
 
     <div class="hero-content">
+
+        <div class="hero-label">
+            Season <span data-season="text">26/27</span>
+        </div>
 
         <h1>
             Kicker Interactive<br>
@@ -656,6 +754,11 @@ footer{
             all-time tables and historical results.
         </p>
 
+        <div class="hero-actions">
+            <a class="btn btn-primary" href="#current">Current season</a>
+            <a class="btn" href="#archive">Season archive</a>
+        </div>
+
     </div>
 
 </section>
@@ -665,7 +768,7 @@ footer{
      CURRENT SEASON
 ========================= -->
 
-<section class="current-season" id="current">
+<section class="page-section current-season" id="current">
 
     <div class="season-header reveal">
 
@@ -674,7 +777,7 @@ footer{
                 Current Season
             </div>
 
-            <h2 class="season-name">
+            <h2 class="season-name" data-season="accent">
                 26<span class="red">/</span>27
             </h2>
         </div>
@@ -691,19 +794,19 @@ footer{
 
         <a
             class="card feature-card reveal"
-            href="Season 26-27/Saisonstatistiken 26-27.html"
+            href="Season%2026-27/Saisonstatistiken%2026-27.html"
         >
 
             <div class="card-number">
                 01 / CURRENT
             </div>
 
-            <div class="card-arrow">
+            <div class="card-arrow" aria-hidden="true">
                 →
             </div>
 
             <h3>
-                Season Statistics 26/27
+                Season Statistics <span data-season="text">26/27</span>
             </h3>
 
             <p>
@@ -720,9 +823,10 @@ footer{
 
 <!-- =========================
      ARCHIVE
+     (generated from the SEASONS list in the script below)
 ========================= -->
 
-<section class="archive-section" id="archive">
+<section class="page-section archive-section" id="archive">
 
     <h2 class="section-title reveal">
         Season <span class="red">Archive</span>
@@ -732,154 +836,10 @@ footer{
         Previous seasons using the original files and folder structure.
     </p>
 
-
-    <!-- 25/26 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>25/26</h3>
-            <div class="line"></div>
-            <span>Season 2025/26</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2025-26/Saisonstatistik%2025-26.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- 24/25 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>24/25</h3>
-            <div class="line"></div>
-            <span>Season 2024/25</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2024-25/Saisonstatistik%2024-25.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- 23/24 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>23/24</h3>
-            <div class="line"></div>
-            <span>Season 2023/24</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2023-24/Saisonstatistik%2023-24.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- 22/23 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>22/23</h3>
-            <div class="line"></div>
-            <span>Season 2022/23</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2022-23/Saisonstatistik%2022-23.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- 21/22 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>21/22</h3>
-            <div class="line"></div>
-            <span>Season 2021/22</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2021-22/Saisonstatistik%2021-22.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- 20/21 -->
-
-    <div class="archive-season">
-
-        <div class="archive-heading reveal">
-            <h3>20/21</h3>
-            <div class="line"></div>
-            <span>Season 2020/21</span>
-        </div>
-
-        <div class="archive-grid">
-
-            <a
-                class="archive-card reveal"
-                href="./Season%2020-21/Saisonstatistik%2020-21.html"
-            >
-                <div class="icon">↗</div>
-                <h4>Season Statistics</h4>
-            </a>
-
-        </div>
-
+    <div id="archive-list">
+        <noscript>
+            <p class="section-subtitle">Enable JavaScript to see the season archive.</p>
+        </noscript>
     </div>
 
 </section>
@@ -889,7 +849,7 @@ footer{
      ALL-TIME TABLES
 ========================= -->
 
-<section class="all-time-section" id="all-time">
+<section class="page-section all-time-section" id="all-time">
 
     <h2 class="section-title reveal">
         All-Time <span class="red">Tables</span>
@@ -904,14 +864,14 @@ footer{
 
         <a
             class="all-time-card reveal"
-            href="Ewige Tabellen/Ewige Tabelle.html"
+            href="Ewige%20Tabellen/Ewige%20Tabelle.html"
         >
             <div>
                 <strong>All-Time Table</strong>
                 <span>Current all-time table</span>
             </div>
 
-            <div class="all-time-arrow">→</div>
+            <div class="all-time-arrow" aria-hidden="true">→</div>
         </a>
 
     </div>
@@ -923,7 +883,7 @@ footer{
      HISTORY
 ========================= -->
 
-<section class="history-section" id="history">
+<section class="page-section history-section" id="history">
 
     <h2 class="section-title reveal">
         <span class="red">History</span>
@@ -958,7 +918,7 @@ footer{
 
         <a
             class="history-card reveal"
-            href="Winning Teams/winning-teams.html"
+            href="Winning%20Teams/winning-teams.html"
         >
 
             <div class="label">
@@ -979,6 +939,8 @@ footer{
 
 </section>
 
+</main>
+
 
 <!-- =========================
      FOOTER
@@ -990,39 +952,137 @@ footer{
 
 
 <!-- =========================
-     SCROLL ANIMATION
+     SCRIPT
 ========================= -->
 
 <script>
 
-const observer = new IntersectionObserver(
-    entries => {
+/* ---------------------------------------------
+   CONFIG – edit here when a new season starts
+   1. Change CURRENT_SEASON (updates nav, hero, heading)
+   2. Add the finished season at the TOP of SEASONS
+   3. Update the 26-27 paths in the "Current Season" card
+      in the HTML if the folder name changes
+--------------------------------------------- */
 
-        entries.forEach(entry => {
+const CURRENT_SEASON = "26/27";
 
-            if(entry.isIntersecting){
+// Each season can have any number of links.
+// Files are expected at: Season <key>/<file>
+const SEASONS = [
+    { key: "25-26", links: [{ title: "Season Statistics", file: "Saisonstatistik 25-26.html" }] },
+    { key: "24-25", links: [{ title: "Season Statistics", file: "Saisonstatistik 24-25.html" }] },
+    { key: "23-24", links: [{ title: "Season Statistics", file: "Saisonstatistik 23-24.html" }] },
+    { key: "22-23", links: [{ title: "Season Statistics", file: "Saisonstatistik 22-23.html" }] },
+    { key: "21-22", links: [{ title: "Season Statistics", file: "Saisonstatistik 21-22.html" }] },
+    { key: "20-21", links: [{ title: "Season Statistics", file: "Saisonstatistik 20-21.html" }] }
+];
 
-                entry.target.classList.add("visible");
 
-            }
+/* ---------------------------------------------
+   CURRENT SEASON LABELS
+--------------------------------------------- */
+
+document.querySelectorAll("[data-season]").forEach(el => {
+
+    if(el.dataset.season === "accent"){
+        el.innerHTML = CURRENT_SEASON.replace("/", '<span class="red">/</span>');
+    }else{
+        el.textContent = CURRENT_SEASON;
+    }
+
+});
+
+
+/* ---------------------------------------------
+   ARCHIVE
+--------------------------------------------- */
+
+function buildArchive(){
+
+    const container = document.getElementById("archive-list");
+    if(!container) return;
+
+    SEASONS.forEach(season => {
+
+        const [from, to] = season.key.split("-");
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "archive-season";
+
+        const heading = document.createElement("div");
+        heading.className = "archive-heading reveal";
+        heading.innerHTML =
+            `<h3>${from}/${to}</h3>` +
+            `<div class="line"></div>` +
+            `<span>Season 20${from}/${to}</span>`;
+
+        const grid = document.createElement("div");
+        grid.className = "archive-grid";
+
+        season.links.forEach(link => {
+
+            const a = document.createElement("a");
+            a.className = "archive-card reveal";
+            a.href = encodeURI(`./Season ${season.key}/${link.file}`);
+
+            const icon = document.createElement("div");
+            icon.className = "icon";
+            icon.setAttribute("aria-hidden", "true");
+            icon.textContent = "↗";
+
+            const title = document.createElement("h4");
+            title.textContent = link.title;
+
+            a.append(icon, title);
+            grid.appendChild(a);
 
         });
 
-    },
-    {
-        threshold:0.12
-    }
-);
+        wrapper.append(heading, grid);
+        container.appendChild(wrapper);
+
+    });
+
+}
+
+buildArchive();
 
 
-document.querySelectorAll(".reveal").forEach(element => {
+/* ---------------------------------------------
+   SCROLL REVEAL
+   (runs after the archive exists so generated cards are observed)
+--------------------------------------------- */
 
-    observer.observe(element);
+const revealTargets = document.querySelectorAll(".reveal");
 
-});
+if("IntersectionObserver" in window){
+
+    const observer = new IntersectionObserver(
+        (entries, obs) => {
+
+            entries.forEach(entry => {
+
+                if(entry.isIntersecting){
+                    entry.target.classList.add("visible");
+                    obs.unobserve(entry.target);
+                }
+
+            });
+
+        },
+        { threshold: 0.12 }
+    );
+
+    revealTargets.forEach(el => observer.observe(el));
+
+}else{
+
+    revealTargets.forEach(el => el.classList.add("visible"));
+
+}
 
 </script>
 
 </body>
 </html>
-```
