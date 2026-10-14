@@ -3,6 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<script>
+/* =========================================================
+   MATCHDAY DATA: EDIT HERE (newest season first)
+
+   EVERY MATCHDAY
+   Write ONLY the points of the new matchday at the end of each
+   player's list in the current season (right now s7Matchdays,
+   season 26/27).
+
+   WHEN SEASON 27/28 STARTS
+   Write the matchday points into s8Matchdays. The page switches
+   to it automatically. Then raise COMPLETED_SEASONS from 6 to 7
+   further down in the main script (section 2).
+
+   PREPARING A NEW SEASON (e.g. s9 = 28/29)
+   1. Paste a new block ABOVE s8Matchdays:
+        const s9Matchdays = { 'Markus':[], 'Erwin':[], ... };
+   2. In section 1 of the main script add
+        const s9 = toCumulative(s9Matchdays);
+      and change NEWEST_FIRST to [s9, s8, s7].
+========================================================= */
+
+// ---------- Season 27/28 (next season, prepared) ----------
+const s8Matchdays = {
+    'Markus':[],
+    'Erwin':[],
+    'Phil':[],
+    'Didi':[],
+    'Eirik':[],
+    'Basti':[],
+    'Steffo':[],
+    'Emil':[],
+    'Espen':[],
+    'Kempka':[],
+    'Alex':[]
+};
+
+// ---------- Season 26/27 (current): matchday points ----------
+const s7Matchdays = {
+    'Markus':[83,110,98,89,52],
+    'Erwin':[58,28,38,30,25],
+    'Phil':[59,18,39,70,33],
+    'Didi':[68,73,71,60,29],
+    'Eirik':[69,6,33,62,31],
+    'Basti':[62,31,38,63,54],
+    'Steffo':[59,47,71,73,39],
+    'Emil':[51,24,0,70,30],
+    'Espen':[64,60,89,72,28],
+    'Kempka':[49,35,45,41,35],
+    'Alex':[42,48,51,43,59]
+};
+</script>
+
 <title>Kicker Interactive Stats</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -276,31 +330,27 @@ footer{
 /* =========================================================
    1. EVERY MATCHDAY: EDIT HERE
 
-   Add the new cumulative total at the end of each player's
-   list in the current season (s7 = season 26/27).
+   The matchday numbers themselves are NOT here: they sit in the
+   very first <script> at the TOP of this file (newest season
+   first). Everyday editing happens there.
 
-   STARTING A NEW SEASON
-   - s8 is the next empty season. Fill it in like s7 and every
-     table, chart, head-to-head result and all-time stat picks
-     it up automatically.
-   - After that, add `const s9 = emptySeason();` below s8 and
-     append s9 to the allSeasonsRaw list in section 5.
-   - When a season is finished, raise COMPLETED_SEASONS in
-     section 2 by 1 (that is what counts champions and last
-     places).
+   This section only turns them into running totals. Touch it when:
+   - A new season gets prepared (e.g. s9 = 28/29): add
+       const s9 = toCumulative(s9Matchdays);
+     and put s9 at the FRONT of NEWEST_FIRST: [s9, s8, s7]
+   - Season 26/27 is finished: raise COMPLETED_SEASONS in
+     section 2 from 6 to 7.
 ========================================================= */
 
-// Player order matters: it decides tie-breaks in the tables and
-// the order of the chart legend and the dropdowns.
-const PLAYERS = [
-    'Markus', 'Erwin', 'Phil', 'Eirik', 'Didi', 'Basti',
-    'Steffo', 'Emil', 'Espen', 'Kempka', 'Alex'
-];
+// The matchday numbers live in the first <script> at the very top of the file.
+const s8 = toCumulative(s8Matchdays);
+const s7 = toCumulative(s7Matchdays);
 
-function emptySeason(){
-    return Object.fromEntries(PLAYERS.map(p => [p, []]));
-}
+// Current season and any newer ones, NEWEST FIRST.
+const NEWEST_FIRST = [s8, s7];
 
+// Converts matchday points into running totals, which is the format
+// the rest of the page works with.
 function toCumulative(matchdayPoints){
     return Object.fromEntries(
         Object.entries(matchdayPoints).map(([player, gains]) => {
@@ -310,28 +360,12 @@ function toCumulative(matchdayPoints){
     );
 }
 
-// Current season (s7 = 26/27): write ONLY the points of the new matchday
-// at the end of each player's list.
-const s7Matchdays = {
-    'Markus':[83,110,98,89,52],
-    'Erwin':[58,28,38,30,25],
-    'Phil':[59,18,39,70,33],
-    'Didi':[68,73,71,60,29],
-    'Eirik':[69,6,33,62,31],
-    'Basti':[62,31,38,63,54],
-    'Steffo':[59,47,71,73,39],
-    'Emil':[51,24,0,70,30],
-    'Espen':[64,60,89,72,28],
-    'Kempka':[49,35,45,41,35],
-    'Alex':[42,48,51,43,59]
-};
-
-const s7 = toCumulative(s7Matchdays);
-
-// Next season: fill it in the same way (matchday points), e.g.
-// const s8Matchdays = { 'Markus':[...], ... };
-// const s8 = toCumulative(s8Matchdays);
-const s8 = emptySeason();
+// Player order matters: it decides tie-breaks in the tables and
+// the order of the chart legend and the dropdowns.
+const PLAYERS = [
+    'Markus', 'Erwin', 'Phil', 'Eirik', 'Didi', 'Basti',
+    'Steffo', 'Emil', 'Espen', 'Kempka', 'Alex'
+];
 
 
 /* =========================================================
@@ -517,9 +551,12 @@ const s6 = {
    5. SEASON LIST
    The single source of truth for "which seasons exist". Labels,
    charts, tables, head-to-head and all-time stats all follow it.
+   Archive seasons first (oldest to newest), then the seasons from
+   section 1, flipped back into chronological order because the
+   rest of the code expects oldest first.
 ========================================================= */
 
-const allSeasonsRaw = [s1, s2, s3, s4, s5, s6, s7, s8];
+const allSeasonsRaw = [s1, s2, s3, s4, s5, s6, ...[...NEWEST_FIRST].reverse()];
 
 const seasonLabelFor = idx => {
     const pad = n => String(n % 100).padStart(2, '0');
@@ -834,21 +871,21 @@ function computeStandingsThroughSeason(uptoIdx){
         }));
 
     rows.sort((a, b) =>
-    b.points - a.points ||
-    PLAYERS.indexOf(a.player) - PLAYERS.indexOf(b.player)
-);
+        b.points - a.points ||
+        PLAYERS.indexOf(a.player) - PLAYERS.indexOf(b.player)
+    );
 
-let position = 0;
-let previousPoints = null;
+    let position = 0;
+    let previousPoints = null;
 
-rows.forEach((row, index) => {
-    if (row.points !== previousPoints) {
-        position = index + 1;
-        previousPoints = row.points;
-    }
+    rows.forEach((row, index) => {
+        if(row.points !== previousPoints){
+            position = index + 1;
+            previousPoints = row.points;
+        }
 
-    row.position = position;
-});
+        row.position = position;
+    });
 
     standingsCache[uptoIdx] = rows;
 
