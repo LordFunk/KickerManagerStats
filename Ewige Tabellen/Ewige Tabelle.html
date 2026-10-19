@@ -223,6 +223,14 @@ table.gd-table{ min-width:620px; }
 .gd-table tr.gd-group-start td{ border-top:1px solid rgba(255,255,255,.14); }
 .gd-table tr.gd-total td{ font-weight:700; color:#fff; background:rgba(255,255,255,.03); }
 
+.gd-table th .gd-dot{ margin-right:8px; vertical-align:middle; }
+.gd-cell-main{ font-size:.95rem; font-weight:800; color:#ddd; line-height:1.2; }
+.gd-cell-main.gd-lead{ color:var(--red); }
+.gd-cell-sub{ margin-top:2px; color:var(--muted); font-size:.7rem; font-weight:400; }
+.gd-none{ color:#555; }
+.gd-table.gd-compare tbody td{ padding-top:9px; padding-bottom:9px; }
+.gd-table-note{ margin:-22px 0 35px; color:var(--muted); font-size:.78rem; }
+
 @media(max-width:700px){
     .gd-controls{ padding:16px 16px 8px; }
     .gd-row{ flex-direction:column; gap:8px; }
@@ -386,22 +394,14 @@ footer{
 <div id="gd-charts"></div>
 
 <div class="table-responsive panel" id="gd-table-wrap" hidden>
-    <table class="gd-table" aria-label="Points per player and season">
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>Season</th>
-                <th>Gamedays</th>
-                <th>Points</th>
-                <th>Avg. PpG</th>
-                <th>Best</th>
-                <th>Worst</th>
-            </tr>
-        </thead>
+    <table class="gd-table" id="gd-table" aria-label="Points per player and season">
+        <thead id="gd-table-head"></thead>
 
         <tbody id="gd-table-body"></tbody>
     </table>
 </div>
+
+<div class="gd-table-note" id="gd-table-note" hidden></div>
 
 <div class="section-label" id="h2h-section">
     Head to Head
@@ -1213,7 +1213,10 @@ const gdEls = {
     note:document.getElementById('gd-note'),
     charts:document.getElementById('gd-charts'),
     tableWrap:document.getElementById('gd-table-wrap'),
-    tableBody:document.getElementById('gd-table-body')
+    table:document.getElementById('gd-table'),
+    tableHead:document.getElementById('gd-table-head'),
+    tableBody:document.getElementById('gd-table-body'),
+    tableNote:document.getElementById('gd-table-note')
 };
 
 let gdCharts = [];
@@ -1606,6 +1609,32 @@ function renderGdCharts(players, seasons){
 
 /* ---------- summary table ---------- */
 
+// Builds the table header from a list of {text, color} columns.
+function setGdHead(columns){
+
+    const tr = document.createElement('tr');
+
+    columns.forEach(({text, color}) => {
+
+        const th = document.createElement('th');
+
+        if(color){
+            const dot = document.createElement('span');
+            dot.className = 'gd-dot';
+            dot.style.background = color;
+            th.appendChild(dot);
+        }
+
+        th.appendChild(document.createTextNode(text));
+        tr.appendChild(th);
+    });
+
+    gdEls.tableHead.innerHTML = '';
+    gdEls.tableHead.appendChild(tr);
+}
+
+/* One player: a row per season with games, points, average, best and worst. */
+
 function addGdRow({player, season, color, games, points, best, worst, isTotal, groupStart}){
 
     const tr = document.createElement('tr');
@@ -1642,8 +1671,16 @@ function addGdRow({player, season, color, games, points, best, worst, isTotal, g
     gdEls.tableBody.appendChild(tr);
 }
 
-function renderGdTable(players, seasons){
+function renderGdTableSingle(players, seasons){
 
+    setGdHead([
+        {text:'Player'}, {text:'Season'}, {text:'Gamedays'}, {text:'Points'},
+        {text:'Avg. PpG'}, {text:'Best'}, {text:'Worst'}
+    ]);
+
+    gdEls.table.classList.remove('gd-compare');
+    gdEls.table.style.minWidth = '';
+    gdEls.tableNote.hidden = true;
     gdEls.tableBody.innerHTML = '';
 
     let rows = 0;
@@ -1704,6 +1741,156 @@ function renderGdTable(players, seasons){
     });
 
     gdEls.tableWrap.hidden = rows === 0;
+}
+
+/* Two or more players: one row per season, one column per player.
+   The player with the most points in a row is shown in red. With exactly
+   two players a "Difference" column is added. The total row only adds up
+   seasons that ALL selected players played, so nobody is ahead just because
+   they have been around for more seasons. */
+
+function addGdCompareRow({label, color, players, data, isTotal, showGames}){
+
+    const tr = document.createElement('tr');
+
+    if(isTotal) tr.classList.add('gd-total');
+
+    const seasonCell = document.createElement('td');
+
+    if(color){
+        const dot = document.createElement('span');
+        dot.className = 'gd-dot';
+        dot.style.background = color;
+        seasonCell.appendChild(dot);
+    }
+
+    seasonCell.appendChild(document.createTextNode(label));
+    tr.appendChild(seasonCell);
+
+    const present = data.filter(Boolean);
+    const leadPoints = Math.max(...present.map(d => d.points));
+    const contested = present.length > 1;
+    const rangeLength = gd.to - gd.from + 1;
+
+    data.forEach(d => {
+
+        const td = document.createElement('td');
+
+        if(!d){
+
+            td.className = 'gd-none';
+            td.textContent = '–';
+
+        }else{
+
+            const main = document.createElement('div');
+            main.className = 'gd-cell-main' + (contested && d.points === leadPoints ? ' gd-lead' : '');
+            main.textContent = d.points;
+
+            // Under the points: average per gameday (and how many gamedays,
+            // when the season is not complete yet).
+            const sub = document.createElement('div');
+            sub.className = 'gd-cell-sub';
+            sub.textContent = `${(d.points / d.games).toFixed(2)} avg` +
+                (showGames && d.games < rangeLength ? ` · ${d.games} GD` : '');
+
+            td.appendChild(main);
+            td.appendChild(sub);
+        }
+
+        tr.appendChild(td);
+    });
+
+    if(players.length === 2){
+
+        const td = document.createElement('td');
+        const [a, b] = data;
+
+        if(a && b){
+            const diff = a.points - b.points;
+            td.textContent = diff === 0
+                ? 'Level'
+                : `${players[diff > 0 ? 0 : 1]} +${Math.abs(diff)}`;
+        }else{
+            td.className = 'gd-none';
+            td.textContent = '–';
+        }
+
+        tr.appendChild(td);
+    }
+
+    gdEls.tableBody.appendChild(tr);
+}
+
+function renderGdTableCompare(players, seasons){
+
+    const columns = [{text:'Season'}, ...players.map(p => ({text:p, color:colorOf(p)}))];
+
+    if(players.length === 2) columns.push({text:'Difference'});
+
+    setGdHead(columns);
+
+    gdEls.table.classList.add('gd-compare');
+    gdEls.table.style.minWidth = `${140 + players.length * 110 + (players.length === 2 ? 130 : 0)}px`;
+    gdEls.tableBody.innerHTML = '';
+
+    const shared = players.map(() => ({points:0, games:0}));
+    let sharedSeasons = 0;
+    let rows = 0;
+
+    seasons.forEach(idx => {
+
+        const data = players.map(p => gdSeriesFor(p, idx));
+
+        if(data.every(d => !d)) return;
+
+        if(data.every(Boolean)){
+
+            sharedSeasons++;
+
+            data.forEach((d, i) => {
+                shared[i].points += d.points;
+                shared[i].games += d.games;
+            });
+        }
+
+        addGdCompareRow({
+            label:seasonLabels[idx],
+            color:seasonColor(idx),
+            players,
+            data,
+            showGames:true
+        });
+
+        rows++;
+    });
+
+    if(sharedSeasons > 1){
+
+        addGdCompareRow({
+            label:`Total (${sharedSeasons} shared seasons)`,
+            players,
+            data:shared,
+            isTotal:true,
+            showGames:false
+        });
+
+        rows++;
+    }
+
+    gdEls.tableNote.textContent =
+        'Red = most points in that row. The total only counts seasons that all selected players played.';
+    gdEls.tableNote.hidden = rows === 0;
+    gdEls.tableWrap.hidden = rows === 0;
+}
+
+function renderGdTable(players, seasons){
+
+    if(players.length > 1){
+        renderGdTableCompare(players, seasons);
+    }else{
+        renderGdTableSingle(players, seasons);
+    }
 }
 
 
