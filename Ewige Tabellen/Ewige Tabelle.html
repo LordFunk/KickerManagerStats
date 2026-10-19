@@ -43,17 +43,17 @@ const s8Matchdays = {
 
 // ---------- Season 26/27 (current): matchday points ----------
 const s7Matchdays = {
-    'Markus':[83,110,98,89,52,79],
-    'Erwin':[58,28,38,30,25,35],
-    'Phil':[59,18,39,70,33,76],
-    'Didi':[68,73,71,60,29,55],
-    'Eirik':[69,6,33,62,31,44],
-    'Basti':[62,31,38,63,54,61],
-    'Steffo':[59,47,71,73,39,43],
-    'Emil':[51,24,0,70,30,75],
-    'Espen':[64,60,89,72,28,36],
-    'Kempka':[49,35,45,41,35,30],
-    'Alex':[42,48,51,43,59,42]
+    'Markus':[83,110,98,89,52],
+    'Erwin':[58,28,38,30,25],
+    'Phil':[59,18,39,70,33],
+    'Didi':[68,73,71,60,29],
+    'Eirik':[69,6,33,62,31],
+    'Basti':[62,31,38,63,54],
+    'Steffo':[59,47,71,73,39],
+    'Emil':[51,24,0,70,30],
+    'Espen':[64,60,89,72,28],
+    'Kempka':[49,35,45,41,35],
+    'Alex':[42,48,51,43,59]
 };
 </script>
 
@@ -176,6 +176,66 @@ ul#highlight-list li.highlight-header:first-child{ margin-top:0; }
 .h2h-stat .value.win{ color:var(--red); }
 .h2h-note{ color:var(--muted); font-size:.8rem; position:relative; z-index:2; }
 
+/* Gameday performance */
+.gd-controls{ width:100%; padding:22px 24px 12px; margin-bottom:24px; }
+.gd-row{ display:flex; align-items:flex-start; gap:14px; margin-bottom:16px; position:relative; z-index:2; }
+.gd-row-label{
+    flex:0 0 86px; padding-top:9px; color:var(--muted); font-size:.65rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.1em;
+}
+.gd-chips{ display:flex; flex-wrap:wrap; gap:8px; flex:1; }
+.gd-chip{
+    display:inline-flex; align-items:center; gap:8px; background:var(--card2); border:1px solid var(--line);
+    color:#999; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:8px 14px; border-radius:20px; cursor:pointer; transition:.15s; font-family:inherit;
+}
+.gd-chip:hover{ color:#fff; border-color:#444; }
+.gd-chip:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+.gd-chip.active{
+    color:#fff; background:#1d1d1d;
+    border-color:var(--chip-color,var(--red));
+    box-shadow:inset 0 0 0 1px var(--chip-color,var(--red));
+}
+.gd-chip.empty{ opacity:.4; }
+.gd-chip-plain{ background:transparent; }
+.gd-dot{ display:inline-block; width:9px; height:9px; flex:0 0 9px; border-radius:50%; }
+.gd-chip .gd-dot{ background:var(--chip-color,var(--red)); opacity:.35; }
+.gd-chip.active .gd-dot{ opacity:1; }
+
+.gd-range{ flex:1; display:flex; flex-direction:column; gap:12px; }
+.gd-sliders{ display:flex; flex-wrap:wrap; gap:12px 32px; align-items:center; }
+.gd-slider{ display:flex; align-items:center; gap:12px; color:#aaa; font-size:.8rem; }
+.gd-slider input[type=range]{ width:220px; accent-color:var(--red); cursor:pointer; }
+.gd-slider output{ min-width:2ch; color:#fff; font-weight:800; }
+
+.gd-note{ position:relative; z-index:2; color:var(--muted); font-size:.78rem; margin:-4px 0 8px 100px; }
+.gd-note:empty{ display:none; }
+
+.gd-panel{ width:100%; padding:20px; margin-bottom:24px; }
+.gd-panel > *{ position:relative; z-index:2; }
+.gd-panel-title{ display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:.95rem; font-weight:800; }
+.gd-canvas-wrap{ height:380px; }
+.gd-empty{ color:var(--muted); font-size:.85rem; padding:4px 0; }
+
+table.gd-table{ min-width:620px; }
+.gd-table thead th{ cursor:default; }
+.gd-table td .gd-dot{ margin-right:8px; vertical-align:middle; }
+.gd-table tr.gd-group-start td{ border-top:1px solid rgba(255,255,255,.14); }
+.gd-table tr.gd-total td{ font-weight:700; color:#fff; background:rgba(255,255,255,.03); }
+
+@media(max-width:700px){
+    .gd-controls{ padding:16px 16px 8px; }
+    .gd-row{ flex-direction:column; gap:8px; }
+    .gd-row-label{ flex:none; padding-top:0; }
+    .gd-chip{ padding:7px 12px; font-size:.68rem; }
+    .gd-slider{ width:100%; }
+    .gd-slider input[type=range]{ flex:1; width:auto; }
+    .gd-note{ margin-left:0; }
+    .gd-panel{ padding:14px 10px; margin-bottom:18px; }
+    .gd-canvas-wrap{ height:300px; }
+    table.gd-table{ min-width:620px; }
+}
+
 footer{
     border-top:1px solid var(--line);
     padding:35px 30px;
@@ -228,7 +288,7 @@ footer{
 
         <div class="nav-links">
             <a href="#leaderboard-section">All-Time Table</a>
-            <a href="#fever-chart">Fever Chart</a>
+            <a href="#gameday-section">Gameday Stats</a>
             <a href="#h2h-section">Head to Head</a>
             <a href="#highlights">Highlights</a>
         </div>
@@ -280,12 +340,67 @@ footer{
     </table>
 </div>
 
-<div class="section-label" id="fever-chart">
-    Fever Chart
+<div class="section-label" id="gameday-section">
+    Gameday Performance
 </div>
 
-<div class="chart-container panel">
-    <canvas id="feverChart"></canvas>
+<div class="gd-controls panel">
+
+    <div class="gd-row">
+        <span class="gd-row-label">Players</span>
+        <div class="gd-chips" id="gd-players"></div>
+    </div>
+
+    <div class="gd-row">
+        <span class="gd-row-label">Seasons</span>
+        <div class="gd-chips" id="gd-seasons"></div>
+    </div>
+
+    <div class="gd-row">
+        <span class="gd-row-label">Gamedays</span>
+        <div class="gd-range">
+            <div class="gd-sliders">
+                <label class="gd-slider">
+                    <span>From</span>
+                    <input type="range" id="gd-from" min="1" max="34" value="1" aria-label="First gameday">
+                    <output id="gd-from-val">1</output>
+                </label>
+                <label class="gd-slider">
+                    <span>To</span>
+                    <input type="range" id="gd-to" min="1" max="34" value="34" aria-label="Last gameday">
+                    <output id="gd-to-val">34</output>
+                </label>
+            </div>
+            <div class="gd-chips" id="gd-presets"></div>
+        </div>
+    </div>
+
+    <div class="gd-row">
+        <span class="gd-row-label">View</span>
+        <div class="gd-chips" id="gd-modes"></div>
+    </div>
+
+    <div class="gd-note" id="gd-note"></div>
+</div>
+
+<div id="gd-charts"></div>
+
+<div class="table-responsive panel" id="gd-table-wrap" hidden>
+    <table class="gd-table" aria-label="Points per player and season">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Season</th>
+                <th>Gamedays</th>
+                <th>Points</th>
+                <th>Avg. PpG</th>
+                <th>Best</th>
+                <th>Worst</th>
+            </tr>
+        </thead>
+
+        <tbody id="gd-table-body"></tbody>
+    </table>
 </div>
 
 <div class="section-label" id="h2h-section">
@@ -462,22 +577,6 @@ const HIGHLIGHTS_AFTER = [
    4. ARCHIVE DATA (seasons 1-6, rarely edited)
 ========================================================= */
 
-// Cumulative points per season for seasons 1-6, used by the fever chart
-// (null = the player had not joined yet).
-const FEVER_BASE = {
-    'Markus':[1923,3656,5302,7526,9287,11269],
-    'Erwin':[1536,3107,5064,6909,8812,10534],
-    'Phil':[1717,3543,4973,6644,8432,10399],
-    'Didi':[1391,3126,4393,6060,7272,9269],
-    'Eirik':[1846,2953,4583,6004,7585,9438],
-    'Steffo':[null,957,2515,4135,5573,7062],
-    'Basti':[null,1441,2744,4668,6180,7673],
-    'Emil':[null,null,null,2014,3887,5245],
-    'Kempka':[null,null,null,null,1750,3627],
-    'Espen':[null,null,null,null,2042,3167],
-    'Alex':[null,null,null,null,null,1660]
-};
-
 // Cumulative points after each matchday (20/21 - 25/26).
 const s1 = {
     'Markus':[46,55,93,102,157,185,236,320,359,392,438,452,449,475,514,520,537,607,672,710,757,819,880,921,959,1016,1031,1071,1085,1117,1170,1180,1220,1275],
@@ -576,8 +675,6 @@ upcomingSeasons.forEach((season, i) => {
     }
 });
 
-const numActiveSeasons = currentSeasonIdx + 1;
-
 const currentAbsoluteSeasonIdx =
     currentSeasonIdx >= 0
         ? COMPLETED_SEASONS + currentSeasonIdx
@@ -591,6 +688,11 @@ const currentAbsoluteSeasonIdx =
 const isMobile = () => window.innerWidth <= 700;
 
 const colorOf = name => COLORS[name] || '#999';
+
+// Shared chart styling (used by the gameday charts and head to head).
+const gridStyle = () => ({color:'rgba(255,255,255,.06)'});
+const tickStyle = () => ({color:'#777', font:{size:isMobile() ? 9 : 11}});
+const axisTitle = text => ({display:!isMobile(), text, color:'#777'});
 
 const hasData = (seasonData, player) => (seasonData[player] || []).length > 0;
 
@@ -1061,175 +1163,573 @@ showSeasonSnapshot(tabDefs[0], tabButtons[0]);
 
 
 /* =========================================================
-   10. FEVER CHART
+   10. GAMEDAY PERFORMANCE
+
+   Pick one or more players, the seasons and the range of gamedays.
+   Every selected player gets a chart with one line per season (each
+   season has its own colour). All charts share the same scale, so
+   players can be compared directly. Below the charts a table sums up
+   the points per player and season for the chosen range.
+
+   Nothing to maintain by hand: seasons, colours and the number of
+   gamedays follow the data automatically.
 ========================================================= */
 
-const gridStyle = () => ({color:'rgba(255,255,255,.06)'});
-const tickStyle = () => ({color:'#777', font:{size:isMobile() ? 9 : 11}});
-const axisTitle = text => ({display:!isMobile(), text, color:'#777'});
+// One colour per season, matched by season index (repeats if there are
+// ever more seasons than colours).
+const SEASON_COLORS = [
+    '#E41A1C', '#377EB8', '#4DAF4A', '#FF7F00', '#984EA3',
+    '#FFD92F', '#17BECF', '#F781BF', '#A6D854', '#B3B3B3'
+];
 
-function buildFeverData(){
+const seasonColor = idx => SEASON_COLORS[idx % SEASON_COLORS.length];
 
-    const result = {};
+// Longest season so far (34 gamedays).
+const GD_MAX = Math.max(1, ...allSeasonsRaw.map(season => matchdaysPlayed(season)));
 
-    PLAYERS.forEach(player => {
+// Seasons that have any data.
+const gdSeasonIdxs = allSeasonsRaw
+    .map((_, idx) => idx)
+    .filter(idx => playersWithData(allSeasonsRaw[idx]).length > 0);
 
-        const points = [];
-        let running = 0;
+// Current selection. Change the defaults here if you like.
+const gd = {
+    players:new Set([PLAYERS[0]]),
+    seasons:new Set(gdSeasonIdxs),
+    from:1,
+    to:GD_MAX,
+    mode:'cumulative'
+};
 
-        // seasons 1-6: fixed totals
-        FEVER_BASE[player].forEach(value => {
-            if(value !== null) running = value;
-            points.push(value);
-        });
+const gdEls = {
+    players:document.getElementById('gd-players'),
+    seasons:document.getElementById('gd-seasons'),
+    presets:document.getElementById('gd-presets'),
+    modes:document.getElementById('gd-modes'),
+    from:document.getElementById('gd-from'),
+    to:document.getElementById('gd-to'),
+    fromVal:document.getElementById('gd-from-val'),
+    toVal:document.getElementById('gd-to-val'),
+    note:document.getElementById('gd-note'),
+    charts:document.getElementById('gd-charts'),
+    tableWrap:document.getElementById('gd-table-wrap'),
+    tableBody:document.getElementById('gd-table-body')
+};
 
-        // later seasons: add each season's final total on top
-        upcomingSeasons.forEach(season => {
+let gdCharts = [];
 
-            const arr = season[player] || [];
+const selectedPlayers = () => PLAYERS.filter(p => gd.players.has(p));
+const selectedSeasons = () => gdSeasonIdxs.filter(idx => gd.seasons.has(idx));
 
-            if(arr.length > 0){
-                running += arr[arr.length - 1];
-                points.push(running);
-            }else{
-                points.push(null);
-            }
-        });
-
-        result[player] = points;
-    });
-
-    return result;
+function toggleInSet(set, value){
+    if(set.has(value)){
+        set.delete(value);
+    }else{
+        set.add(value);
+    }
 }
 
-const feverData = buildFeverData();
+// Points of one player in one season, limited to the chosen gameday range.
+// Returns null when the player has no gamedays in that range.
+function gdSeriesFor(player, seasonIdx){
 
-const displayedSlots = COMPLETED_SEASONS + numActiveSeasons;
+    const arr = allSeasonsRaw[seasonIdx][player] || [];
 
-const feverDatasets = PLAYERS.map(name => ({
-    label:name,
-    data:feverData[name].slice(0, displayedSlots),
-    borderColor:colorOf(name),
-    backgroundColor:colorOf(name),
-    fill:false,
-    pointRadius:isMobile() ? 2 : 4,
-    pointHoverRadius:isMobile() ? 4 : 6,
-    borderWidth:isMobile() ? 1.5 : 2,
-    spanGaps:true
-}));
+    if(arr.length === 0) return null;
 
-// Players picked in the legend (everyone else is greyed out).
-const selectedIdx = new Set();
+    const allGains = deriveGains(arr);
+    const gains = [];
 
-function applyFeverSelection(){
+    for(let md = gd.from; md <= gd.to; md++){
+        gains.push(md <= allGains.length ? allGains[md - 1] : null);
+    }
 
-    feverDatasets.forEach((dataset, j) => {
+    if(gains.every(g => g === null)) return null;
 
-        const selected = selectedIdx.has(j);
+    let running = 0;
+    const cumulative = gains.map(g => g === null ? null : (running += g));
 
-        if(selectedIdx.size === 0 || selected){
+    let best = null;
+    let worst = null;
 
-            dataset.borderColor = colorOf(PLAYERS[j]);
-            dataset.backgroundColor = colorOf(PLAYERS[j]);
-            dataset.borderWidth = selected
-                ? (isMobile() ? 3 : 4)
-                : (isMobile() ? 1.5 : 2);
+    gains.forEach((g, i) => {
 
-        }else{
+        if(g === null) return;
 
-            dataset.borderColor = '#333';
-            dataset.backgroundColor = '#333';
-            dataset.borderWidth = 1;
+        if(best === null || g > best.value) best = {value:g, gameday:gd.from + i};
+        if(worst === null || g < worst.value) worst = {value:g, gameday:gd.from + i};
+    });
+
+    return {
+        gains,
+        cumulative,
+        games:gains.filter(g => g !== null).length,
+        points:running,
+        best,
+        worst
+    };
+}
+
+// Rounds an axis maximum up to a tidy number (with a little headroom).
+function niceCeiling(value){
+
+    if(value <= 0) return 10;
+
+    const padded = value * 1.05;
+    const step = Math.pow(10, Math.floor(Math.log10(padded))) / 5;
+
+    return Math.round(Math.ceil(padded / step) * step * 100) / 100;
+}
+
+
+/* ---------- controls ---------- */
+
+function makeChip(label, onClick, color, extraClass){
+
+    const button = document.createElement('button');
+
+    button.type = 'button';
+    button.className = 'gd-chip' + (extraClass ? ' ' + extraClass : '');
+
+    if(color){
+        button.style.setProperty('--chip-color', color);
+
+        const dot = document.createElement('span');
+        dot.className = 'gd-dot';
+        button.appendChild(dot);
+    }
+
+    button.appendChild(document.createTextNode(label));
+    button.addEventListener('click', onClick);
+
+    return button;
+}
+
+const gdPlayerChips = PLAYERS.map(name => {
+
+    const chip = makeChip(name, () => {
+        toggleInSet(gd.players, name);
+        renderGameday();
+    }, colorOf(name));
+
+    gdEls.players.appendChild(chip);
+
+    return {name, chip};
+});
+
+const gdSeasonChips = gdSeasonIdxs.map(idx => {
+
+    const chip = makeChip(seasonLabels[idx], () => {
+        toggleInSet(gd.seasons, idx);
+        renderGameday();
+    }, seasonColor(idx));
+
+    gdEls.seasons.appendChild(chip);
+
+    return {idx, chip};
+});
+
+[
+    {label:'All', action:() => gdSeasonIdxs.forEach(idx => gd.seasons.add(idx))},
+    {label:'None', action:() => gd.seasons.clear()}
+].forEach(({label, action}) => {
+
+    gdEls.seasons.appendChild(makeChip(label, () => {
+        action();
+        renderGameday();
+    }, null, 'gd-chip-plain'));
+});
+
+const GD_MODES = [
+    {key:'cumulative', label:'Cumulative points'},
+    {key:'gains', label:'Points per gameday'}
+];
+
+const gdModeChips = GD_MODES.map(({key, label}) => {
+
+    const chip = makeChip(label, () => {
+        gd.mode = key;
+        renderGameday();
+    }, null, 'gd-chip-plain');
+
+    gdEls.modes.appendChild(chip);
+
+    return {key, chip};
+});
+
+const gdHalf = Math.ceil(GD_MAX / 2);
+
+const GD_PRESETS = [{label:`All (1–${GD_MAX})`, from:1, to:GD_MAX}];
+
+if(GD_MAX >= 2){
+    GD_PRESETS.push(
+        {label:`1st half (1–${gdHalf})`, from:1, to:gdHalf},
+        {label:`2nd half (${gdHalf + 1}–${GD_MAX})`, from:gdHalf + 1, to:GD_MAX}
+    );
+}
+
+const gdPresetChips = GD_PRESETS.map(preset => {
+
+    const chip = makeChip(preset.label, () => setGdRange(preset.from, preset.to), null, 'gd-chip-plain');
+
+    gdEls.presets.appendChild(chip);
+
+    return {preset, chip};
+});
+
+function setGdRange(from, to){
+
+    gd.from = Math.max(1, Math.min(from, GD_MAX));
+    gd.to = Math.max(gd.from, Math.min(to, GD_MAX));
+
+    renderGameday();
+}
+
+gdEls.from.min = gdEls.to.min = 1;
+gdEls.from.max = gdEls.to.max = GD_MAX;
+
+// Dragging "From" past "To" pushes "To" along, and the other way round.
+gdEls.from.addEventListener('input', () => {
+    const value = Number(gdEls.from.value);
+    setGdRange(value, Math.max(value, gd.to));
+});
+
+gdEls.to.addEventListener('input', () => {
+    const value = Number(gdEls.to.value);
+    setGdRange(Math.min(value, gd.from), value);
+});
+
+function syncGdControls(players){
+
+    gdEls.from.value = gd.from;
+    gdEls.to.value = gd.to;
+    gdEls.fromVal.textContent = gd.from;
+    gdEls.toVal.textContent = gd.to;
+
+    gdPlayerChips.forEach(({name, chip}) => {
+        const on = gd.players.has(name);
+        chip.classList.toggle('active', on);
+        chip.setAttribute('aria-pressed', String(on));
+    });
+
+    // Seasons without any data for the selected players (in this range) are dimmed.
+    gdSeasonChips.forEach(({idx, chip}) => {
+
+        const on = gd.seasons.has(idx);
+        const hasData = players.length === 0 || players.some(p => gdSeriesFor(p, idx));
+
+        chip.classList.toggle('active', on);
+        chip.classList.toggle('empty', !hasData);
+        chip.setAttribute('aria-pressed', String(on));
+    });
+
+    gdModeChips.forEach(({key, chip}) => {
+        const on = gd.mode === key;
+        chip.classList.toggle('active', on);
+        chip.setAttribute('aria-pressed', String(on));
+    });
+
+    gdPresetChips.forEach(({preset, chip}) => {
+        const on = gd.from === preset.from && gd.to === preset.to;
+        chip.classList.toggle('active', on);
+        chip.setAttribute('aria-pressed', String(on));
+    });
+}
+
+
+/* ---------- charts ---------- */
+
+function gdMessagePanel(text){
+
+    const panel = document.createElement('div');
+    panel.className = 'gd-panel panel';
+
+    const message = document.createElement('div');
+    message.className = 'gd-empty';
+    message.textContent = text;
+
+    panel.appendChild(message);
+    gdEls.charts.appendChild(panel);
+}
+
+function renderGdCharts(players, seasons){
+
+    gdCharts.forEach(chart => chart.destroy());
+    gdCharts = [];
+    gdEls.charts.innerHTML = '';
+
+    if(players.length === 0){
+        gdMessagePanel('Pick at least one player above.');
+        return;
+    }
+
+    if(seasons.length === 0){
+        gdMessagePanel('Pick at least one season above.');
+        return;
+    }
+
+    const mobile = isMobile();
+    const key = gd.mode === 'cumulative' ? 'cumulative' : 'gains';
+
+    const perPlayer = players.map(player => ({
+        player,
+        series:seasons
+            .map(idx => ({idx, data:gdSeriesFor(player, idx)}))
+            .filter(item => item.data)
+    }));
+
+    // Same scale for every chart so players can be compared by eye.
+    const values = perPlayer.flatMap(({series}) =>
+        series.flatMap(({data}) => data[key].filter(v => v !== null))
+    );
+
+    const yMax = niceCeiling(Math.max(0, ...values));
+    const yMin = Math.min(0, ...values) < 0
+        ? Math.floor(Math.min(...values) / 10) * 10
+        : 0;
+
+    const labels = Array.from(
+        {length:gd.to - gd.from + 1},
+        (_, i) => String(gd.from + i)
+    );
+
+    perPlayer.forEach(({player, series}) => {
+
+        const panel = document.createElement('div');
+        panel.className = 'gd-panel panel';
+
+        const title = document.createElement('div');
+        title.className = 'gd-panel-title';
+
+        const dot = document.createElement('span');
+        dot.className = 'gd-dot';
+        dot.style.background = colorOf(player);
+
+        title.appendChild(dot);
+        title.appendChild(document.createTextNode(player));
+        panel.appendChild(title);
+
+        gdEls.charts.appendChild(panel);
+
+        if(series.length === 0){
+
+            const empty = document.createElement('div');
+            empty.className = 'gd-empty';
+            empty.textContent = 'No gamedays in the selected seasons and range.';
+            panel.appendChild(empty);
+
+            return;
         }
-    });
 
-    feverChart.update();
-}
+        const wrap = document.createElement('div');
+        wrap.className = 'gd-canvas-wrap';
 
-const feverChart = new Chart(
-    document.getElementById('feverChart').getContext('2d'),
-    {
-        type:'line',
+        const canvas = document.createElement('canvas');
 
-        data:{
-            labels:seasonLabels.slice(0, displayedSlots),
-            datasets:feverDatasets
-        },
+        wrap.appendChild(canvas);
+        panel.appendChild(wrap);
 
-        options:{
+        gdCharts.push(new Chart(canvas.getContext('2d'), {
 
-            responsive:true,
-            maintainAspectRatio:false,
+            type:'line',
 
-            interaction:{mode:'index', intersect:false},
-
-            plugins:{
-
-                legend:{
-                    display:true,
-                    position:'bottom',
-
-                    labels:{
-                        usePointStyle:true,
-                        pointStyle:'circle',
-                        color:'#888',
-                        boxWidth:8,
-                        boxHeight:8,
-                        padding:isMobile() ? 8 : 14,
-                        font:{size:isMobile() ? 10 : 12}
-                    },
-
-                    onClick:(event, item) => {
-
-                        if(selectedIdx.has(item.datasetIndex)){
-                            selectedIdx.delete(item.datasetIndex);
-                        }else{
-                            selectedIdx.add(item.datasetIndex);
-                        }
-
-                        applyFeverSelection();
-                    }
-                },
-
-                tooltip:{
-                    mode:'index',
-                    intersect:false,
-                    usePointStyle:true,
-                    boxWidth:8,
-                    boxHeight:8,
-
-                    itemSort:(a, b) =>
-                        (b.parsed.y ?? -Infinity) - (a.parsed.y ?? -Infinity),
-
-                    callbacks:{
-                        label:context =>
-                            `${context.dataset.label}: ${context.parsed.y ?? '–'}`,
-
-                        labelPointStyle:() => ({pointStyle:'circle', rotation:0})
-                    }
-                },
-
-                title:{display:false}
+            data:{
+                labels,
+                datasets:series.map(({idx, data}) => ({
+                    label:seasonLabels[idx],
+                    data:data[key],
+                    borderColor:seasonColor(idx),
+                    backgroundColor:seasonColor(idx),
+                    fill:false,
+                    tension:0,
+                    spanGaps:false,
+                    pointRadius:mobile ? 1.5 : 2.5,
+                    pointHoverRadius:mobile ? 4 : 6,
+                    borderWidth:mobile ? 1.5 : 2
+                }))
             },
 
-            scales:{
+            options:{
 
-                y:{
-                    beginAtZero:false,
-                    title:axisTitle('Cumulative Points'),
-                    ticks:tickStyle(),
-                    grid:gridStyle()
+                responsive:true,
+                maintainAspectRatio:false,
+                animation:false,
+
+                interaction:{mode:'index', intersect:false},
+
+                plugins:{
+
+                    legend:{display:false},
+
+                    tooltip:{
+                        mode:'index',
+                        intersect:false,
+                        usePointStyle:true,
+                        boxWidth:8,
+                        boxHeight:8,
+
+                        itemSort:(a, b) =>
+                            (b.parsed.y ?? -Infinity) - (a.parsed.y ?? -Infinity),
+
+                        callbacks:{
+                            title:items => items.length ? `Gameday ${items[0].label}` : '',
+
+                            label:context =>
+                                `${context.dataset.label}: ${context.parsed.y ?? '–'}`,
+
+                            labelPointStyle:() => ({pointStyle:'circle', rotation:0})
+                        }
+                    }
                 },
 
-                x:{
-                    title:axisTitle('Season'),
-                    ticks:tickStyle(),
-                    grid:gridStyle()
+                scales:{
+
+                    y:{
+                        min:yMin,
+                        max:yMax,
+                        title:axisTitle(gd.mode === 'cumulative' ? 'Cumulative points' : 'Points per gameday'),
+                        ticks:tickStyle(),
+                        grid:gridStyle()
+                    },
+
+                    x:{
+                        title:axisTitle('Gameday'),
+                        ticks:tickStyle(),
+                        grid:gridStyle()
+                    }
                 }
             }
-        }
+        }));
+    });
+}
+
+
+/* ---------- summary table ---------- */
+
+function addGdRow({player, season, color, games, points, best, worst, isTotal, groupStart}){
+
+    const tr = document.createElement('tr');
+
+    if(isTotal) tr.classList.add('gd-total');
+    if(groupStart) tr.classList.add('gd-group-start');
+
+    const addCell = text => {
+        const td = document.createElement('td');
+        td.textContent = text;
+        tr.appendChild(td);
+        return td;
+    };
+
+    addCell(player);
+
+    const seasonCell = addCell('');
+
+    if(color){
+        const dot = document.createElement('span');
+        dot.className = 'gd-dot';
+        dot.style.background = color;
+        seasonCell.appendChild(dot);
     }
-);
+
+    seasonCell.appendChild(document.createTextNode(season));
+
+    addCell(games);
+    addCell(points);
+    addCell((points / games).toFixed(2));
+    addCell(best);
+    addCell(worst);
+
+    gdEls.tableBody.appendChild(tr);
+}
+
+function renderGdTable(players, seasons){
+
+    gdEls.tableBody.innerHTML = '';
+
+    let rows = 0;
+
+    players.forEach(player => {
+
+        let firstRowOfPlayer = true;
+        const total = {games:0, points:0, best:null, worst:null, seasonsCounted:0};
+
+        seasons.forEach(idx => {
+
+            const data = gdSeriesFor(player, idx);
+
+            if(!data) return;
+
+            addGdRow({
+                player,
+                season:seasonLabels[idx],
+                color:seasonColor(idx),
+                games:data.games,
+                points:data.points,
+                best:`${data.best.value} (GD ${data.best.gameday})`,
+                worst:`${data.worst.value} (GD ${data.worst.gameday})`,
+                groupStart:firstRowOfPlayer && rows > 0
+            });
+
+            rows++;
+            firstRowOfPlayer = false;
+
+            total.games += data.games;
+            total.points += data.points;
+            total.seasonsCounted++;
+
+            if(!total.best || data.best.value > total.best.value){
+                total.best = {...data.best, season:seasonLabels[idx]};
+            }
+
+            if(!total.worst || data.worst.value < total.worst.value){
+                total.worst = {...data.worst, season:seasonLabels[idx]};
+            }
+        });
+
+        // A total row only makes sense with more than one season.
+        if(total.seasonsCounted > 1){
+
+            addGdRow({
+                player,
+                season:'Total',
+                isTotal:true,
+                games:total.games,
+                points:total.points,
+                best:`${total.best.value} (${total.best.season}, GD ${total.best.gameday})`,
+                worst:`${total.worst.value} (${total.worst.season}, GD ${total.worst.gameday})`
+            });
+
+            rows++;
+        }
+    });
+
+    gdEls.tableWrap.hidden = rows === 0;
+}
+
+
+/* ---------- render everything ---------- */
+
+function renderGameday(){
+
+    const players = selectedPlayers();
+    const seasons = selectedSeasons();
+
+    syncGdControls(players);
+
+    // Season 20/21 only has the matchday numbers without the points that were
+    // added afterwards (see Footnotes), so it looks lower than it really was.
+    const showFirstSeasonNote =
+        seasons.includes(0) && players.some(p => gdSeriesFor(p, 0));
+
+    gdEls.note.textContent = showFirstSeasonNote
+        ? `Note: for ${seasonLabels[0]} the gameday points do not include the points that were added afterwards (see Footnotes), so that season looks lower than it really was.`
+        : '';
+
+    renderGdCharts(players, seasons);
+    renderGdTable(players, seasons);
+}
+
+renderGameday();
 
 
 /* =========================================================
@@ -2153,31 +2653,18 @@ highlights.forEach(text => {
    13. RESPONSIVE CHART UPDATE
 ========================================================= */
 
+let gdWasMobile = isMobile();
+
 window.addEventListener('resize', () => {
 
     const mobile = isMobile();
 
-    feverChart.data.datasets.forEach(dataset => {
-
-        const selected = selectedIdx.has(PLAYERS.indexOf(dataset.label));
-
-        dataset.pointRadius = selected ? (mobile ? 4 : 6) : (mobile ? 2 : 4);
-        dataset.pointHoverRadius = selected ? (mobile ? 5 : 7) : (mobile ? 4 : 6);
-    });
-
-    const {x, y} = feverChart.options.scales;
-
-    x.title.display = !mobile;
-    y.title.display = !mobile;
-    x.ticks.font.size = mobile ? 9 : 11;
-    y.ticks.font.size = mobile ? 9 : 11;
-
-    const legendLabels = feverChart.options.plugins.legend.labels;
-
-    legendLabels.padding = mobile ? 8 : 14;
-    legendLabels.font.size = mobile ? 10 : 12;
-
-    feverChart.update();
+    // Redraw the gameday charts when the screen crosses the phone breakpoint
+    // (font sizes and point sizes differ).
+    if(mobile !== gdWasMobile){
+        gdWasMobile = mobile;
+        renderGameday();
+    }
 
     if(h2hChart){
         h2hChart.options.scales.y.title.display = !mobile;
