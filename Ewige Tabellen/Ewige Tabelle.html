@@ -558,7 +558,7 @@ const HIGHLIGHTS_BEFORE = [
 
 const HIGHLIGHTS_AFTER = [
     "=== Champions ===",
-    "- Champion 2021: Eirik with 1847* points (1609 average points in the league, 47.32 average points per game)",
+    "- Champion 2021: Eirik with 1846* points (1609 average points in the league, 47.32 average points per game)",
     "- Champion 2022: Phil with 1826 points (1481 average points in the league, 43.56 average points per game)",
     "- Champion 2023: Erwin with 1957 points (1541 average points in the league, 45.32 average points per game)",
     "- Champion 2024: Markus with 2224 points (1799 average points in the league, 52.91 average points per game)",
@@ -1232,6 +1232,119 @@ function toggleInSet(set, value){
     }
 }
 
+/* Season 20/21 for the gameday view: gameday points INCLUDING the bonus.
+
+   The matchday data of 20/21 lacks the points that were added afterwards
+   (SEASON1_BONUS, see Footnotes). Here, every player's bonus is spread evenly
+   over all of his gamedays so the season total is correct. Only this section
+   uses the corrected numbers; the other tables and records are unchanged.
+
+   Only whole points are used. Every gameday gets the bonus divided by the
+   number of gamedays, rounded to a whole number. What is left over (plus or
+   minus 1 on a few gamedays, as few as possible) is placed on gamedays where
+   it changes nothing: the player's placement on that gameday stays exactly
+   the same and he is neither first nor last. The leftover points of one
+   player are spread out over the season. Should there not be enough such
+   gamedays, the next best ones are used (placement still unchanged, then
+   anywhere), so the total is always right. */
+
+let gdFirstSeasonGains = null;
+
+// Picks `count` gamedays from `pool` that lie as evenly spread over the season as possible.
+function pickSpreadGamedays(pool, count, total){
+
+    const available = [...pool];
+    const picked = [];
+
+    for(let i = 0; i < count && available.length > 0; i++){
+
+        const target = (i + 0.5) * total / count;
+        let bestIdx = 0;
+
+        for(let j = 1; j < available.length; j++){
+            if(Math.abs(available[j] - target) < Math.abs(available[bestIdx] - target)){
+                bestIdx = j;
+            }
+        }
+
+        picked.push(available.splice(bestIdx, 1)[0]);
+    }
+
+    return picked;
+}
+
+function getFirstSeasonGains(){
+
+    if(gdFirstSeasonGains) return gdFirstSeasonGains;
+
+    const seasonData = allSeasonsRaw[0];
+    const players = playersWithData(seasonData);
+
+    const score = {};  // points per gameday: matchday data + evenly spread bonus
+    const plan = {};
+
+    players.forEach(p => {
+
+        const original = deriveGains(seasonData[p]);
+        const bonus = SEASON1_BONUS[p] || 0;
+
+        // Rounded to the nearest whole point, so as few gamedays as possible
+        // need a +1 / -1 correction.
+        const perDay = Math.round(bonus / original.length);
+        const leftover = bonus - perDay * original.length;
+
+        score[p] = original.map(g => g + perDay);
+        plan[p] = {days:original.length, step:Math.sign(leftover), count:Math.abs(leftover)};
+    });
+
+    // Players with the most leftover points go first: they need the most free gamedays.
+    [...players]
+        .sort((a, b) => plan[b].count - plan[a].count)
+        .forEach(p => {
+
+            const {days, step, count} = plan[p];
+
+            if(count === 0) return;
+
+            // 0 = placement unchanged and not first or last (what we want)
+            // 1 = placement unchanged, but first or last
+            // 2 = placement would change
+            const tiers = Array.from({length:days}, (_, md) => {
+
+                const mine = score[p][md];
+
+                const others = players
+                    .filter(q => q !== p && score[q].length > md)
+                    .map(q => score[q][md]);
+
+                const sameOrder = others.every(t => Math.sign(mine - t) === Math.sign(mine + step - t));
+
+                if(!sameOrder) return 2;
+
+                return others.some(t => t > mine) && others.some(t => t < mine) ? 0 : 1;
+            });
+
+            let chosen = [];
+
+            [0, 1, 2].forEach(tier => {
+
+                if(chosen.length >= count) return;
+
+                const pool = tiers
+                    .map((value, md) => value === tier ? md : -1)
+                    .filter(md => md >= 0);
+
+                chosen = chosen.concat(pickSpreadGamedays(pool, count - chosen.length, days));
+            });
+
+            chosen.forEach(md => { score[p][md] += step; });
+        });
+
+    gdFirstSeasonGains = score;
+
+    return score;
+}
+
 // Points of one player in one season, limited to the chosen gameday range.
 // Returns null when the player has no gamedays in that range.
 function gdSeriesFor(player, seasonIdx){
@@ -1240,7 +1353,7 @@ function gdSeriesFor(player, seasonIdx){
 
     if(arr.length === 0) return null;
 
-    const allGains = deriveGains(arr);
+    const allGains = seasonIdx === 0 ? getFirstSeasonGains()[player] : deriveGains(arr);
     const gains = [];
 
     for(let md = gd.from; md <= gd.to; md++){
@@ -1903,13 +2016,13 @@ function renderGameday(){
 
     syncGdControls(players);
 
-    // Season 20/21 only has the matchday numbers without the points that were
-    // added afterwards (see Footnotes), so it looks lower than it really was.
+    // Season 20/21: the points that were added afterwards (see Footnotes) are
+    // spread evenly over the gamedays here, so single gamedays are estimates.
     const showFirstSeasonNote =
         seasons.includes(0) && players.some(p => gdSeriesFor(p, 0));
 
     gdEls.note.textContent = showFirstSeasonNote
-        ? `Note: for ${seasonLabels[0]} the gameday points do not include the points that were added afterwards (see Footnotes), so that season looks lower than it really was.`
+        ? `Note: for ${seasonLabels[0]} the points that were added afterwards (see Footnotes) are spread evenly over the gamedays, so single gamedays are estimates. The season totals are correct.`
         : '';
 
     renderGdCharts(players, seasons);
