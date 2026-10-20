@@ -101,6 +101,20 @@ main{ max-width:1400px; margin:0 auto; padding:0 30px 80px; }
 }
 .section-label::after{ content:""; height:1px; background:var(--line); flex:1; }
 
+/* Remove bullets for empty list items */
+#highlight-list li:empty{
+    list-style-type:none;
+    margin-bottom:10px;
+}
+
+/* Mobile: let long highlight lines wrap instead of running off the screen */
+@media (max-width:768px){
+    #highlight-list li{
+        word-wrap:break-word;
+        word-break:break-word;
+    }
+}
+
 /* Shared card backdrop */
 .panel{
     background:linear-gradient(145deg,var(--card),var(--card2));
@@ -350,7 +364,6 @@ footer{
 
 <div class="section-label" id="gameday-section">
     Gameday Performance
-    <span class="section-note">(I evenly distributed the missing points from the 2020/21 season across all matchdays so we wouldn’t look completely shit that season)</span>
 </div>
 
 <div class="gd-controls panel">
@@ -547,9 +560,9 @@ const HIGHLIGHTS_BEFORE = [
     "36. Phil with 93 points 22/23",
     "108. Phil with 104 points 24/25",
     "278. Phil with 91 points 22/23",
-    "444. Markus with 104 points 20/21*",
+    "444. Markus with 104 points 20/21",
     "614. Phil with 87 points 22/23",
-    "739. Eirik with 93* points 20/21*",
+    "739. Eirik with 93* points 20/21",
     "766. Phil with 96 points 21/22",
     "807. Phil with 92 points 25/26",
     "982. Eirik with 96 points 25/26",
