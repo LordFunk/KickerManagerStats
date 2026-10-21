@@ -403,6 +403,56 @@ main {
 }
 
 /* =========================
+   CHART ANIMATION CONTROLS
+========================= */
+
+.chart-animation-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: -8px 0 22px;
+}
+
+.animate-btn {
+  border: 1px solid rgba(227, 6, 19, 0.55);
+  background: #171717;
+  color: #f5f5f5;
+  border-radius: 6px;
+  padding: 8px 13px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.animate-btn:hover {
+  background: #242424;
+  border-color: var(--red);
+}
+
+.animate-btn:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.animate-status {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 700px) {
+  .chart-animation-controls {
+    margin-top: -8px;
+    margin-bottom: 18px;
+  }
+  .animate-btn {
+    padding: 7px 10px;
+    font-size: 0.72rem;
+  }
+}
+
+/* =========================
    TABLES
 ========================= */
 
@@ -736,6 +786,11 @@ footer {
         </div>
       </div>
 
+      <div class="chart-animation-controls">
+        <button class="animate-btn" type="button" data-animate-chart="c1">▶ Start animation</button>
+        <span class="animate-status" id="animationStatus-c1" aria-live="polite">Matchday 0 / 34</span>
+      </div>
+
       <div class="interactive-controls">
         <div class="controls-top">
           <div class="range-label">
@@ -770,16 +825,31 @@ footer {
         <canvas id="c2" role="img" aria-label="Line chart of points per matchday and player average"></canvas>
       </div>
 
+      <div class="chart-animation-controls">
+        <button class="animate-btn" type="button" data-animate-chart="c2">▶ Start animation</button>
+        <span class="animate-status" id="animationStatus-c2" aria-live="polite">Matchday 0 / 34</span>
+      </div>
+
       <div class="section-label" id="positions">League Position</div>
 
       <div class="chart-container rank-chart">
         <canvas id="c3" role="img" aria-label="Line chart of league position per matchday"></canvas>
       </div>
 
+      <div class="chart-animation-controls">
+        <button class="animate-btn" type="button" data-animate-chart="c3">▶ Start animation</button>
+        <span class="animate-status" id="animationStatus-c3" aria-live="polite">Matchday 0 / 34</span>
+      </div>
+
       <div class="section-label">Matchday Ranking</div>
 
       <div class="chart-container rank-chart">
         <canvas id="c4" role="img" aria-label="Line chart of each player's ranking within each matchday"></canvas>
+      </div>
+
+      <div class="chart-animation-controls">
+        <button class="animate-btn" type="button" data-animate-chart="c4">▶ Start animation</button>
+        <span class="animate-status" id="animationStatus-c4" aria-live="polite">Matchday 0 / 34</span>
       </div>
 
       <div class="section-label" id="tables">First &amp; Second Half</div>
@@ -1097,6 +1167,9 @@ footer {
       },
       scales: {
         x: {
+          // Add space before matchday 1 and after the final matchday so endpoint markers
+          // are drawn fully inside the plot area instead of being clipped at the edges.
+          offset: true,
           title: { display: !m, text: "Matchday", color: "#777" },
           ticks: { ...axisTicks(), maxTicksLimit: m ? 10 : TOTAL_MDS },
           grid: axisGrid(),
@@ -1229,6 +1302,172 @@ footer {
   }
 
   /* =========================
+     PER-CHART CONTINUOUS LINE-DRAW ANIMATION
+  ========================= */
+
+  const chartById = (chartId) => allCharts.find((chart) => chart.canvas.id === chartId);
+  const animationStates = new Map();
+  const ANIMATION_MS_PER_MATCHDAY = 1000;
+  const ENDPOINT_RADIUS = 4.5;
+
+  // Clip each chart's datasets to the current horizontal playhead. The data itself
+  // remains unchanged, so the line is revealed continuously rather than interpolating
+  // vertically between whole-matchday snapshots.
+  const lineRevealPlugin = {
+    id: "continuousLineReveal",
+    beforeDatasetsDraw(chart) {
+      const state = animationStates.get(chart.canvas.id);
+      if (!state) return;
+
+      const area = chart.chartArea;
+      const xScale = chart.scales.x;
+      if (!area || !xScale) return;
+
+      const index = state.currentIndex;
+      const leftIndex = Math.floor(index);
+      const rightIndex = Math.min(leftIndex + 1, chart.data.labels.length - 1);
+      const fraction = index - leftIndex;
+      const leftX = xScale.getPixelForValue(leftIndex);
+      const rightX = xScale.getPixelForValue(rightIndex);
+      const playheadX = leftX + (rightX - leftX) * fraction;
+
+      state.playheadX = playheadX;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(area.left, area.top, Math.max(0, playheadX - area.left), area.bottom - area.top);
+      ctx.clip();
+      state.clipSaved = true;
+    },
+    afterDatasetsDraw(chart) {
+      const state = animationStates.get(chart.canvas.id);
+      if (!state) return;
+
+      const ctx = chart.ctx;
+      if (state.clipSaved) {
+        ctx.restore();
+        state.clipSaved = false;
+      }
+
+      const area = chart.chartArea;
+      const xScale = chart.scales.x;
+      const yScale = chart.scales.y;
+      if (!area || !xScale || !yScale) return;
+
+      const index = state.currentIndex;
+      const leftIndex = Math.floor(index);
+      const rightIndex = Math.min(leftIndex + 1, chart.data.labels.length - 1);
+      const fraction = index - leftIndex;
+      const x1 = xScale.getPixelForValue(leftIndex);
+      const x2 = xScale.getPixelForValue(rightIndex);
+      const x = x1 + (x2 - x1) * fraction;
+
+      // Draw one moving endpoint for each line, interpolating between adjacent
+      // real data points. Datasets with no value at this point are skipped.
+      chart.data.datasets.forEach((dataset, datasetIndex) => {
+        const values = dataset.data;
+        const a = values[leftIndex];
+        const b = values[rightIndex];
+        let value;
+
+        if (typeof a === "number" && Number.isFinite(a) && typeof b === "number" && Number.isFinite(b)) {
+          value = a + (b - a) * fraction;
+        } else if (typeof a === "number" && Number.isFinite(a)) {
+          // Keep the marker on the last available value while the playhead crosses
+          // future matchdays that do not have data yet.
+          value = a;
+        } else if (typeof b === "number" && Number.isFinite(b) && fraction >= 0.999) {
+          value = b;
+        } else {
+          return;
+        }
+
+        const y = yScale.getPixelForValue(value);
+        if (!Number.isFinite(y) || x < area.left || x > area.right || y < area.top || y > area.bottom) return;
+
+        const meta = chart.getDatasetMeta(datasetIndex);
+        const color = dataset.borderColor || meta.dataset?.options?.borderColor || "#fff";
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, ENDPOINT_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#171717";
+        ctx.stroke();
+        ctx.restore();
+      });
+    },
+  };
+  Chart.register(lineRevealPlugin);
+
+  function stopChartAnimation(chartId, resetButton = true) {
+    const state = animationStates.get(chartId);
+    if (state?.raf) cancelAnimationFrame(state.raf);
+    animationStates.delete(chartId);
+
+    const chart = chartById(chartId);
+    if (chart) chart.draw();
+
+    const button = document.querySelector(`[data-animate-chart="${chartId}"]`);
+    if (button && resetButton) button.textContent = "▶ Start animation";
+  }
+
+  function startChartAnimation(chartId) {
+    const chart = chartById(chartId);
+    if (!chart) return;
+
+    stopChartAnimation(chartId, false);
+
+    const button = document.querySelector(`[data-animate-chart="${chartId}"]`);
+    const status = $(`animationStatus-${chartId}`);
+    const total = chart.data.labels.length;
+    if (!total) return;
+
+    const state = {
+      startTime: null,
+      currentIndex: 0,
+      raf: null,
+      clipSaved: false,
+    };
+    animationStates.set(chartId, state);
+
+    if (button) button.textContent = "↻ Restart animation";
+    if (status) status.textContent = `Matchday 1 / ${total}`;
+
+    function drawFrame(timestamp) {
+      if (animationStates.get(chartId) !== state) return;
+      if (state.startTime === null) state.startTime = timestamp;
+
+      const elapsed = timestamp - state.startTime;
+      // One matchday per second. The playhead starts at matchday 1 and moves
+      // at a constant horizontal speed to the final matchday.
+      state.currentIndex = Math.min(elapsed / ANIMATION_MS_PER_MATCHDAY, total - 1);
+      chart.draw();
+
+      const currentMatchday = Math.min(Math.floor(state.currentIndex) + 1, total);
+      if (status) status.textContent = `Matchday ${currentMatchday} / ${total}`;
+
+      if (elapsed < total * ANIMATION_MS_PER_MATCHDAY) {
+        state.raf = requestAnimationFrame(drawFrame);
+      } else {
+        // End at the final matchday and leave the fully revealed chart on screen.
+        state.currentIndex = total - 1;
+        animationStates.delete(chartId);
+        chart.draw();
+        if (button) button.textContent = "↻ Replay animation";
+        if (status) status.textContent = `Complete · ${total} matchdays`;
+      }
+    }
+
+    state.raf = requestAnimationFrame(drawFrame);
+  }
+
+  document.querySelectorAll("[data-animate-chart]").forEach((button) => {
+    button.addEventListener("click", () => startChartAnimation(button.dataset.animateChart));
+  });
+
+  /* =========================
      CREATE CHARTS
   ========================= */
 
@@ -1252,6 +1491,9 @@ footer {
     labels: seasonLabels,
     data: matchdayChartData,
     extraDatasets: [avgDataset()],
+    // Leave a little breathing room below zero so zero-point markers are not
+    // clipped against the bottom edge of the plotting area.
+    yScale: { grace: "5%" },
   });
 
   makeChart({
@@ -1357,6 +1599,8 @@ footer {
   }
 
   function updateRange(e) {
+    // A manual range change cancels the c1 animation so the two controls cannot fight each other.
+    stopChartAnimation("c1");
     let start = +minInput.value;
     let end = +maxInput.value;
 
