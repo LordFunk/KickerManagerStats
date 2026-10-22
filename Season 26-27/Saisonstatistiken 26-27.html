@@ -1036,11 +1036,15 @@ footer {
           ds.borderWidth = selected ? 3 : m ? 1.5 : 2;
           ds.pointRadius = selected ? 6 : m ? 2 : 4;
           ds.pointHoverRadius = selected ? 7 : m ? 4 : 6;
+          // Chart.js draws lower `order` values on top, so highlighted players
+          // (-1) are always drawn in front of everyone else (0).
+          ds.order = selected ? -1 : 0;
         } else {
           setDatasetColor(ds, FADED);
           ds.borderWidth = 1;
           ds.pointRadius = 3;
           ds.pointHoverRadius = 4;
+          ds.order = 0;
         }
       });
 
@@ -1154,6 +1158,9 @@ footer {
             padding: m ? 8 : 14,
             color: "#888",
             font: { size: m ? 10 : 12 },
+            // Keep legend entries in their original order. Chart.js otherwise
+            // sorts them by dataset `order`, which moves highlighted players.
+            sort: (a, b) => a.datasetIndex - b.datasetIndex,
           },
           onClick: legendClickHandler,
         },
@@ -1365,7 +1372,11 @@ footer {
 
       // Draw one moving endpoint for each line, interpolating between adjacent
       // real data points. Datasets with no value at this point are skipped.
-      chart.data.datasets.forEach((dataset, datasetIndex) => {
+      // Chart.js draws datasets from the highest `order` to the lowest, so the
+      // sorted list is reversed here to give the markers the same stacking as the
+      // lines (highlighted players end up on top).
+      chart.getSortedVisibleDatasetMetas().slice().reverse().forEach((meta) => {
+        const dataset = chart.data.datasets[meta.index];
         const values = dataset.data;
         const a = values[leftIndex];
         const b = values[rightIndex];
@@ -1386,7 +1397,6 @@ footer {
         const y = yScale.getPixelForValue(value);
         if (!Number.isFinite(y) || x < area.left || x > area.right || y < area.top || y > area.bottom) return;
 
-        const meta = chart.getDatasetMeta(datasetIndex);
         const color = dataset.borderColor || meta.dataset?.options?.borderColor || "#fff";
         ctx.save();
         ctx.beginPath();
@@ -1414,6 +1424,14 @@ footer {
     if (button && resetButton) button.textContent = "▶ Start animation";
   }
 
+  // Status text uses the real matchday label (not the array index), so it stays
+  // correct when the range slider has narrowed the visible matchdays on chart c1.
+  function animationStatusText(chart, index) {
+    const labels = chart.data.labels;
+    const i = clamp(Math.floor(index), 0, labels.length - 1);
+    return `Matchday ${labels[i]} / ${labels[labels.length - 1]}`;
+  }
+
   function startChartAnimation(chartId) {
     const chart = chartById(chartId);
     if (!chart) return;
@@ -1434,20 +1452,19 @@ footer {
     animationStates.set(chartId, state);
 
     if (button) button.textContent = "↻ Restart animation";
-    if (status) status.textContent = `Matchday 1 / ${total}`;
+    if (status) status.textContent = animationStatusText(chart, 0);
 
     function drawFrame(timestamp) {
       if (animationStates.get(chartId) !== state) return;
       if (state.startTime === null) state.startTime = timestamp;
 
       const elapsed = timestamp - state.startTime;
-      // One matchday per second. The playhead starts at matchday 1 and moves
+      // One matchday per second. The playhead starts at the first matchday and moves
       // at a constant horizontal speed to the final matchday.
       state.currentIndex = Math.min(elapsed / ANIMATION_MS_PER_MATCHDAY, total - 1);
       chart.draw();
 
-      const currentMatchday = Math.min(Math.floor(state.currentIndex) + 1, total);
-      if (status) status.textContent = `Matchday ${currentMatchday} / ${total}`;
+      if (status) status.textContent = animationStatusText(chart, state.currentIndex);
 
       if (elapsed < total * ANIMATION_MS_PER_MATCHDAY) {
         state.raf = requestAnimationFrame(drawFrame);
