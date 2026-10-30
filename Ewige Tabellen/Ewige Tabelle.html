@@ -2900,6 +2900,94 @@ function computeAllTimeBiggestCumulativeFirstSecondGap(){
     ];
 }
 
+   function computeTableStreakRecords(){
+
+    const defs = [
+        {key:'first', title:'Longest streak as table first',  pick:c => c.leaders},
+        {key:'last',  title:'Longest streak as table last',   pick:c => c.trailers}
+    ];
+
+    const runs = {first:{}, last:{}};
+    const starts = {first:{}, last:{}};
+    const records = {
+        first:{value:0, holders:{}},
+        last:{value:0, holders:{}}
+    };
+
+    allSeasonsRaw.forEach((seasonData, seasonIdx) => {
+
+        forEachMatchday(seasonData, context => {
+
+            const location = {seasonIdx, md:context.md + 1};
+
+            defs.forEach(def => {
+
+                const hits = def.pick(context);
+                const record = records[def.key];
+
+                context.active.forEach(p => {
+
+                    if(!hits.includes(p)){
+                        runs[def.key][p] = 0;
+                        starts[def.key][p] = null;
+                        return;
+                    }
+
+                    if(!runs[def.key][p]){
+                        runs[def.key][p] = 0;
+                        starts[def.key][p] = location;
+                    }
+
+                    runs[def.key][p]++;
+
+                    const run = runs[def.key][p];
+                    const entry = {start:starts[def.key][p], end:location};
+
+                    if(run > record.value){
+                        record.value = run;
+                        record.holders = {[p]:entry};
+                    }else if(run === record.value){
+                        record.holders[p] = entry;
+                    }
+                });
+            });
+        });
+    });
+
+    const formatRange = (start, end) => {
+
+        const startSeason = seasonLabels[start.seasonIdx];
+        const endSeason = seasonLabels[end.seasonIdx];
+
+        return start.seasonIdx === end.seasonIdx
+            ? `${startSeason} MD ${start.md}–${end.md}`
+            : `${startSeason} MD ${start.md} – ${endSeason} MD ${end.md}`;
+    };
+
+    return defs.map(def => {
+
+        const record = records[def.key];
+
+        if(record.value === 0) return null;
+
+        let anyActive = false;
+
+        const parts = Object.entries(record.holders).map(([player, span]) => {
+
+            const active = runs[def.key][player] === record.value;
+
+            if(active) anyActive = true;
+
+            return `${player} (${record.value} matchdays${active ? ' and counting' : ''}; ` +
+                   `${formatRange(span.start, span.end)})`;
+        });
+
+        const note = anyActive ? '' : currentHighestNote(runs[def.key]);
+
+        return `- ${def.title}: ${parts.join(' & ')}${note}`;
+    }).filter(Boolean);
+}
+
 function computeAllTimeStats(){
 
     // Seasons that have data, in order, with their analysis.
@@ -2914,6 +3002,7 @@ function computeAllTimeStats(){
         consistencyLine(),
         ...computeTableDroughtRecords(),
         ...computeAllTimeMatchdayStreakRecords(),
+        ...computeTableStreakRecords(),
         ...computeAllTimeBiggestFirstSecondGap(),
         ...computeAllTimeBiggestCumulativeFirstSecondGap()
     ];
