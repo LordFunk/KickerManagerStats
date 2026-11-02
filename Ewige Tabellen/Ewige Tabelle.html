@@ -504,6 +504,10 @@ const PLAYERS = [
 // Number of finished seasons. Raise by 1 when a season is over.
 const COMPLETED_SEASONS = 6;
 
+// Matchdays per season. The half-season records split the season at HALF_SEASON.
+const FULL_SEASON = 34;
+const HALF_SEASON = 17;
+
 // Season 20/21 only: extra points that were added after the fact.
 const SEASON1_BONUS = {
     Markus:648,
@@ -583,7 +587,8 @@ const HIGHLIGHTS_AFTER = [
 
     "=== Footnotes ===",
     "-*In the 20/21 season there were only two points for starting lineup appearances and one for substitutions. I checked everything and added the missing points.",
-    "-Since the 24/25 season, assists are worth 2 points instead of 1. I am not recalculating everything."
+    "-Since the 24/25 season, assists are worth 2 points instead of 1. I am not recalculating everything.",
+    "-The first-half and second-half records only cover completed seasons from 21/22 onwards. Season 20/21 is left out because its added points cannot be assigned to individual matchdays."
 ];
 
 
@@ -2473,6 +2478,69 @@ function seasonSwingLines(){
     ];
 }
 
+/* First half vs. second half of a season.
+
+   First half  = total points after matchday 17 (HALF_SEASON).
+   Second half = total points from matchday 18 to 34 (the rest of the season).
+
+   Only completed seasons with all 34 matchdays are counted, and season 20/21
+   is left out because its subsequently added points can't be assigned to
+   individual matchdays (see Footnotes). Ties are listed in full. */
+function halfSeasonLines(){
+
+    const makeRecord = worstFirst => ({value:worstFirst ? Infinity : -Infinity, holders:[]});
+
+    const bestFirstHalf = makeRecord(false);
+    const bestSecondHalf = makeRecord(false);
+    const biggestRise = makeRecord(false);
+    const biggestFall = makeRecord(true);
+
+    const consider = (record, value, holder, isBetter) => {
+
+        if(isBetter(value, record.value)){
+            record.value = value;
+            record.holders = [holder];
+        }else if(value === record.value){
+            record.holders.push(holder);
+        }
+    };
+
+    for(let idx = 1; idx < COMPLETED_SEASONS; idx++){
+
+        const seasonData = allSeasonsRaw[idx];
+        const label = seasonLabels[idx];
+
+        playersWithData(seasonData).forEach(p => {
+
+            const arr = seasonData[p];
+
+            if(arr.length < FULL_SEASON) return;
+
+            const firstHalf = arr[HALF_SEASON - 1];
+            const secondHalf = arr[FULL_SEASON - 1] - firstHalf;
+            const change = secondHalf - firstHalf;
+
+            const split = `${firstHalf} → ${secondHalf}`;
+
+            consider(bestFirstHalf, firstHalf, `${p} (${label})`, isHigher);
+            consider(bestSecondHalf, secondHalf, `${p} (${label})`, isHigher);
+            consider(biggestRise, change, `${p} (${label}: ${split})`, isHigher);
+            consider(biggestFall, change, `${p} (${label}: ${split})`, isLower);
+        });
+    }
+
+    if(bestFirstHalf.holders.length === 0) return [];
+
+    const signed = value => value > 0 ? `+${value}` : String(value);
+
+    return [
+        `- Best first half of a season (Matchdays 1–${HALF_SEASON}): ${formatNames(bestFirstHalf.holders)} with ${bestFirstHalf.value} points`,
+        `- Best second half of a season (Matchdays ${HALF_SEASON + 1}–${FULL_SEASON}): ${formatNames(bestSecondHalf.holders)} with ${bestSecondHalf.value} points`,
+        `- Biggest improvement from first to second half: ${formatNames(biggestRise.holders)} with ${signed(biggestRise.value)} points`,
+        `- Biggest drop-off from first to second half: ${formatNames(biggestFall.holders)} with ${signed(biggestFall.value)} points`
+    ];
+}
+
 // Smallest spread between a player's best and worst full season, among players
 // who played every finished season (so nobody wins this with one lucky season).
 function consistencyLine(){
@@ -2900,7 +2968,7 @@ function computeAllTimeBiggestCumulativeFirstSecondGap(){
     ];
 }
 
-   function computeTableStreakRecords(){
+function computeTableStreakRecords(){
 
     const defs = [
         {key:'first', title:'Longest streak as table first',  pick:c => c.leaders},
@@ -2999,6 +3067,7 @@ function computeAllTimeStats(){
         ...seasonRecordLines(seasons),
         ...championLines(seasons),
         ...seasonSwingLines(),
+        ...halfSeasonLines(),
         consistencyLine(),
         ...computeTableDroughtRecords(),
         ...computeAllTimeMatchdayStreakRecords(),
