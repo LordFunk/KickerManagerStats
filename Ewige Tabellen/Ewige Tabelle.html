@@ -51,7 +51,7 @@ const s7Matchdays = {
     'Basti':[62,31,38,63,54,61,26,24],
     'Eirik':[69,6,33,62,31,44,23,12],
     'Emil':[51,24,0,70,30,75,39,30],
-    'Kempka':[49,35,45,41,35,30,80,41],
+    'Kempka':[49,35,45,41,35,30,80,39],
     'Espen':[64,60,89,72,28,36,28,23],
     'Alex':[42,48,51,43,59,42,30,40]
 };
@@ -588,7 +588,8 @@ const HIGHLIGHTS_AFTER = [
     "=== Footnotes ===",
     "-*In the 20/21 season there were only two points for starting lineup appearances and one for substitutions. I checked everything and added the missing points.",
     "-Since the 24/25 season, assists are worth 2 points instead of 1. I am not recalculating everything.",
-    "-The first-half and second-half records only cover completed seasons from 21/22 onwards. Season 20/21 is left out because its added points cannot be assigned to individual matchdays."
+    "-The first-half and second-half records only cover completed seasons from 21/22 onwards. Season 20/21 is left out because its added points cannot be assigned to individual matchdays. The same applies to the lead-extension record.",
+    "-A lead is extended when the same player stays sole leader of the cumulative table and his gap to 2nd place grows, regardless of who wins the matchday. A level or shrinking gap, a change of leader or a tie at the top ends the run."
 ];
 
 
@@ -2323,7 +2324,8 @@ function computeSeasonHighlights(seasonData){
         `- Longest matchday win streak: ${formatNames(bestWinStreak.players)} with ${bestWinStreak.value}`,
         `- Longest matchday losing streak: ${formatNames(bestLossStreak.players)} with ${bestLossStreak.value}`,
         `- Lowest-scoring matchday winner: ${formatNames(worstWinner.players)} with ${worstWinner.value} points (Matchday ${worstWinner.matchday})`,
-        `- Highest-scoring matchday last place: ${formatNames(bestLoser.players)} with ${bestLoser.value} points (Matchday ${bestLoser.matchday})`
+        `- Highest-scoring matchday last place: ${formatNames(bestLoser.players)} with ${bestLoser.value} points (Matchday ${bestLoser.matchday})`,
+        leadExtensionLine(seasonData)
     ];
 }
 
@@ -2538,6 +2540,137 @@ function halfSeasonLines(){
         `- Best second half of a season (Matchdays ${HALF_SEASON + 1}–${FULL_SEASON}): ${formatNames(bestSecondHalf.holders)} with ${bestSecondHalf.value} points`,
         `- Biggest improvement from first to second half: ${formatNames(biggestRise.holders)} with ${signed(biggestRise.value)} points`,
         `- Biggest drop-off from first to second half: ${formatNames(biggestFall.holders)} with ${signed(biggestFall.value)} points`
+    ];
+}
+
+/* Lead-extension streaks.
+
+   After every matchday the cumulative table is checked: if the same player
+   is the sole leader as after the previous matchday AND his lead over 2nd
+   place is larger than before, the matchday counts as "lead extended". It
+   does not matter who won the matchday itself. The streak is broken when the
+   lead stays the same or shrinks, when the lead changes hands, or when two
+   players are level on top. The first matchday of a season only establishes
+   a lead and does not count. Streaks never carry over into a new season. */
+function leadExtensionStreaks(seasonData){
+
+    const best = {value:0, holders:[]};
+
+    let run = 0;
+    let leader = null;
+    let previousLead = null;
+    let start = null;
+
+    forEachMatchday(seasonData, context => {
+
+        if(context.leaders.length !== 1 || context.active.length < 2){
+            run = 0;
+            leader = null;
+            previousLead = null;
+            return;
+        }
+
+        const player = context.leaders[0];
+
+        const second = Math.max(
+            ...context.active.filter(q => q !== player).map(q => context.total[q])
+        );
+
+        const lead = context.total[player] - second;
+
+        if(leader === player && lead > previousLead){
+
+            if(run === 0) start = context.md + 1;
+
+            run++;
+
+            const holder = {player, start, end:context.md + 1};
+
+            if(run > best.value){
+                best.value = run;
+                best.holders = [holder];
+            }else if(run === best.value){
+                best.holders.push(holder);
+            }
+
+        }else{
+            run = 0;
+        }
+
+        leader = player;
+        previousLead = lead;
+    });
+
+    return {best, current:{player:leader, run}};
+}
+
+// One line for the season highlights (works for the current season too).
+function leadExtensionLine(seasonData){
+
+    const {best, current} = leadExtensionStreaks(seasonData);
+
+    if(best.value === 0){
+        return `- No table leader has extended his lead over 2nd place on consecutive matchdays yet`;
+    }
+
+    const names = formatNames(best.holders.map(h => h.player));
+    const played = matchdaysPlayed(seasonData);
+
+    const running = current.run === best.value &&
+        best.holders.some(h => h.player === current.player && h.end === played);
+
+    return `- Longest run of extending the table lead: ${names} with ${best.value} matchdays in a row${running ? ' (and counting)' : ''}`;
+}
+
+// All-time record (season 20/21 is left out, see Footnotes).
+function computeLeadExtensionRecord(){
+
+    let record = {value:0, holders:[]};
+    let latest = null;
+
+    allSeasonsRaw.forEach((seasonData, idx) => {
+
+        if(idx === 0 || playersWithData(seasonData).length === 0) return;
+
+        const result = leadExtensionStreaks(seasonData);
+
+        latest = {idx, current:result.current, played:matchdaysPlayed(seasonData)};
+
+        const tagged = result.best.holders.map(h => ({...h, idx}));
+
+        if(result.best.value > record.value){
+            record = {value:result.best.value, holders:tagged};
+        }else if(result.best.value === record.value && record.value > 0){
+            record.holders.push(...tagged);
+        }
+    });
+
+    if(record.value === 0) return [];
+
+    let anyActive = false;
+
+    const parts = record.holders.map(h => {
+
+        const active = latest &&
+            h.idx === latest.idx &&
+            latest.played < FULL_SEASON &&
+            h.end === latest.played &&
+            latest.current.player === h.player &&
+            latest.current.run === record.value;
+
+        if(active) anyActive = true;
+
+        const range = `${seasonLabels[h.idx]} MD ${h.start}–${h.end}`;
+
+        return `${h.player} (${record.value} matchdays${active ? ' and counting' : ''}; ${range})`;
+    });
+
+    const note = (!anyActive && latest && latest.current.player && latest.played < FULL_SEASON)
+        ? currentHighestNote({[latest.current.player]:latest.current.run})
+        : '';
+
+    return [
+        `- Longest run of extending the table lead over 2nd place: ${parts.join(' & ')}${note}`
     ];
 }
 
@@ -3068,6 +3201,7 @@ function computeAllTimeStats(){
         ...championLines(seasons),
         ...seasonSwingLines(),
         ...halfSeasonLines(),
+        ...computeLeadExtensionRecord(),
         consistencyLine(),
         ...computeTableDroughtRecords(),
         ...computeAllTimeMatchdayStreakRecords(),
