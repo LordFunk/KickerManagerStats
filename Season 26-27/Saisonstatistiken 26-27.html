@@ -45,6 +45,10 @@ const MATCHDAY_POINTS = {
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -117,6 +121,45 @@ body {
 
 .nav-links a:hover {
   color: white;
+}
+
+/* Chart style switch (Lines / Bar race) */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.view-toggle button {
+  background: transparent;
+  border: 0;
+  color: #999;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.view-toggle button:hover {
+  color: #fff;
+}
+
+.view-toggle button.active {
+  background: var(--red);
+  color: #fff;
+}
+
+.view-toggle button:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
 }
 
 /* =========================
@@ -431,6 +474,11 @@ main {
   border-color: var(--red);
 }
 
+.animate-btn.active {
+  background: var(--red);
+  border-color: var(--red);
+}
+
 .animate-btn:focus-visible {
   outline: 2px solid var(--red);
   outline-offset: 2px;
@@ -449,6 +497,256 @@ main {
   .animate-btn {
     padding: 7px 10px;
     font-size: 0.72rem;
+  }
+}
+
+/* =========================
+   BAR CHART RACE
+========================= */
+
+/* In race mode the line charts and their animation buttons make room for the race. */
+.race-block {
+  display: none;
+}
+
+body.race-mode .race-block {
+  display: block;
+}
+
+body.race-mode .chart-container,
+body.race-mode .chart-animation-controls,
+body.race-mode .lines-only {
+  display: none;
+}
+
+.race-card {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 20px 16px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.race-card::before {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  right: -130px;
+  top: -130px;
+  border-radius: 50%;
+  background: rgba(227, 6, 19, 0.045);
+  pointer-events: none;
+}
+
+.race-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.race-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.race-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f5f5f5;
+}
+
+.race-caption {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.race-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+.race-play {
+  min-width: 104px;
+}
+
+.race-scrubber {
+  flex: 1 1 160px;
+  min-width: 120px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.race-frame {
+  min-width: 150px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.race-speeds {
+  display: flex;
+  gap: 6px;
+}
+
+.race-body {
+  position: relative;
+  width: 100%;
+}
+
+.race-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform var(--race-dur, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.race-name {
+  flex: 0 0 64px;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ccc;
+}
+
+.race-track {
+  position: relative;
+  flex: 1;
+  height: 72%;
+  margin-right: 50px;
+}
+
+.race-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  min-width: 2px;
+  border-radius: 0 6px 6px 0;
+  transition: width var(--race-dur, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.race-val {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-left: 8px;
+  transform: translateY(-50%);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #eee;
+  white-space: nowrap;
+  transition: left var(--race-dur, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Click or drag anywhere on a race to pick a matchday. */
+.race-card {
+  touch-action: pan-y;
+  cursor: ew-resize;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.race-block .hint {
+  margin: 0 0 10px;
+}
+
+.race-timeline {
+  margin: 14px 50px 0 74px;
+}
+
+.race-timeline-track {
+  position: relative;
+  height: 4px;
+  border-radius: 4px;
+  background: #292929;
+}
+
+.race-timeline-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 4px;
+  background: var(--red);
+  transition: width var(--race-dur, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.race-handle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 2px solid #111;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+  transition: left var(--race-dur, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.race-ticks {
+  position: relative;
+  height: 16px;
+  margin-top: 10px;
+}
+
+.race-tick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: #666;
+}
+
+.race-instant .race-row,
+.race-instant .race-bar,
+.race-instant .race-val,
+.race-instant .race-handle,
+.race-instant .race-timeline-fill {
+  transition: none !important;
+}
+
+@media (max-width: 700px) {
+  .race-card {
+    padding: 14px 10px 10px;
+    border-radius: 10px;
+  }
+  .race-title {
+    font-size: 0.95rem;
+  }
+  .race-name {
+    flex-basis: 52px;
+    font-size: 0.7rem;
+  }
+  .race-track {
+    margin-right: 40px;
+  }
+  .race-timeline {
+    margin: 12px 40px 0 62px;
+  }
+  .race-val {
+    font-size: 0.7rem;
+  }
+  .race-frame {
+    min-width: 0;
+    flex: 1 0 100%;
+    order: 5;
   }
 }
 
@@ -759,6 +1057,11 @@ footer {
           Kicker <span>Stats</span>
         </a>
 
+        <div class="view-toggle" role="group" aria-label="Chart style">
+          <button type="button" data-view="lines" class="active" aria-pressed="true">Lines</button>
+          <button type="button" data-view="race" aria-pressed="false">Bar race</button>
+        </div>
+
         <div class="nav-links">
           <a href="#season">26-27</a>
           <a href="#points">Points</a>
@@ -779,7 +1082,7 @@ footer {
 
       <div class="section-label" id="points">Season Points</div>
 
-      <p class="hint">Click a name in the legend to highlight a player. Click again to reset.</p>
+      <p class="hint lines-only">Click a name in the legend to highlight a player. Click again to reset.</p>
 
       <div class="chart-container interactive">
         <div class="chart-inner">
@@ -1486,6 +1789,663 @@ footer {
   });
 
   /* =========================
+     BAR CHART RACE
+
+     The Lines / Bar race switch in the navigation changes all four graphs.
+     In race mode every graph is shown as bars that move up and down the
+     ranking matchday by matchday:
+       c1  season points (running total, follows the matchday range slider)
+       c2  points per matchday (with the average as a grey bar)
+       c3  league position (bar length = place, label = "#position")
+       c4  matchday ranking (bar length = place, label = "#position")
+
+     Every race has its own clock (play / pause / speed / scrubber).
+     The bars are plain elements; their movement is done with CSS
+     transitions, so overtakes are smooth.
+  ========================= */
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let displayMode = "lines"; // "lines" or "race"
+  const isRace = () => displayMode === "race";
+
+  // Rounds a scale maximum up to a tidy number with a little headroom.
+  function niceMax(value) {
+    if (value <= 0) return 10;
+    const padded = value * 1.05;
+    const step = Math.pow(10, Math.floor(Math.log10(padded))) / 5;
+    return Math.ceil(padded / step) * step;
+  }
+
+  // A clock holds the current frame, play / pause and speed of one race.
+  function createRaceClock(baseMs) {
+    const clock = {
+      frame: 0,
+      last: 0,
+      playing: false,
+      speed: 1,
+      timer: null,
+      visible: false,
+      pending: false,
+      render: null,
+      sync: null,
+    };
+
+    const period = () => baseMs / clock.speed;
+
+    const stopTimer = () => {
+      if (clock.timer) {
+        clearInterval(clock.timer);
+        clock.timer = null;
+      }
+    };
+
+    const startTimer = () => {
+      stopTimer();
+      clock.timer = setInterval(() => {
+        if (clock.frame >= clock.last) {
+          clock.pause();
+          return;
+        }
+        clock.seek(clock.frame + 1);
+        if (clock.frame >= clock.last) clock.pause();
+      }, period());
+    };
+
+    // Transition time for a frame change: almost a full tick while playing,
+    // short when scrubbing or after a rebuild.
+    // While the person drags on the race the bars follow the finger quickly.
+    clock.duration = () =>
+      reduceMotion ? 0 : clock.scrubbing ? 120 : clock.playing ? Math.round(period() * 0.92) : 280;
+
+    clock.seek = (frame, instant = false) => {
+      clock.frame = clamp(frame, 0, clock.last);
+      if (clock.render) clock.render(clock.frame, instant);
+      if (clock.sync) clock.sync();
+    };
+
+    clock.setLast = (last) => {
+      clock.last = Math.max(0, last);
+      if (clock.frame > clock.last) clock.frame = clock.last;
+      if (clock.last === 0 && clock.playing) clock.pause();
+      if (clock.sync) clock.sync();
+    };
+
+    clock.play = () => {
+      if (clock.last <= 0) return;
+      if (clock.frame >= clock.last) clock.seek(0, true);
+      clock.playing = true;
+      startTimer();
+      if (clock.sync) clock.sync();
+    };
+
+    clock.pause = () => {
+      clock.playing = false;
+      stopTimer();
+      if (clock.sync) clock.sync();
+    };
+
+    clock.toggle = () => (clock.playing ? clock.pause() : clock.play());
+
+    clock.setSpeed = (speed) => {
+      clock.speed = speed;
+      if (clock.playing) startTimer();
+      if (clock.sync) clock.sync();
+    };
+
+    return clock;
+  }
+
+  function makeButton(text, onClick, className) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = className;
+    button.textContent = text;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
+  // Play button, scrubber, matchday label and speed buttons for one clock.
+  function createRaceControls(host, clock, labelFor) {
+    host.innerHTML = "";
+
+    const play = makeButton("", () => clock.toggle(), "animate-btn race-play");
+
+    const scrubber = document.createElement("input");
+    scrubber.type = "range";
+    scrubber.className = "race-scrubber";
+    scrubber.min = 0;
+    scrubber.max = 0;
+    scrubber.value = 0;
+    scrubber.setAttribute("aria-label", "Race position");
+    scrubber.addEventListener("input", () => {
+      clock.pause();
+      clock.seek(Number(scrubber.value));
+    });
+
+    const frameLabel = document.createElement("span");
+    frameLabel.className = "race-frame";
+
+    const speedWrap = document.createElement("div");
+    speedWrap.className = "race-speeds";
+
+    const speedButtons = [0.5, 1, 2, 4].map((speed) => {
+      const button = makeButton(`${speed}×`, () => clock.setSpeed(speed), "animate-btn");
+      speedWrap.appendChild(button);
+      return { speed, button };
+    });
+
+    host.append(play, scrubber, frameLabel, speedWrap);
+
+    clock.sync = () => {
+      play.textContent = clock.playing
+        ? "❚❚ Pause"
+        : clock.last > 0 && clock.frame >= clock.last
+          ? "↻ Replay"
+          : "▶ Play";
+
+      scrubber.max = clock.last;
+      scrubber.value = clock.frame;
+      frameLabel.textContent = labelFor(clock.frame);
+
+      speedButtons.forEach(({ speed, button }) => {
+        button.classList.toggle("active", speed === clock.speed);
+      });
+    };
+
+    clock.sync();
+  }
+
+  // A race starts by itself the first time it scrolls into view.
+  function watchVisibility(clock, element) {
+    if (!("IntersectionObserver" in window)) {
+      clock.visible = true;
+      return;
+    }
+
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          clock.visible = entry.isIntersecting;
+
+          if (clock.visible && clock.pending) {
+            clock.pending = false;
+            clock.seek(0, true);
+            if (!reduceMotion) clock.play();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    ).observe(element);
+  }
+
+  function startRace(clock) {
+    if (reduceMotion) {
+      // No automatic motion: show the final standings, the controls still work.
+      clock.seek(clock.last, true);
+      return;
+    }
+
+    clock.seek(0, true);
+
+    if (clock.visible) {
+      clock.pending = false;
+      clock.play();
+    } else {
+      clock.pending = true;
+    }
+  }
+
+  // Counts the shown number up or down while the bar moves.
+  function setRaceNumber(item, value, duration) {
+    if (item.raf) cancelAnimationFrame(item.raf);
+    item.raf = null;
+
+    if (value === null || value === undefined) {
+      item.val.textContent = "–";
+      item.shown = 0;
+      return;
+    }
+
+    if (duration <= 0) {
+      item.shown = value;
+      item.val.textContent = item.format(value);
+      return;
+    }
+
+    const from = item.shown;
+    const started = performance.now();
+
+    const step = (now) => {
+      const progress = Math.min(1, (now - started) / duration);
+      item.shown = from + (value - from) * progress;
+      item.val.textContent = item.format(item.shown);
+      if (progress < 1) item.raf = requestAnimationFrame(step);
+    };
+
+    item.raf = requestAnimationFrame(step);
+  }
+
+  /* One race panel.
+     rows:    [{ name, color, values: [value per frame], format?, decimals? }]
+     getMax:  returns the scale maximum
+     caption: optional, text at the right of the title for a frame */
+  function buildRacePanel({ title, rows, rowH, getMax, caption, frames, tickLabel }) {
+    const el = document.createElement("div");
+
+    const head = document.createElement("div");
+    head.className = "race-head";
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "race-title";
+    titleEl.textContent = title;
+
+    const captionEl = document.createElement("span");
+    captionEl.className = "race-caption";
+
+    head.append(titleEl, captionEl);
+    el.appendChild(head);
+
+    const body = document.createElement("div");
+    body.className = "race-body";
+    body.style.height = `${rows.length * rowH}px`;
+    el.appendChild(body);
+
+    // Timeline under the bars: shows the current matchday and can be clicked or dragged.
+    const lastFrame = Math.max(0, frames - 1);
+
+    const timeline = document.createElement("div");
+    timeline.className = "race-timeline";
+
+    const track = document.createElement("div");
+    track.className = "race-timeline-track";
+
+    const fill = document.createElement("div");
+    fill.className = "race-timeline-fill";
+
+    const handle = document.createElement("div");
+    handle.className = "race-handle";
+
+    track.append(fill, handle);
+    timeline.appendChild(track);
+
+    const ticks = document.createElement("div");
+    ticks.className = "race-ticks";
+
+    if (lastFrame > 0) {
+      const step = Math.ceil(frames / (isMobile() ? 8 : 17));
+      let lastShown = -Infinity;
+
+      for (let f = 0; f <= lastFrame; f++) {
+        const regular = f % step === 0;
+        const closing = f === lastFrame && f - lastShown >= step * 0.6;
+
+        if (!regular && !closing) continue;
+
+        const tick = document.createElement("span");
+        tick.className = "race-tick";
+        tick.style.left = `${(f / lastFrame) * 100}%`;
+        tick.textContent = tickLabel(f);
+        ticks.appendChild(tick);
+        lastShown = f;
+      }
+    } else {
+      timeline.hidden = true;
+    }
+
+    timeline.appendChild(ticks);
+    el.appendChild(timeline);
+
+    const items = rows.map((row, index) => {
+      const rowEl = document.createElement("div");
+      rowEl.className = "race-row";
+      rowEl.style.height = `${rowH}px`;
+      rowEl.style.transform = `translateY(${index * rowH}px)`;
+
+      const name = document.createElement("span");
+      name.className = "race-name";
+      name.textContent = row.name;
+
+      const track = document.createElement("div");
+      track.className = "race-track";
+
+      const bar = document.createElement("div");
+      bar.className = "race-bar";
+      bar.style.background = row.color;
+
+      const val = document.createElement("span");
+      val.className = "race-val";
+
+      track.append(bar, val);
+      rowEl.append(name, track);
+      body.appendChild(rowEl);
+
+      const format =
+        row.format ?? ((v) => (row.decimals ? v.toFixed(row.decimals) : String(Math.round(v))));
+
+      return { row, index, rowEl, bar, val, format, shown: 0, raf: null };
+    });
+
+    function update(frame, duration, instant) {
+      if (instant) el.classList.add("race-instant");
+
+      el.style.setProperty("--race-dur", `${instant ? 0 : duration}ms`);
+
+      const max = getMax() || 1;
+
+      const current = items.map((item) => {
+        const values = item.row.values;
+        return { item, value: values[Math.min(frame, values.length - 1)] };
+      });
+
+      // Highest value first; equal values keep their original order.
+      const order = [...current].sort(
+        (a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity) || a.item.index - b.item.index
+      );
+
+      order.forEach(({ item, value }, rank) => {
+        const percent =
+          value === null || value === undefined ? 0 : clamp((value / max) * 100, 0, 100);
+
+        item.rowEl.style.transform = `translateY(${rank * rowH}px)`;
+        item.bar.style.width = `${percent}%`;
+        item.val.style.left = `${percent}%`;
+        item.bar.style.boxShadow =
+          rank === 0 && percent > 0 ? `0 0 14px ${item.row.color}66` : "none";
+
+        setRaceNumber(item, value, instant ? 0 : duration);
+      });
+
+      if (caption) captionEl.textContent = caption(frame);
+
+      const percent = lastFrame > 0 ? (frame / lastFrame) * 100 : 0;
+      fill.style.width = `${percent}%`;
+      handle.style.left = `${percent}%`;
+
+      if (instant) {
+        void el.offsetWidth;
+        el.classList.remove("race-instant");
+      }
+    }
+
+    return { el, update, track };
+  }
+
+  /* ---------- race definitions ---------- */
+
+  const raceRowH = () => (isMobile() ? 26 : 30);
+
+  // "A leads by 12" for the player with the most points.
+  const leaderCaption = (rows) => (frame) => {
+    const sorted = rows
+      .map((r) => ({ name: r.name, value: r.values[frame] }))
+      .filter((x) => x.value !== null && x.value !== undefined)
+      .sort((a, b) => b.value - a.value);
+
+    if (sorted.length < 2) return "";
+
+    const diff = sorted[0].value - sorted[1].value;
+
+    return diff === 0
+      ? `${sorted[0].name} & ${sorted[1].name} level`
+      : `${sorted[0].name} leads by ${diff}`;
+  };
+
+  const placeFormat = (v) => `#${players.length + 1 - Math.round(v)}`;
+
+  // Bar length for a position: first place is the longest bar.
+  const placeValues = (positions) =>
+    positions.slice(0, played).map((p) => (p === null ? null : players.length + 1 - p));
+
+  const RACES = [
+    {
+      id: "c1",
+      // Follows the matchday range slider; only played matchdays count.
+      spec() {
+        const start = +$("rangeMin").value;
+        const last = Math.min(+$("rangeMax").value, played);
+        if (start > last) return null;
+
+        const frames = last - start + 1;
+        const rows = players.map((name, i) => ({
+          name,
+          color: colors[i],
+          values: Array.from({ length: frames }, (_, f) => cumulative[name][start - 1 + f] ?? null),
+        }));
+        const max = niceMax(Math.max(0, ...rows.flatMap((r) => r.values.filter((v) => v !== null))));
+
+        return {
+          title: "Season Points 26-27",
+          rows,
+          getMax: () => max,
+          caption: leaderCaption(rows),
+          frames,
+          firstMd: start,
+          frameLabel: (f) => `Matchday ${start + f} / ${last}`,
+        };
+      },
+    },
+    {
+      id: "c2",
+      spec() {
+        if (played === 0) return null;
+
+        const rows = [
+          ...players.map((name, i) => ({
+            name,
+            color: colors[i],
+            values: MATCHDAY_POINTS[name].slice(0, played),
+          })),
+          { name: "Avg", color: "#777", values: avgMd.slice(0, played), decimals: 1 },
+        ];
+        const max = niceMax(Math.max(0, ...rows.flatMap((r) => r.values.filter((v) => v !== null))));
+
+        return {
+          title: "Points per Matchday",
+          rows,
+          getMax: () => max,
+          frames: played,
+          frameLabel: (f) => `Matchday ${f + 1} / ${played}`,
+        };
+      },
+    },
+    {
+      id: "c3",
+      spec() {
+        if (played === 0) return null;
+
+        const rows = players.map((name, i) => ({
+          name,
+          color: colors[i],
+          values: placeValues(leaguePos[name]),
+          format: placeFormat,
+        }));
+
+        return {
+          title: "League Position Development",
+          rows,
+          getMax: () => players.length,
+          frames: played,
+          frameLabel: (f) => `Matchday ${f + 1} / ${played}`,
+        };
+      },
+    },
+    {
+      id: "c4",
+      spec() {
+        if (played === 0) return null;
+
+        const rows = players.map((name, i) => ({
+          name,
+          color: colors[i],
+          values: placeValues(matchdayRank[name]),
+          format: placeFormat,
+        }));
+
+        return {
+          title: "Matchday Ranking",
+          rows,
+          getMax: () => players.length,
+          frames: played,
+          frameLabel: (f) => `Matchday ${f + 1} / ${played}`,
+        };
+      },
+    },
+  ];
+
+  // Creates the race block (card + controls) right under each line chart's animation buttons.
+  RACES.forEach((race) => {
+    const anchor = document
+      .querySelector(`[data-animate-chart="${race.id}"]`)
+      .closest(".chart-animation-controls");
+
+    const block = document.createElement("div");
+    block.className = "race-block";
+    block.id = `race-${race.id}`;
+
+    race.card = document.createElement("div");
+    race.card.className = "race-card";
+
+    const controls = document.createElement("div");
+    controls.className = "race-controls";
+
+    const hint = document.createElement("p");
+    hint.className = "hint";
+    hint.textContent = "Click or drag on the race to choose a matchday.";
+
+    race.card.title = "Click or drag to choose a matchday";
+
+    block.append(hint, race.card, controls);
+    anchor.after(block);
+
+    race.clock = createRaceClock(900);
+    race.frameLabel = () => "";
+
+    createRaceControls(controls, race.clock, (f) => race.frameLabel(f));
+    watchVisibility(race.clock, block);
+    attachRaceScrubbing(race);
+  });
+
+  // Click or drag anywhere on a race to jump to that matchday. The race pauses
+  // where you let go; press Play to continue from there.
+  function attachRaceScrubbing(race) {
+    const card = race.card;
+    let dragging = false;
+
+    const seekTo = (event) => {
+      if (!race.track || race.clock.last <= 0) return;
+
+      const rect = race.track.getBoundingClientRect();
+      if (rect.width <= 0) return;
+
+      const fraction = clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      race.clock.seek(Math.round(fraction * race.clock.last));
+    };
+
+    const stop = () => {
+      dragging = false;
+      race.clock.scrubbing = false;
+    };
+
+    card.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (race.clock.last <= 0) return;
+
+      dragging = true;
+      race.clock.scrubbing = true;
+      race.clock.pause();
+
+      try {
+        card.setPointerCapture(event.pointerId);
+      } catch (_) {
+        /* pointer capture is optional */
+      }
+
+      seekTo(event);
+    });
+
+    card.addEventListener("pointermove", (event) => {
+      if (dragging) seekTo(event);
+    });
+
+    card.addEventListener("pointerup", stop);
+    card.addEventListener("pointercancel", stop);
+    card.addEventListener("lostpointercapture", stop);
+  }
+
+  const raceById = Object.fromEntries(RACES.map((race) => [race.id, race]));
+
+  function renderRace(race) {
+    const spec = race.spec();
+
+    race.card.innerHTML = "";
+
+    if (!spec) {
+      race.card.innerHTML = '<div class="empty-state">No data yet for this range</div>';
+      race.clock.render = null;
+      race.frameLabel = () => "";
+      race.clock.setLast(0);
+      return;
+    }
+
+    const panel = buildRacePanel({
+      title: spec.title,
+      rows: spec.rows,
+      rowH: raceRowH(),
+      getMax: spec.getMax,
+      caption: spec.caption,
+      frames: spec.frames,
+      tickLabel: (f) => (spec.firstMd ?? 1) + f,
+    });
+
+    race.card.appendChild(panel.el);
+    race.track = panel.track;
+    race.frameLabel = spec.frameLabel;
+
+    race.clock.render = (frame, instant) =>
+      panel.update(frame, race.clock.duration(), instant);
+
+    race.clock.setLast(spec.frames - 1);
+    race.clock.seek(race.clock.frame, true);
+  }
+
+  /* ---------- Lines / Bar race switch ---------- */
+
+  const viewButtons = [...document.querySelectorAll(".view-toggle button")];
+
+  function setDisplayMode(mode) {
+    if (mode === displayMode) return;
+
+    displayMode = mode;
+    document.body.classList.toggle("race-mode", mode === "race");
+
+    viewButtons.forEach((button) => {
+      const on = button.dataset.view === mode;
+      button.classList.toggle("active", on);
+      button.setAttribute("aria-pressed", String(on));
+    });
+
+    if (mode === "race") {
+      allCharts.forEach((chart) => stopChartAnimation(chart.canvas.id));
+      hideTooltip();
+
+      RACES.forEach((race) => {
+        renderRace(race);
+        startRace(race.clock);
+      });
+    } else {
+      RACES.forEach((race) => race.clock.pause());
+
+      // The charts were hidden, so let them measure their container again.
+      allCharts.forEach((chart) => chart.resize());
+    }
+  }
+
+  viewButtons.forEach((button) => {
+    button.addEventListener("click", () => setDisplayMode(button.dataset.view));
+  });
+
+  /* =========================
      CREATE CHARTS
   ========================= */
 
@@ -1643,6 +2603,9 @@ footer {
 
     updateC1(start, end);
     updateRangeTable(start, end);
+
+    // The season points race follows the same matchday range.
+    if (isRace()) renderRace(raceById.c1);
   }
 
   minInput.addEventListener("input", updateRange);
@@ -1741,11 +2704,19 @@ footer {
   ========================= */
 
   let resizeTimer;
+  let wasMobile = isMobile();
+
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       allCharts.forEach(applyResponsive);
       applyFade();
+
+      // Row height of the race bars differs on phones.
+      if (isRace() && isMobile() !== wasMobile) {
+        RACES.forEach(renderRace);
+      }
+      wasMobile = isMobile();
     }, 150);
   });
 })();
