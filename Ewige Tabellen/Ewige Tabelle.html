@@ -589,7 +589,8 @@ const HIGHLIGHTS_AFTER = [
     "-*In the 20/21 season there were only two points for starting lineup appearances and one for substitutions. I checked everything and added the missing points.",
     "-Since the 24/25 season, assists are worth 2 points instead of 1. I am not recalculating everything.",
     "-The first-half and second-half records only cover completed seasons from 21/22 onwards. Season 20/21 is left out because its added points cannot be assigned to individual matchdays. The same applies to the lead-extension record.",
-    "-A lead is extended when the same player stays sole leader of the cumulative table and his gap to 2nd place grows, regardless of who wins the matchday. A level or shrinking gap, a change of leader or a tie at the top ends the run."
+    "-A lead is extended when the same player stays sole leader of the cumulative table and his gap to 2nd place grows, regardless of who wins the matchday. A level or shrinking gap, a change of leader or a tie at the top ends the run.",
+    "-Matchday position = 1 + the number of players who scored strictly more on that matchday, so tied players share the same position. The season record only counts completed seasons; the all-time record needs at least one full season (34 matchdays)."
 ];
 
 
@@ -2324,8 +2325,7 @@ function computeSeasonHighlights(seasonData){
         `- Longest matchday win streak: ${formatNames(bestWinStreak.players)} with ${bestWinStreak.value}`,
         `- Longest matchday losing streak: ${formatNames(bestLossStreak.players)} with ${bestLossStreak.value}`,
         `- Lowest-scoring matchday winner: ${formatNames(worstWinner.players)} with ${worstWinner.value} points (Matchday ${worstWinner.matchday})`,
-        `- Highest-scoring matchday last place: ${formatNames(bestLoser.players)} with ${bestLoser.value} points (Matchday ${bestLoser.matchday})`,
-        leadExtensionLine(seasonData)
+        `- Highest-scoring matchday last place: ${formatNames(bestLoser.players)} with ${bestLoser.value} points (Matchday ${bestLoser.matchday})`
     ];
 }
 
@@ -2602,24 +2602,6 @@ function leadExtensionStreaks(seasonData){
     });
 
     return {best, current:{player:leader, run}};
-}
-
-// One line for the season highlights (works for the current season too).
-function leadExtensionLine(seasonData){
-
-    const {best, current} = leadExtensionStreaks(seasonData);
-
-    if(best.value === 0){
-        return `- No table leader has extended his lead over 2nd place on consecutive matchdays yet`;
-    }
-
-    const names = formatNames(best.holders.map(h => h.player));
-    const played = matchdaysPlayed(seasonData);
-
-    const running = current.run === best.value &&
-        best.holders.some(h => h.player === current.player && h.end === played);
-
-    return `- Longest run of extending the table lead: ${names} with ${best.value} matchdays in a row${running ? ' (and counting)' : ''}`;
 }
 
 // All-time record (season 20/21 is left out, see Footnotes).
@@ -3101,6 +3083,99 @@ function computeAllTimeBiggestCumulativeFirstSecondGap(){
     ];
 }
 
+/* Best average position in the matchday tables.
+
+   On every matchday each player gets a position: 1 + the number of players
+   who scored strictly more, so tied players share the same position (the same
+   definition as the top-3 streaks). The average of these positions is
+   calculated per season and over a whole career. A LOWER number is better.
+
+   - Season record: only completed seasons, so a few lucky matchdays of the
+     running season can't set it.
+   - All-time record: all matchdays of all seasons including the current one,
+     for players with at least one full season (FULL_SEASON matchdays).
+
+   Ties are listed in full. */
+function computeMatchdayPositionRecords(){
+
+    const MIN_CAREER_MATCHDAYS = FULL_SEASON;
+    const EPSILON = 1e-9;
+
+    const career = {};
+    const seasonAverages = [];
+
+    allSeasonsRaw.forEach((seasonData, seasonIdx) => {
+
+        const sums = {};
+        const counts = {};
+
+        forEachMatchday(seasonData, context => {
+
+            context.active.forEach(p => {
+
+                const position = 1 + context.active.filter(
+                    other => context.gain[other] > context.gain[p]
+                ).length;
+
+                sums[p] = (sums[p] || 0) + position;
+                counts[p] = (counts[p] || 0) + 1;
+
+                career[p] = career[p] || {sum:0, count:0};
+                career[p].sum += position;
+                career[p].count++;
+            });
+        });
+
+        if(seasonIdx < COMPLETED_SEASONS){
+            Object.keys(sums).forEach(p => {
+                seasonAverages.push({
+                    player:p,
+                    label:seasonLabels[seasonIdx],
+                    average:sums[p] / counts[p]
+                });
+            });
+        }
+    });
+
+    const lines = [];
+
+    if(seasonAverages.length){
+
+        const best = Math.min(...seasonAverages.map(entry => entry.average));
+
+        const holders = seasonAverages
+            .filter(entry => Math.abs(entry.average - best) < EPSILON)
+            .map(entry => `${entry.player} (${entry.label})`);
+
+        lines.push(
+            `- Best average matchday position in a season: ${formatNames(holders)} with an average position of ${best.toFixed(2)}`
+        );
+    }
+
+    const careerEntries = Object.entries(career)
+        .filter(([, data]) => data.count >= MIN_CAREER_MATCHDAYS)
+        .map(([player, data]) => ({
+            player,
+            average:data.sum / data.count,
+            count:data.count
+        }));
+
+    if(careerEntries.length){
+
+        const best = Math.min(...careerEntries.map(entry => entry.average));
+
+        const holders = careerEntries
+            .filter(entry => Math.abs(entry.average - best) < EPSILON)
+            .map(entry => `${entry.player} (${entry.count} matchdays)`);
+
+        lines.push(
+            `- Best average matchday position all-time (min. one full season): ${formatNames(holders)} with an average position of ${best.toFixed(2)}`
+        );
+    }
+
+    return lines;
+}
+
 function computeTableStreakRecords(){
 
     const defs = [
@@ -3203,6 +3278,7 @@ function computeAllTimeStats(){
         ...halfSeasonLines(),
         ...computeLeadExtensionRecord(),
         consistencyLine(),
+        ...computeMatchdayPositionRecords(),
         ...computeTableDroughtRecords(),
         ...computeAllTimeMatchdayStreakRecords(),
         ...computeTableStreakRecords(),
