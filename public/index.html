@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131c">
+  <title>Tabletop — Private Card Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    /* Apply saved display choices before the first paint (no flash of the wrong theme). */
+    (function () {
+      try {
+        var d = JSON.parse(localStorage.getItem("tabletop.display")) || {};
+        var r = document.documentElement;
+        if (d.theme) r.setAttribute("data-theme", d.theme);
+        if (d.back) r.setAttribute("data-back", d.back);
+        if (d.symbols) r.classList.add("cb");
+      } catch (e) { /* storage can be blocked */ }
+    })();
+  </script>
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/"><span class="brand-mark">T</span><span>tabletop<span class="brand-dot">.</span></span></a>
+      <div class="top-meta">
+        <span class="live-dot"></span><span class="top-label">PRIVATE GAME ROOMS</span>
+        <div class="display-menu">
+          <button id="display-btn" class="icon-btn" aria-expanded="false" aria-controls="display-panel">Display</button>
+          <div id="display-panel" class="display-panel hidden">
+            <div class="display-row"><span>Theme</span>
+              <div class="segmented" id="theme-options" role="group" aria-label="Theme">
+                <button data-theme="auto">Auto</button><button data-theme="dark">Dark</button><button data-theme="light">Light</button>
+              </div></div>
+            <div class="display-row"><span>Card back</span>
+              <div class="back-options" id="back-options" role="group" aria-label="Card back">
+                <button data-back="classic" aria-label="Classic card back"></button>
+                <button data-back="ember" aria-label="Ember card back"></button>
+                <button data-back="ocean" aria-label="Ocean card back"></button>
+                <button data-back="mono" aria-label="Mono card back"></button>
+                <button data-back="club" aria-label="Club emblem card back"></button>
+              </div></div>
+            <label class="display-row check-row"><span>Colour-blind symbols<small>Adds a shape to every colour</small></span>
+              <input id="symbols-toggle" type="checkbox"></label>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="home" class="home-view">
+      <div class="hero">
+        <div class="eyebrow"><span></span> YOUR FRIENDS. YOUR TABLE.</div>
+        <h1>Game night,<br><em>wherever you are.</em></h1>
+        <p class="hero-copy">A private card table for your group. Create a room, share the code, and play together.</p>
+      </div>
+      <div class="entry-grid">
+        <section class="panel create-panel">
+          <div class="panel-kicker">START A TABLE</div>
+          <h2>Create a room</h2>
+          <label for="create-name">Your name</label>
+          <input id="create-name" maxlength="18" placeholder="e.g. Alex" autocomplete="nickname">
+          <div class="settings-title"><span>GAME</span><span class="subtle">PICK A STYLE</span></div>
+          <div class="preset-row">
+            <div class="segmented wide" id="preset-options" role="group" aria-label="Rule presets">
+              <button type="button" data-preset="classic">Classic</button>
+              <button type="button" data-preset="chaos">Chaos</button>
+              <button type="button" data-preset="nomercy">No Mercy</button>
+            </div>
+          </div>
+          <label class="toggle-row"><span><b>No Mercy</b><small>168 nastier cards (+6, +10, Skip Everyone, Colour Roulette…), stack any bigger draw, draw until you can play, 7-0, and 25 cards knocks you out</small></span><input id="no-mercy" type="checkbox"><i></i></label>
+          <div class="settings-title"><span>HOUSE RULES</span><span class="subtle">CHANGE ANYTIME BEFORE START</span></div>
+          <label class="toggle-row"><span><b>Stack draw cards</b><small>Pass +2 / +4 penalties along</small></span><input id="stacking" type="checkbox" checked><i></i></label>
+          <label class="toggle-row nested"><span><b>Allow +4 stacking</b><small>Stack a Wild +4 on a draw penalty</small></span><input id="stack-wild4" type="checkbox"><i></i></label>
+          <label class="toggle-row"><span><b>Stack Skip cards</b><small>Play Skip on another Skip, including different colours</small></span><input id="stack-skips" type="checkbox" checked><i></i></label>
+          <label class="toggle-row"><span><b>Call UNO</b><small>Players can be caught with one card</small></span><input id="must-uno" type="checkbox" checked><i></i></label>
+          <label class="toggle-row"><span><b>Draw one card</b><small>Draw once, then your turn passes</small></span><input id="draw-one" type="checkbox" checked><i></i></label>
+          <div class="settings-title"><span>EXTRA RULES</span><span class="subtle">OFF BY DEFAULT</span></div>
+          <label class="toggle-row"><span><b>Jump-in</b><small>Play an identical card (same colour and number) out of turn</small></span><input id="jump-in" type="checkbox"><i></i></label>
+          <label class="toggle-row"><span><b>7-0 swap</b><small>A 7 swaps hands with a player you choose, a 0 passes every hand along</small></span><input id="seven-zero" type="checkbox"><i></i></label>
+          <label class="toggle-row"><span><b>Forced play</b><small>If the card you draw can be played, you must play it</small></span><input id="forced-play" type="checkbox"><i></i></label>
+          <label class="toggle-row"><span><b>Challenge Wild +4</b><small>The next player can call out a +4 played while holding the active colour</small></span><input id="challenge-wild4" type="checkbox"><i></i></label>
+          <div class="settings-title"><span>TABLE</span><span class="subtle">TIMER &amp; TEAMS</span></div>
+          <label class="select-row" for="turn-seconds"><span><b>Turn timer</b><small>Slow players draw a card. Players who left are played for automatically</small></span>
+            <select id="turn-seconds"><option value="0" selected>Off</option><option value="20">20 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option><option value="90">90 seconds</option></select></label>
+          <label class="toggle-row"><span><b>Team mode</b><small>Two teams on alternating seats (4, 6, 8… players) share one score</small></span><input id="teams" type="checkbox"><i></i></label>
+          <div class="settings-title"><span>SCORING</span><span class="subtle">OFFICIAL UNO POINTS</span></div>
+          <label class="select-row" for="scoring-mode"><span><b>Scoring mode</b><small>Official: the round winner scores the cards left in everyone else's hands. Penalty: you score your own leftover cards and the lowest total wins</small></span>
+            <select id="scoring-mode"><option value="winner" selected>Winner scores</option><option value="penalty">Penalty points</option></select></label>
+          <label class="number-row" for="target-score"><span><b>Points to win</b><small>The game ends when a player or team reaches this total</small></span><input id="target-score" type="number" min="100" max="2000" step="50" value="500" inputmode="numeric"></label>
+          <button id="create-btn" class="btn btn-primary full">Create private room <span>↗</span></button>
+        </section>
+        <section class="panel join-panel">
+          <div class="panel-kicker">JOIN YOUR GROUP</div>
+          <h2>Have a room code?</h2>
+          <p class="muted">Enter the code shared by the person hosting the game.</p>
+          <label for="join-name">Your name</label>
+          <input id="join-name" maxlength="18" placeholder="e.g. Sam" autocomplete="nickname">
+          <label for="room-code">Room code</label>
+          <input id="room-code" class="code-input" maxlength="4" placeholder="ABCD" autocomplete="off">
+          <button id="join-btn" class="btn btn-secondary full">Join room <span>→</span></button>
+          <div class="join-note"><span class="lock-icon">⌑</span> Invite-only rooms · Up to 20 players</div>
+        </section>
+      </div>
+      <section id="hall" class="panel hall hidden" aria-labelledby="hall-title">
+        <div class="panel-kicker" id="hall-title">HALL OF FAME</div>
+        <ol id="hall-list" class="hall-list"></ol>
+      </section>
+      <div class="footer-note">NO ACCOUNTS. NO DOWNLOADS. JUST THE GAME.</div>
+    </section>
+
+    <section id="lobby" class="game-view hidden">
+      <div class="room-heading">
+        <div><div class="eyebrow"><span></span> PRIVATE TABLE</div><h1>Waiting room</h1><p class="muted">Share the code with your friends to fill the table.</p></div>
+        <div class="room-code-box"><small>ROOM CODE</small><strong id="lobby-code">----</strong><button id="copy-code" class="copy-btn">Copy code</button></div>
+      </div>
+      <div class="lobby-layout">
+        <section class="panel players-panel"><div class="section-heading"><h2>Players</h2><span id="player-count" class="count-pill">0 / 20</span></div><div id="lobby-players" class="lobby-players"></div><div class="muted spectator-note" id="spectator-note"></div><button id="add-bot" class="btn btn-secondary full hidden">Add a computer player +</button><div class="host-tip" id="host-tip">The host can start when at least 2 players have joined.</div><button id="start-btn" class="btn btn-primary full">Start game <span>↗</span></button></section>
+        <section class="panel lobby-rules"><div class="panel-kicker">TABLE SETTINGS</div><h2>House rules</h2><div id="rules-summary"></div><button id="leave-lobby" class="text-btn">← Leave room</button></section>
+      </div>
+    </section>
+
+    <section id="game" class="game-view hidden">
+      <div class="game-topline"><div class="game-brand"><span class="brand-mark small">T</span><b>tabletop<span class="brand-dot">.</span></b><span class="room-tag" id="game-room-code"></span><span class="room-tag watching-tag hidden" id="spectator-tag">WATCHING</span><span class="room-tag mercy-tag hidden" id="mode-tag">NO MERCY</span></div><div class="game-actions"><button id="mute-btn" class="icon-btn" aria-pressed="false" aria-label="Sound on" title="Sound on/off">♪ On</button><button id="copy-game-code" class="icon-btn">Invite +</button><button id="leave-game" class="icon-btn">Leave</button></div></div>
+      <div class="table">
+        <div class="opponents" id="opponents"></div>
+        <div class="center-play">
+          <div class="pile-wrap"><div class="pile-label">DRAW PILE</div><button id="draw-btn" class="deck-back" aria-label="Draw card"><span> T </span></button><span id="pending-badge" class="pending-badge hidden" aria-hidden="true"></span></div>
+          <div class="active-card-wrap"><div class="direction-indicator" id="direction-indicator" aria-label="Playing clockwise"><span class="direction-arrow" aria-hidden="true">↻</span><span class="direction-label">CLOCKWISE</span></div><div class="pile-label">PLAYING</div><div id="pile-stack" class="pile-stack"><div id="pile-under" class="pile-under"></div><div id="top-card" class="playing-card"></div></div><div id="active-color" class="active-color"></div></div>
+          <div class="table-status"><div class="turn-orb"></div><span id="turn-status" role="status" aria-live="polite">Waiting for game</span><span id="turn-timer" class="turn-timer hidden"></span></div>
+        </div>
+        <div id="game-message" class="game-message" role="status" aria-live="polite" aria-atomic="true">Waiting for players…</div>
+      </div>
+      <div id="turn-banner" class="turn-banner" aria-hidden="true"><span id="turn-banner-text"></span><span id="turn-banner-timer" class="turn-banner-timer"></span></div>
+      <div id="finished-banner" class="finished-banner hidden"><div><span class="eyebrow">ROUND COMPLETE</span><h2 id="winner-text"></h2><p id="banner-note" class="banner-note"></p><div id="reveal" class="reveal" aria-label="Cards left in each hand"></div></div><button id="restart-btn" class="btn btn-primary">Next round ↗</button></div>
+      <div id="watching-note" class="panel watching-note hidden"><b id="watching-title">You are watching this game.</b> <span id="watching-text">You can see the table but not anyone's hand. Join a new room to play.</span></div>
+      <div id="hand-area" class="hand-area" data-turn="no">
+        <div class="hand-header"><div><span class="panel-kicker">YOUR HAND</span><h2 id="hand-count">0 cards</h2></div><div class="hand-actions"><button id="challenge-btn" class="btn btn-quiet btn-challenge hidden">Challenge +4</button><button id="uno-btn" class="btn btn-uno">UNO!</button><button id="pass-btn" class="btn btn-quiet">Pass turn</button></div></div>
+        <div id="my-hand" class="my-hand"></div>
+      </div>
+      <details id="scoreboard-panel" class="scoreboard hidden">
+        <summary><span class="panel-kicker">SCOREBOARD</span><span id="score-target" class="subtle"></span></summary>
+        <div class="score-scroll"><table id="score-table" class="score-table"></table></div>
+      </details>
+      <details id="log-panel" class="scoreboard log-panel">
+        <summary><span class="panel-kicker">GAME LOG</span><span id="log-count" class="subtle"></span></summary>
+        <ol id="log-list" class="log-list"></ol>
+      </details>
+    </section>
+  </main>
+
+  <div id="color-modal" class="modal hidden"><div class="modal-card"><div class="panel-kicker" id="color-kicker">WILD CARD</div><h2 id="color-title">Choose a colour</h2><p class="muted" id="color-note">Set the colour for the next player.</p><div class="color-options"><button data-color="red" class="color-choice red"></button><button data-color="yellow" class="color-choice yellow"></button><button data-color="green" class="color-choice green"></button><button data-color="blue" class="color-choice blue"></button></div></div></div>
+  <div id="swap-modal" class="modal hidden"><div class="modal-card"><div class="panel-kicker">7-0 RULE</div><h2>Swap hands with…</h2><p class="muted">Pick the player who gets your cards.</p><div id="swap-options" class="swap-options"></div></div></div>
+  <div id="emote-layer" class="emote-layer" aria-hidden="true"></div>
+  <div id="chat-widget" class="chat-widget hidden">
+    <button id="chat-toggle" class="chat-toggle" aria-expanded="false" aria-controls="chat-panel">Chat <span id="chat-unread" class="chat-unread hidden">0</span></button>
+    <div id="chat-panel" class="chat-panel hidden" role="region" aria-label="Chat">
+      <ul id="chat-list" class="chat-list" role="log" aria-live="polite"></ul>
+      <div id="emote-row" class="emote-row" role="group" aria-label="Quick reactions"></div>
+      <form id="chat-form" class="chat-form" autocomplete="off">
+        <input id="chat-input" maxlength="120" placeholder="Say something…" aria-label="Message">
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+  <div id="rules-widget" class="rules-widget">
+    <button id="rules-toggle" class="rules-toggle" aria-expanded="false" aria-controls="rules-panel">Rules</button>
+    <div id="rules-panel" class="rules-panel hidden" role="region" aria-label="Game rules">
+      <div class="rules-head"><b>How the game works</b><button id="rules-close" class="rules-close" aria-label="Close rules">&times;</button></div>
+      <div class="rules-body">
+        <details open><summary>Playing together</summary>
+          <ul>
+            <li>2–20 players per room, plus up to 30 spectators (anyone joining a running game watches).</li>
+            <li>Your seat is tied to a secret token in the browser. Refresh or lose connection and you return to your seat; a dropped seat is held for 30 seconds.</li>
+            <li>While you are away, your turns are played automatically.</li>
+            <li>On a phone, drag a card upwards to play it (a tap works too).</li>
+          </ul></details>
+        <details><summary>Scoring</summary>
+          <p>Official UNO points: numbers face value, Skip / Reverse / Draw Two 20, Wild / Wild +4 50.</p>
+          <ul>
+            <li><b>Winner scores:</b> the round winner collects everyone's leftover cards; first to the target (default 500) wins.</li>
+            <li><b>Penalty (lowest wins):</b> everyone else adds their own leftover cards; the game ends at the target and the lowest total wins.</li>
+            <li><b>Team mode:</b> seats 1/3/5… against 2/4/6…, sharing one score (even player count, at least 4).</li>
+          </ul></details>
+        <details><summary>Game styles</summary>
+          <ul>
+            <li><b>Classic:</b> the usual rules.</li>
+            <li><b>Chaos:</b> every house rule on (stacking incl. +4, jump-in, 7-0, forced play, challenge +4) with a 30 s turn timer.</li>
+            <li><b>No Mercy:</b> 168-card deck with coloured +4, Wild +6, Wild +10, Wild Reverse +4, Skip Everyone, Discard All and Colour Roulette. Draws stack onto any equal or bigger draw card (in any colour), you draw until you can play, 7-0 is always on, and holding 25 cards knocks you out for the round. Leftover cards count as usual, 250 per knocked-out player; first to 1000. Team mode and penalty scoring are not available.</li>
+          </ul></details>
+        <details><summary>No Mercy special cards</summary>
+          <ul>
+            <li><b>Coloured +4:</b> the next player draws four unless they can stack an eligible draw card. It does not let you choose the colour; its printed colour becomes active.</li>
+            <li><b>Wild +6:</b> choose the colour. The next player draws six, stackable with a draw card worth six or more.</li>
+            <li><b>Wild +10:</b> choose the colour. The next player draws ten; only another +10 can pass it on.</li>
+            <li><b>Wild Reverse +4:</b> choose the colour, reverse direction and give four cards to the player in the new direction. With two players the penalty comes back to you.</li>
+            <li><b>Skip Everyone:</b> every other player is skipped, so you take another turn.</li>
+            <li><b>Discard All:</b> discard every other card in your hand of this card's colour. The Discard All card stays on top.</li>
+            <li><b>Colour Roulette:</b> the next player picks a colour, then draws until they get a card of that colour, and misses their turn.</li>
+          </ul>
+          <p><b>Stacking reminder:</b> draw penalties stack on any draw card of equal or greater value, whatever its colour. If you cannot or do not want to stack, you draw the total.</p></details>
+        <details><summary>Draw and penalty rules</summary>
+          <ul>
+            <li><b>Stack draw cards</b> (on by default): instead of drawing, the next player can add an eligible draw card and pass the total on. A +2 stacks on a +2. A Wild +4 only stacks when <i>Allow +4 stacking</i> is on. If you cannot or will not stack, you draw the total and lose your turn. With this off, penalties apply immediately (Challenge +4 can still defer a Wild +4).</li>
+            <li><b>Allow +4 stacking</b> (off by default): lets a Wild +4 be added to a pending penalty. Needs <i>Stack draw cards</i>.</li>
+            <li><b>Stack Skip cards</b> (on by default): a Skip can be played on another Skip, even of a different colour.</li>
+          </ul></details>
+        <details><summary>Turn and hand rules</summary>
+          <ul>
+            <li><b>Call UNO</b> (on by default): when you are down to one card you have three seconds to press UNO. After that anyone can catch you, and a caught player draws two cards.</li>
+            <li><b>Draw one card</b> (on by default): after drawing because you cannot play, your turn ends. If off, you keep the turn and may play the drawn card if it fits, or pass.</li>
+            <li><b>Jump-in</b> (off by default): play out of turn with an exact match of the top card (same colour and value). Not allowed while a draw penalty is pending or a colour is being chosen. Play continues from you.</li>
+            <li><b>7-0 swap</b> (off by default): a 7 swaps hands with a player you choose; a 0 passes everyone's hand to the next player in the direction of play. Does not trigger on your last card.</li>
+            <li><b>Forced play</b> (off by default): if the card you draw is playable, you must play it immediately. This overrides <i>Draw one card</i>.</li>
+            <li><b>Challenge Wild +4</b> (off by default): the next player may challenge a Wild +4 that starts a new penalty. It is illegal if the player still held the previously active colour. If the challenge succeeds, the +4 player draws four. If it fails, the challenger draws six and misses their turn. Accepting instead means taking the penalty as normal.</li>
+          </ul></details>
+        <details><summary>Turn timer</summary>
+          <p>Off by default. The host can set 20, 30, 60 or 90 seconds. If a connected player runs out of time, the game takes a card for them and ends their turn. Players who disconnect are played for automatically after a short grace period.</p></details>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/shared.js"></script>
+  <script src="/sound.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
